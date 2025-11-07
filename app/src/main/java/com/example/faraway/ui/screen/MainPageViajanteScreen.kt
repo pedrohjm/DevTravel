@@ -1,5 +1,6 @@
 package com.example.faraway.ui.screen
 
+import BottomNavBar
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -54,6 +55,8 @@ import com.example.faraway.ui.theme.AccentColor
 import com.example.faraway.ui.theme.FarAwayTheme
 import com.example.faraway.ui.theme.PrimaryDark
 import com.example.faraway.ui.theme.TagColor
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 
 data class Guide(
     val name: String,
@@ -256,9 +259,8 @@ fun FilterTabs(
     }
 }
 
-// ui.screen.MainScreen.kt
 @Composable
-fun MainScreen() {
+fun MainScreen(navController: NavController) {
     // Exemplo de dados
     val guideList = remember {
         listOf(
@@ -274,7 +276,7 @@ fun MainScreen() {
 
     // Estrutura principal da tela
     Scaffold(
-        bottomBar = { BottomNavBar() }
+        bottomBar = { BottomNavBar(navController = navController) }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -367,6 +369,6 @@ fun BottomNavBar() {
 @Composable
 fun MainPagePreview() {
     FarAwayTheme {
-        MainScreen()
+        MainScreen(navController = rememberNavController())
     }
 }

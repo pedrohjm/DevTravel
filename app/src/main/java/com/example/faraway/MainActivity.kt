@@ -5,13 +5,16 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.faraway.ui.screen.MainScreen
+import com.example.faraway.ui.screen.TripsScreen
 import com.example.faraway.ui.theme.FarAwayTheme
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,29 +22,31 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             FarAwayTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                AppNavigation()
             }
         }
     }
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+fun AppNavigation() {
+    val navController = rememberNavController()
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    FarAwayTheme {
-        Greeting("Android")
+    NavHost(
+        navController = navController,
+        startDestination = Destinations.EXPLORE_ROUTE
+    ) {
+        composable(Destinations.EXPLORE_ROUTE) {
+            MainScreen(navController = navController)
+        }
+
+        composable(Destinations.TRIPS_ROUTE) {
+            TripsScreen(navController = navController)
+        }
+
+        // Adicione as outras rotas (Social, Chat, Perfil)
+        composable(Destinations.SOCIAL_ROUTE) { /* SocialScreen(navController) */ }
+        composable(Destinations.CHAT_ROUTE) { /* ChatScreen(navController) */ }
+        composable(Destinations.PROFILE_ROUTE) { /* ProfileScreen(navController) */ }
     }
 }

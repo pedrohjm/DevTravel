@@ -26,13 +26,11 @@ import androidx.compose.ui.unit.sp
 import com.example.faraway.ui.data.Reservation
 import com.example.faraway.ui.data.ReservationStatus
 
+
+ // Tela principal que exibe a lista de reservas de hospedagem do anfitrião.
 /**
- * Tela principal que exibe a lista de reservas de hospedagem do anfitrião.
- *
- * Esta screen mostra as reservas organizadas em abas por status (Próximos, Concluídos,
- * Pendente, Cancelados) e permite ao anfitrião gerenciar suas reservas.
- *
- * @sample MyReservationScreenPreview
+  Esta screen mostra as reservas organizadas em abas por status (Próximos, Concluídos,
+  Pendente, Cancelados) e permite ao anfitrião gerenciar suas reservas.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -35,11 +35,10 @@ import com.example.faraway.ui.data.ReservationStatus
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyReservationScreen() {
-    // Estado que controla qual aba está selecionada (0 = Próximos, 1 = Concluídos, etc.)
     var selectedTab by remember { mutableStateOf(0) }
     val tabs = listOf("Próximos", "Concluídos", "Pendente", "Cancelados")
 
-    // Lista de dados mockados para demonstração - em app real viria de uma API ou banco de dados
+    // Lista de dados utilizados para demonstração
     val reservations = remember {
         listOf(
             Reservation("Sofia Lima",

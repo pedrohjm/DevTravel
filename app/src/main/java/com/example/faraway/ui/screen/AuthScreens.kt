@@ -1,4 +1,4 @@
-package com.example.faraway
+package com.example.faraway.ui.screen
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -37,8 +37,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material.icons.filled.Flight
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -46,6 +46,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.NavOptionsBuilder
+import androidx.navigation.navOptions
+import com.example.faraway.Destinations
 import com.example.faraway.ui.theme.FarAwayTheme
 
 // Definição das cores baseadas na imagem
@@ -58,7 +62,7 @@ val FarwayTextLight = Color.White
 val FarwayInputBackground = Color(0xFFF5F5F5)
 
 @Composable
-fun AuthScreen() {
+fun AuthScreen(navController: NavController) {
     var isLoginTab by remember { mutableStateOf(true) }
 
     Box(
@@ -127,9 +131,8 @@ fun AuthScreen() {
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp)
-                            .border(1.dp, Color.LightGray, RoundedCornerShape(8.dp))
                             .clip(RoundedCornerShape(8.dp)),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         TabButton(
                             text = "Login",
@@ -156,9 +159,9 @@ fun AuthScreen() {
                     }
 
                     if (isLoginTab) {
-                        LoginContent()
+                        LoginContent(navController = navController)
                     } else {
-                        CadastroContent()
+                        CadastroContent(navController = navController)
                     }
                 }
             }
@@ -205,7 +208,7 @@ fun TabButton(
 }
 
 @Composable
-fun LoginContent() {
+fun LoginContent(navController: NavController) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -254,7 +257,16 @@ fun LoginContent() {
 
         // Botão Entrar
         Button(
-            onClick = { /* Lógica de Login */ },
+            onClick = {
+                navController.navigate(
+                    route = Destinations.EXPLORE_ROUTE,
+                    navOptions = navOptions {
+                        popUpTo(Destinations.AUTH_ROUTE) {
+                            inclusive = true
+                        }
+                    }
+                )
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
@@ -267,8 +279,31 @@ fun LoginContent() {
 }
 
 @Composable
-fun CadastroContent() {
+fun CadastroContent(navController: NavController) {
     var selectedProfile by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(selectedProfile) {
+        when (selectedProfile) {
+            "Guia" -> {
+                navController.navigate(Destinations.GUIDE_DASHBOARD_ROUTE) {
+                    // Limpa a pilha de autenticação/cadastro
+                    popUpTo(Destinations.AUTH_ROUTE) { inclusive = true }
+                }
+            }
+            "Anfitrião" -> {
+                navController.navigate(Destinations.HOST_DASHBOARD_ROUTE) {
+                    // Limpa a pilha de autenticação/cadastro
+                    popUpTo(Destinations.AUTH_ROUTE) { inclusive = true }
+                }
+            }
+            // "Membro" e "Amigo" podem navegar para a tela principal ou outra rota
+            "Membro", "Amigo" -> {
+                navController.navigate(Destinations.EXPLORE_ROUTE) {
+                    popUpTo(Destinations.AUTH_ROUTE) { inclusive = true }
+                }
+            }
+        }
+    }
 
     // Botões de seleção de perfil
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -325,14 +360,5 @@ fun ProfileButton(text: String, modifier: Modifier = Modifier, isSelected: Boole
         elevation = ButtonDefaults.buttonElevation(0.dp)
     ) {
         Text(text = text, fontWeight = FontWeight.SemiBold)
-    }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun AuthScreenPreview2() {
-    FarAwayTheme {
-        AuthScreen()
     }
 }

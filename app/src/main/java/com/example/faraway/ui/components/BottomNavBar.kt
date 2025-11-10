@@ -13,71 +13,82 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.faraway.Destinations // Importe o seu objeto de rotas
 import com.example.faraway.ui.theme.AccentColor // Sua cor de destaque
 
+// ui.components/BottomNavBar.kt
+
+// Defina uma classe de dados para os itens da barra de navegação
+data class NavItem(
+    val route: String,
+    val icon: ImageVector,
+    val label: String
+)
+
 @Composable
-fun BottomNavBar(navController: NavController) {
+fun BottomNavBar(
+    navController: NavController,
+    // NOVO PARÂMETRO: Lista de itens a serem exibidos
+    navItems: List<NavItem>,
+    // NOVO PARÂMETRO: Rota inicial do NavHost (para o popUpTo)
+    startRoute: String
+) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    // Definição dos itens da barra de navegação
-    val items = listOf(
-        Triple(Destinations.EXPLORE_ROUTE, Icons.Filled.Search, "Explorar"),
-        Triple(Destinations.TRIPS_ROUTE, Icons.Filled.DateRange, "Viagens"),
-        Triple(Destinations.SOCIAL_ROUTE, Icons.Filled.People, "Social"),
-        Triple(Destinations.CHAT_ROUTE, Icons.AutoMirrored.Filled.Chat, "Chat"),
-        Triple(Destinations.PROFILE_ROUTE, Icons.Filled.Person, "Perfil")
-    )
-
     NavigationBar(
-        containerColor = Color.White, // Fundo branco
-        tonalElevation = 0.dp // Remove a sombra padrão
+        containerColor = Color.White,
+        tonalElevation = 0.dp
     ) {
-        items.forEach { (route, icon, label) ->
-            val selected = currentRoute == route
+        // Itera sobre a lista de itens passada como parâmetro
+        navItems.forEach { item ->
+            // A lógica de seleção agora verifica se a rota atual começa com a rota do item
+            // Isso é útil para telas aninhadas (ex: /reservas/detalhe)
+            val selected = currentRoute?.startsWith(item.route) == true
+            val iconColor = if (selected) AccentColor else Color.Gray
 
             NavigationBarItem(
                 selected = selected,
                 onClick = {
-                    navController.navigate(route) {
-                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+                    // Navega para a rota do item
+                    navController.navigate(item.route) {
+                        // popUpTo agora usa a rota inicial passada como parâmetro
+                        popUpTo(startRoute) { saveState = true }
                         launchSingleTop = true
                         restoreState = true
                     }
                 },
                 icon = {
-                    // LÓGICA PARA O CÍRCULO NO ITEM SELECIONADO
                     Box(
                         modifier = Modifier
-                            .size(40.dp) // Tamanho do círculo
+                            .size(48.dp) // Tamanho do item para o círculo
                             .background(
-                                color = if (selected) AccentColor.copy(alpha = 0.1f) else Color.Transparent, // Fundo com 10% de opacidade
+                                color = if (selected) AccentColor.copy(alpha = 0.1f) else Color.Transparent,
                                 shape = CircleShape
                             ),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            imageVector = icon,
-                            contentDescription = label,
-                            tint = if (selected) AccentColor else Color.Gray, // Cor do ícone
+                            imageVector = item.icon,
+                            contentDescription = item.label,
+                            tint = iconColor, // Usa a cor definida acima
                             modifier = Modifier.size(24.dp)
                         )
                     }
                 },
                 label = {
+                    // IMPLEMENTAÇÃO DO RÓTULO
                     Text(
-                        text = label,
-                        color = if (selected) AccentColor else Color.Gray, // Cor do texto
-                        style = MaterialTheme.typography.labelSmall
+                        text = item.label,
+                        color = iconColor // Usa a mesma cor para o texto
                     )
                 },
-                // Remove o efeito de clique padrão para que o nosso Box controle o visual
                 colors = NavigationBarItemDefaults.colors(
-                    indicatorColor = Color.Transparent // Remove o indicador padrão
+                    indicatorColor = Color.Transparent
                 )
             )
         }

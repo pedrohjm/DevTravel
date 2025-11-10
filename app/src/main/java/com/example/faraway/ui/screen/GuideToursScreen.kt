@@ -1,5 +1,6 @@
 package com.example.faraway.ui.screen
 
+import BottomNavBar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,13 +23,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.faraway.Destinations
+import com.example.faraway.hostNavItems
 import com.example.faraway.ui.data.Tour
 import com.example.faraway.ui.data.TourStatus
 
 //Tela principal que exibe a lista de tours do guia turístico.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyTourScreen() {
+fun MyTourScreen(navController: NavController) {
     // Estado que controla qual aba está selecionada (0 = Próximos, 1 = Concluídos, etc.)
     var selectedTab by remember { mutableStateOf(0) }
     val tabs = listOf("Próximos", "Concluídos", "Pendente", "Cancelados")
@@ -105,10 +110,21 @@ fun MyTourScreen() {
 
         bottomBar = {
             // Barra de navegação inferior com 4 opções principais do app
+            BottomNavBar(
+                navController = navController,
+                navItems = hostNavItems, // Lista específica do Anfitrião
+                startRoute = Destinations.HOST_DASHBOARD_ROUTE // Rota inicial para popUpTo
+            )
             NavigationBar(containerColor = Color.White) {
                 NavigationBarItem(
                     selected = false,
-                    onClick = { /* ação Explorar */ },
+                    onClick = {
+                        navController.navigate(Destinations.GUIDE_DASHBOARD_ROUTE) {
+                            // Configuração para evitar múltiplas instâncias
+                            launchSingleTop = true
+                            // Opcional: popUpTo para limpar a pilha, se necessário
+                        }
+                    },
                     icon = { Icon(Icons.Default.Search, contentDescription = "Explorar") },
                     label = { Text("Explorar") }
                 )
@@ -352,10 +368,11 @@ fun TourCard(tour: Tour) {
 /**
  * Visualizar a tela MyTourScreen no Android Studio.
  */
+
 @Preview(showBackground = true)
 @Composable
 fun MyTourScreenPreview() {
     MaterialTheme {
-        MyTourScreen()
+        MyTourScreen(navController = rememberNavController())
     }
 }

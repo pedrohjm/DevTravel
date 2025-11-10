@@ -1,5 +1,6 @@
 package com.example.faraway.ui.screen
 
+import BottomNavBar
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -30,6 +31,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.faraway.Destinations
+import com.example.faraway.travelerNavItems
 import com.example.faraway.ui.theme.FarAwayTheme
 import com.example.faraway.ui.theme.*
 
@@ -37,7 +42,7 @@ import com.example.faraway.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GuidePanelScreen() {
+fun GuidePanelScreen(navController: NavController) {
     val selectedItem = remember { mutableStateOf("Explorar") }
 
     Scaffold(
@@ -70,6 +75,11 @@ fun GuidePanelScreen() {
         },
         // Barra Inferior
         bottomBar = {
+            BottomNavBar(
+                navController = navController,
+                navItems = travelerNavItems,
+                startRoute = Destinations.HOST_DASHBOARD_ROUTE // Rota inicial do NavHost
+            )
             NavigationBar {
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Search, contentDescription = "Explorar") },
@@ -81,7 +91,13 @@ fun GuidePanelScreen() {
                     icon = { Icon(Icons.Default.CalendarMonth, contentDescription = "Tours") },
                     label = { Text("Tours") },
                     selected = selectedItem.value == "Tours",
-                    onClick = { selectedItem.value = "Tours" }
+                    onClick = {
+                        navController.navigate(Destinations.GUIDE_TOURS_ROUTE) {
+                            // Configuração para evitar múltiplas instâncias
+                            launchSingleTop = true
+                            // Opcional: popUpTo para limpar a pilha, se necessário
+                        }
+                    }
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = "Chat") },
@@ -295,6 +311,6 @@ private fun GuideRequestCard(
 @Composable
 fun GuidePanelPreview() {
     FarAwayTheme {
-        GuidePanelScreen()
+        GuidePanelScreen(navController = rememberNavController())
     }
 }

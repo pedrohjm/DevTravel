@@ -20,6 +20,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.faraway.Destinations
+import com.example.faraway.travelerNavItems
 import com.example.faraway.ui.data.Trip
 import com.example.faraway.ui.data.TripStatus
 import com.example.faraway.ui.components.TripCard
@@ -51,7 +53,13 @@ fun TripsScreen(navController: NavController) {
     }
 
     Scaffold(
-        bottomBar = { BottomNavBar(navController = navController) }
+        bottomBar = {
+            BottomNavBar(
+                navController = navController,
+                navItems = travelerNavItems,
+                startRoute = Destinations.EXPLORE_ROUTE // Rota inicial do NavHost
+            )
+        }
     ) { paddingValues ->
         Column(
             modifier = Modifier

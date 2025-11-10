@@ -57,7 +57,8 @@ import com.example.faraway.ui.theme.PrimaryDark
 import com.example.faraway.ui.theme.TagColor
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-
+import com.example.faraway.Destinations
+import com.example.faraway.travelerNavItems
 data class Guide(
     val name: String,
     val location: String,
@@ -276,7 +277,12 @@ fun MainScreen(navController: NavController) {
 
     // Estrutura principal da tela
     Scaffold(
-        bottomBar = { BottomNavBar(navController = navController) }
+        bottomBar = {
+            BottomNavBar(
+                navController = navController,
+                navItems = travelerNavItems,
+                startRoute = Destinations.EXPLORE_ROUTE // Rota inicial do NavHost
+        ) }
     ) { paddingValues ->
         Column(
             modifier = Modifier

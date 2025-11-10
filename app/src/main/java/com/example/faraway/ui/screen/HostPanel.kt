@@ -1,5 +1,6 @@
 package com.example.faraway.ui.screen
 
+import BottomNavBar
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -30,6 +31,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.faraway.Destinations
+import com.example.faraway.hostNavItems
+import com.example.faraway.travelerNavItems
 import com.example.faraway.ui.theme.FarAwayTheme
 import com.example.faraway.ui.theme.*
 
@@ -38,7 +44,7 @@ Painel do Anfitrião.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PainelDoAnfitriaoScreen() {
+fun PainelDoAnfitriaoScreen(navController: NavController) {
     val selectedItem = remember { mutableStateOf("Explorar") }
 
     Scaffold(
@@ -72,6 +78,11 @@ fun PainelDoAnfitriaoScreen() {
         },
         bottomBar = {
             // Barra de Navegação do Anfitrião
+            BottomNavBar(
+                navController = navController,
+                navItems = travelerNavItems,
+                startRoute = Destinations.HOST_DASHBOARD_ROUTE // Rota inicial do NavHost
+            )
             NavigationBar {
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Search, contentDescription = "Explorar") },
@@ -83,7 +94,13 @@ fun PainelDoAnfitriaoScreen() {
                     icon = { Icon(Icons.Default.CalendarMonth, contentDescription = "Reservas") },
                     label = { Text("Reservas") }, // Diferente do Guia
                     selected = selectedItem.value == "Reservas",
-                    onClick = { selectedItem.value = "Reservas" }
+                    onClick = {
+                        navController.navigate(Destinations.HOST_RESERVATION_ROUTE) {
+                        // Configuração para evitar múltiplas instâncias
+                        launchSingleTop = true
+                        // Opcional: popUpTo para limpar a pilha, se necessário
+                        }
+                    }
                 )
                 NavigationBarItem(
                     // Ícone corrigido
@@ -281,6 +298,6 @@ PREVIEW
 @Composable
 fun PainelDoAnfitriaoPreview() {
     FarAwayTheme {
-        PainelDoAnfitriaoScreen()
+        PainelDoAnfitriaoScreen(navController = rememberNavController())
     }
 }

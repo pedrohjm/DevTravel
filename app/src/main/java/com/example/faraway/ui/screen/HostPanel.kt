@@ -11,7 +11,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
-import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
@@ -35,14 +34,11 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.faraway.Destinations
-import com.example.faraway.hostNavItems
 import com.example.faraway.travelerNavItems
 import com.example.faraway.ui.theme.FarAwayTheme
 import com.example.faraway.ui.theme.*
 
-/**
-Painel do Anfitrião.
- */
+/** Painel do Anfitrião.*/
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PainelDoAnfitriaoScreen(navController: NavController) {
@@ -84,7 +80,7 @@ fun PainelDoAnfitriaoScreen(navController: NavController) {
                 navItems = travelerNavItems,
                 startRoute = Destinations.HOST_DASHBOARD_ROUTE // Rota inicial do NavHost
             )
-            NavigationBar {
+            NavigationBar(containerColor = Color.White){
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Search, contentDescription = "Explorar") },
                     label = { Text("Explorar") },
@@ -97,14 +93,11 @@ fun PainelDoAnfitriaoScreen(navController: NavController) {
                     selected = selectedItem.value == "Reservas",
                     onClick = {
                         navController.navigate(Destinations.HOST_RESERVATION_ROUTE) {
-                        // Configuração para evitar múltiplas instâncias
                         launchSingleTop = true
-                        // Opcional: popUpTo para limpar a pilha, se necessário
                         }
                     }
                 )
                 NavigationBarItem(
-                    // Ícone corrigido
                     icon = { Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = "Chat") },
                     label = { Text("Chat") },
                     selected = selectedItem.value == "Chat",
@@ -123,9 +116,7 @@ fun PainelDoAnfitriaoScreen(navController: NavController) {
     }
 }
 
-/**
- * Conteúdo da tela do Anfitrião
- */
+/** Conteúdo da tela do Anfitrião */
 @Composable
 private fun HostDashboardContent(innerPadding: PaddingValues) {
     Column(
@@ -135,12 +126,12 @@ private fun HostDashboardContent(innerPadding: PaddingValues) {
             .verticalScroll(rememberScrollState())
             .background(MaterialTheme.colorScheme.background)
     ) {
-        // --- Seção Hóspedes Atuais ---
+        // Seção Hóspedes Atuais
         Text("Hóspedes Atuais", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(8.dp))
         Card(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(25.dp),
             colors = CardDefaults.cardColors(containerColor = CurrentInfoCardBlue) // Cor do tema
         ) {
             Column(Modifier.padding(16.dp)) {
@@ -152,7 +143,7 @@ private fun HostDashboardContent(innerPadding: PaddingValues) {
 
         Spacer(Modifier.height(24.dp))
 
-        // --- Seção Novas Solicitações ---
+        // Seção Novas Solicitações
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("Novas Solicitações", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
             Spacer(Modifier.width(8.dp))
@@ -235,8 +226,14 @@ private fun HostRequestCard(
                 // Botão Aceitar
                 Button(
                     onClick = { /* Aceitar */ },
-                    colors = ButtonDefaults.buttonColors(containerColor = AcceptButtonColor),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    border = BorderStroke(1.dp, AcceptButtonColor2),
+                    // cor do conteúdo (ícone E texto)
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor =AcceptButtonColor2,
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+
                 ) {
                     Icon(
                         Icons.Default.Check,
@@ -257,7 +254,8 @@ private fun HostRequestCard(
                     // cor do conteúdo (ícone E texto)
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = DeclineButtonColor
-                    )
+                    ),
+                    shape = RoundedCornerShape(8.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
@@ -278,11 +276,12 @@ private fun HostRequestCard(
                     border = BorderStroke(1.dp, PendingButtonColor),
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = PendingButtonColor2
-                    )
+                    ),
+                    shape = RoundedCornerShape(8.dp)
                 ) {
                     Text(
                         text = "Pendente",
-                        fontSize = 10.sp
+                        fontSize = 12.sp
                     )
                 }
 
@@ -292,9 +291,7 @@ private fun HostRequestCard(
     }
 }
 
-/**
-PREVIEW
- */
+/** PREVIEW*/
 @Preview(showBackground = true)
 @Composable
 fun PainelDoAnfitriaoPreview() {

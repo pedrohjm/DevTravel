@@ -14,15 +14,18 @@ val Pink40 = Color(0xFF7D5260)
 val PrimaryDark = Color(0xFF193568) // Azul Escuro do Header
 val AccentColor = Color(0xFF00BCD4) // Azul Claro do Botão "Ver Perfil" e Ícone "Explorar"
 val TagColor = Color(0xFF4DD0E1) // Azul da Tag "Guia"
-val LightGray = Color(0xFFF0F0F0) // Fundo dos botões não selecionados
+val LightGray = Color(0xFFFFFFFF) // Fundo dos botões não selecionados
 
 
 
-// Cores da tela do Painel do Guia
+// Cores da tela do Painel do Guia  E Anfitriao
 val GuideHostTopBarBlue = Color(0xFF113162)
-val CurrentInfoCardBlue = Color(0x8C8BE3FA)
+val CurrentInfoCardBlue = Color(0x7D8BE3FA)
 val NotificationBadgeBlue = Color(0xFF00D4FF)
-val AcceptButtonColor = Color(0xFF00C8D7)
+val AcceptButtonColor = Color(0xFF03A9F4)
+
+val AcceptButtonColor2 = Color(0xFF16A34A)
+
 val DeclineButtonColor = Color(0xFFF44336)
 val DeclineButtonColor2 = Color(0x80F44336)
 val PendingButtonColor = Color(0xFFFFEB3B)

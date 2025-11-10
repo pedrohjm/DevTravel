@@ -61,7 +61,7 @@ fun GuidePanelScreen(navController: NavController) {
                         Icon(Icons.Default.Person, contentDescription = "Perfil")
                     }
                 },
-                // --- DEGRADÊ APLICADO AQUI ---
+                //  DEGRADÊ APLICADO AQUI
                 modifier = Modifier.background(
                     Brush.horizontalGradient(
                         colors = listOf(Color(0xFF2364C8), Color(0xFF113162))
@@ -81,7 +81,7 @@ fun GuidePanelScreen(navController: NavController) {
                 navItems = travelerNavItems,
                 startRoute = Destinations.HOST_DASHBOARD_ROUTE // Rota inicial do NavHost
             )
-            NavigationBar {
+            NavigationBar(containerColor = Color.White){
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Search, contentDescription = "Explorar") },
                     label = { Text("Explorar") },
@@ -119,9 +119,7 @@ fun GuidePanelScreen(navController: NavController) {
     }
 }
 
-/**
-O CONTEÚDO DA TELA DO GUIA
- */
+/** O CONTEÚDO DA TELA DO GUIA*/
 @Composable
 private fun GuideDashboardContent(innerPadding: PaddingValues) {
     Column(
@@ -135,8 +133,9 @@ private fun GuideDashboardContent(innerPadding: PaddingValues) {
         Spacer(Modifier.height(8.dp))
         Card(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = CurrentInfoCardBlue)
+            shape = RoundedCornerShape(25.dp),
+            colors = CardDefaults.cardColors(containerColor = CurrentInfoCardBlue),
+
         ) {
             Column(Modifier.padding(16.dp)) {
                 Text("Amanda Nunes", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
@@ -168,7 +167,7 @@ private fun GuideDashboardContent(innerPadding: PaddingValues) {
                 modifier = Modifier
                     .background(NotificationBadgeBlue, shape = CircleShape)
                     .padding(horizontal = 8.dp, vertical = 2.dp),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 Text("2", color = Color.White, fontWeight = FontWeight.Bold)
             }
@@ -191,9 +190,7 @@ private fun GuideDashboardContent(innerPadding: PaddingValues) {
     }
 }
 
-/**
-O CARTÃO DE SOLICITAÇÃO
- */
+/** O CARTÃO DE SOLICITAÇÃO*/
 @Composable
 private fun GuideRequestCard(
     name: String,
@@ -252,18 +249,22 @@ private fun GuideRequestCard(
                 // Botão Aceitar
                 Button(
                     onClick = { /* Aceitar */ },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = AcceptButtonColor,
-                        contentColor = Color.White
+                    modifier = Modifier.weight(1f),
+                    border = BorderStroke(1.dp, AcceptButtonColor2),
+                    // cor do conteúdo (ícone E texto)
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor =AcceptButtonColor2,
                     ),
-                    modifier = Modifier.weight(1f)
+                    shape = RoundedCornerShape(8.dp)
+
                 ) {
                     Icon(
                         Icons.Default.Check,
                         contentDescription = "Aceitar",
-                        modifier = Modifier.size(12.dp)) // Tamanho do seu código
-                    Spacer(Modifier.width(4.dp))
-                    Text("Aceitar", fontSize = 12.sp) // Tamanho do seu código
+                        //modifier = Modifier.size(ButtonDefaults.IconSize),
+                        modifier = Modifier.size(12.dp))
+//                    Spacer(Modifier.width(4.dp))
+                    Text("Aceitar", fontSize = 12.sp)
                 }
                 Spacer(Modifier.width(8.dp))
 
@@ -271,20 +272,21 @@ private fun GuideRequestCard(
                 OutlinedButton(
                     onClick = { /* Recusar */ },
                     modifier = Modifier.weight(1f),
-                    border = BorderStroke(1.dp, DeclineButtonColor), // Corrigido
+                    border = BorderStroke(1.dp, DeclineButtonColor),
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = DeclineButtonColor
-                    )
+                    ),
+                    shape = RoundedCornerShape(8.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = "Recusar",
-                        modifier = Modifier.size(12.dp) // Tamanho do seu código
+                        modifier = Modifier.size(12.dp)
                     )
                     Spacer(Modifier.width(4.dp))
                     Text(
                         text = "Recusar",
-                        fontSize = 10.sp // Tamanho do seu código
+                        fontSize = 10.sp
                     )
                 }
                 Spacer(Modifier.width(8.dp))
@@ -293,14 +295,15 @@ private fun GuideRequestCard(
                 OutlinedButton(
                     onClick = { /* Ação de pendente */ },
                     modifier = Modifier.weight(1f),
-                    border = BorderStroke(1.dp, PendingButtonColor), // Corrigido
+                    border = BorderStroke(1.dp, PendingButtonColor),
                     colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = PendingButtonColor // Corrigido
-                    )
+                        contentColor = PendingButtonColor2
+                    ),
+                    shape = RoundedCornerShape(8.dp)
                 ) {
                     Text(
                         text = "Pendente",
-                        fontSize = 10.sp // Tamanho do seu código
+                        fontSize = 12.sp
                     )
                 }
             }

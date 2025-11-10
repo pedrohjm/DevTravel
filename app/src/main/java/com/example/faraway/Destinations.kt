@@ -6,4 +6,8 @@ object Destinations {
     const val SOCIAL_ROUTE = "social"
     const val CHAT_ROUTE = "chat"
     const val PROFILE_ROUTE = "profile"
+
+    //  Guide Panel
+    const val GUIDE_DASHBOARD_ROUTE = "guide_dashboard"
+    const val HOST_DASHBOARD_ROUTE = "host_dashboard"
 }

@@ -14,6 +14,7 @@ import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
@@ -91,7 +92,7 @@ fun PainelDoAnfitriaoScreen(navController: NavController) {
                     onClick = { selectedItem.value = "Explorar" }
                 )
                 NavigationBarItem(
-                    icon = { Icon(Icons.Default.CalendarMonth, contentDescription = "Reservas") },
+                    icon = { Icon(Icons.Default.DateRange, contentDescription = "Reservas") },
                     label = { Text("Reservas") }, // Diferente do Guia
                     selected = selectedItem.value == "Reservas",
                     onClick = {

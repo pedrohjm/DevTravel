@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
@@ -88,7 +89,7 @@ fun GuidePanelScreen(navController: NavController) {
                     onClick = { selectedItem.value = "Explorar" }
                 )
                 NavigationBarItem(
-                    icon = { Icon(Icons.Default.CalendarMonth, contentDescription = "Tours") },
+                    icon = { Icon(Icons.Default.DateRange, contentDescription = "Tours") },
                     label = { Text("Tours") },
                     selected = selectedItem.value == "Tours",
                     onClick = {

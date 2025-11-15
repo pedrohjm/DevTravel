@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "324425972600",
+    "project_id": "faraway-9b16f",
+    "storage_bucket": "faraway-9b16f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:324425972600:android:cd44a5f81daab66444a68d",
+        "android_client_info": {
+          "package_name": "com.example.faraway"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyApHn4WFKYN65y47xGidgtLi5W1sc6RXbo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

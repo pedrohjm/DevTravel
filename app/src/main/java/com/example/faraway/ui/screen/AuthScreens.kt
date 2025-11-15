@@ -38,19 +38,24 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material.icons.filled.Flight
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavOptionsBuilder
-import androidx.navigation.navOptions
 import com.example.faraway.Destinations
-import com.example.faraway.ui.theme.FarAwayTheme
+import com.example.faraway.ui.data.AuthRepository
+import com.example.faraway.ui.viewmodel.AuthViewModel
+import com.example.faraway.ui.viewmodel.AuthViewModelFactory
 
 // Definição das cores baseadas na imagem
 val FarwayBlueDark = Color(0xFF16213E)
@@ -64,6 +69,12 @@ val FarwayInputBackground = Color(0xFFF5F5F5)
 @Composable
 fun AuthScreen(navController: NavController) {
     var isLoginTab by remember { mutableStateOf(true) }
+
+    val authRepository = remember { AuthRepository() }
+    val factory = remember(authRepository) { AuthViewModelFactory(authRepository) }
+    val viewModel: AuthViewModel = viewModel(factory = factory)
+
+    val snackbarHostState = remember { SnackbarHostState() }
 
     Box(
         modifier = Modifier
@@ -159,7 +170,7 @@ fun AuthScreen(navController: NavController) {
                     }
 
                     if (isLoginTab) {
-                        LoginContent(navController = navController)
+                        LoginContent(navController = navController, viewModel = viewModel,snackbarHostState = snackbarHostState)
                     } else {
                         CadastroContent(navController = navController)
                     }
@@ -175,6 +186,10 @@ fun AuthScreen(navController: NavController) {
                 modifier = Modifier.padding(top = 16.dp)
             )
         }
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter) // Posiciona na parte de baixo
+        )
     }
 }
 
@@ -194,7 +209,13 @@ fun TabButton(
         onClick = onClick,
         modifier = modifier
             .fillMaxHeight()
-            .then(if (hasBorder) Modifier.border(1.dp, Color.LightGray, RoundedCornerShape(8.dp)) else Modifier),
+            .then(
+                if (hasBorder) Modifier.border(
+                    1.dp,
+                    Color.LightGray,
+                    RoundedCornerShape(8.dp)
+                ) else Modifier
+            ),
         colors = ButtonDefaults.buttonColors(
             containerColor = if (isSelected) selectedColor else unselectedColor,
             contentColor = if (isSelected) selectedContentColor else unselectedContentColor
@@ -208,9 +229,16 @@ fun TabButton(
 }
 
 @Composable
-fun LoginContent(navController: NavController) {
+fun LoginContent(
+    navController: NavController,
+    viewModel: AuthViewModel,
+    snackbarHostState: SnackbarHostState
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+
+    val authState by viewModel.authState.collectAsState()
+    val isLoading = authState is AuthViewModel.AuthState.Loading
 
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         // E-mail
@@ -258,22 +286,53 @@ fun LoginContent(navController: NavController) {
         // Botão Entrar
         Button(
             onClick = {
-                navController.navigate(
-                    route = Destinations.EXPLORE_ROUTE,
-                    navOptions = navOptions {
-                        popUpTo(Destinations.AUTH_ROUTE) {
-                            inclusive = true
-                        }
-                    }
-                )
+                viewModel.login(email, password)
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
+            enabled = !isLoading,
             colors = ButtonDefaults.buttonColors(containerColor = FarwayAccent),
             shape = RoundedCornerShape(8.dp)
         ) {
-            Text("Entrar", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = FarwayTextLight)
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = Color.White,
+                    strokeWidth = 3.dp
+                )
+            } else {
+                Text("Entrar", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = FarwayTextLight)
+            }
+        }
+    }
+
+    LaunchedEffect(authState) {
+        when (authState) {
+            is AuthViewModel.AuthState.Success -> {
+                val role = (authState as AuthViewModel.AuthState.Success).role
+
+                // Navegação Condicional Baseada no Papel
+                val destinationRoute = when (role) {
+                    "Guia" -> Destinations.GUIDE_TOURS_ROUTE
+                    "Anfitrião" -> Destinations.HOST_RESERVATION_ROUTE
+                    else -> Destinations.EXPLORE_ROUTE // Membro, Amigo, ou qualquer outro
+                }
+
+                navController.navigate(destinationRoute) {
+                    popUpTo(Destinations.AUTH_ROUTE) { inclusive = true } // Limpa a pilha de autenticação
+                }
+            }
+            is AuthViewModel.AuthState.Error -> {
+                val errorMessage = (authState as AuthViewModel.AuthState.Error).message
+                // CORREÇÃO: Mostrar Snackbar com a mensagem de erro
+                snackbarHostState.showSnackbar(
+                    message = errorMessage,
+                    actionLabel = "OK",
+                    duration = SnackbarDuration.Short
+                )
+            }
+            else -> {}
         }
     }
 }

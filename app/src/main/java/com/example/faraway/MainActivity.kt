@@ -24,6 +24,7 @@ import com.example.faraway.ui.screen.MyTourScreen
 import com.example.faraway.ui.screen.MyReservationScreen
 import com.example.faraway.ui.screen.TripsScreen
 import com.example.faraway.ui.theme.FarAwayTheme
+import com.google.firebase.FirebaseApp
 
 val travelerNavItems = listOf(
     NavItem(Destinations.EXPLORE_ROUTE, Icons.Filled.Search, "Explorar"),
@@ -46,6 +47,7 @@ val guideNavItems = listOf(
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        FirebaseApp.initializeApp(this)
         enableEdgeToEdge()
         setContent {
             FarAwayTheme {

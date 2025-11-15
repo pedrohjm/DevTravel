@@ -2,13 +2,15 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+
+    // PLUGIN DO GOOGLE SERVICES
+    id("com.google.gms.google-services")
 }
 
 android {
     namespace = "com.example.faraway"
-    compileSdk {
-        version = release(36)
-    }
+    // Corrigido: Usando a versão diretamente, assumindo que 'release(36)' é uma função auxiliar
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.faraway"
@@ -42,16 +44,65 @@ android {
 }
 
 dependencies {
+    // -----------------------------------------------------------------
+    // 1. DEPENDÊNCIAS DO COMPOSE E CORE
+    // -----------------------------------------------------------------
+
+    // BOM do Compose
+    implementation(platform(libs.androidx.compose.bom))
+
+    // Core KTX e Lifecycle
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
+
+    // Compose UI e Material
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
-    implementation(libs.generativeai)
     implementation(libs.androidx.compose.foundation)
+
+    // Ícones Estendidos (Corrigido: Usando string direta)
+    implementation("androidx.compose.material:material-icons-extended")
+
+    // -----------------------------------------------------------------
+    // 2. DEPENDÊNCIAS DO VIEWMODEL E COMPOSE
+    // -----------------------------------------------------------------
+    // Para usar o Composable viewModel() e o ViewModelProvider.Factory
+    // (Corrigido: Usando string direta)
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
+
+    // -----------------------------------------------------------------
+    // 3. DEPENDÊNCIAS DO FIREBASE
+    // -----------------------------------------------------------------
+    // Firebase BOM (para gerenciar versões)
+    implementation(platform("com.google.firebase:firebase-bom:34.5.0"))
+
+    // Firebase Auth (Corrigido: Usando string direta SEM versão para que o BOM gerencie)
+    implementation("com.google.firebase:firebase-auth-ktx:22.3.0")
+
+    // Outras dependências do Firebase (já estavam sem versão, o que é correto com o BOM)
+    implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-analytics")
+
+    // Corrotinas para integração com Firebase (para usar .await())
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.0")
+
+    // -----------------------------------------------------------------
+    // 4. DEPENDÊNCIAS DE NAVEGAÇÃO
+    // -----------------------------------------------------------------
+    // (Corrigido: Usando string direta)
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+
+    // -----------------------------------------------------------------
+    // 5. DEPENDÊNCIAS ADICIONAIS
+    // -----------------------------------------------------------------
+    implementation(libs.generativeai)
+
+    // -----------------------------------------------------------------
+    // 6. DEPENDÊNCIAS DE TESTE
+    // -----------------------------------------------------------------
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -59,18 +110,4 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-
-    implementation("androidx.core:core-ktx:1.13.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.2")
-    implementation("androidx.activity:activity-compose:1.9.0")
-    implementation(platform("androidx.compose:compose-bom:2024.06.00"))
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-graphics")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3")
-    implementation("androidx.compose.material:material-icons-extended") // Para ícones
-    implementation("androidx.navigation:navigation-compose:2.7.7")
-
-    // Para LazyColumn (RecyclerView do Compose)
-    implementation("androidx.compose.foundation:foundation")
 }

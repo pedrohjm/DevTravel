@@ -1,4 +1,3 @@
-// ui/screen/HostProfileScreen.kt
 package com.example.faraway.ui.screen
 
 import androidx.compose.foundation.background
@@ -17,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -26,35 +26,29 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-
-// -----------------------------------------------------------------
-// CORES AUXILIARES (Prefixadas com Host para evitar conflito)
-// -----------------------------------------------------------------
-val HostPrimaryColor = Color(0xFF00BCD4) // Cor principal do cabeçalho (Ciano/Turquesa)
-val HostAccentColor = Color(0xFF00BCD4) // Cor de destaque (A mesma do cabeçalho)
-val HostLightBlue = Color(0xFFE0F7FA) // Azul claro para os cards de configuração
-val HostCardBackground = Color(0xFFFFFFFF) // Fundo branco para cards
-val HostTextColor = Color(0xFF333333) // Cor de texto padrão
-val HostLogoutRed = Color(0xFFE57373) // Vermelho para o botão de Sair
-val HostLogoutLightRed = Color(0xFFFFEBEE) // Vermelho claro para o fundo do botão de Sair
+import com.example.faraway.ui.theme.HostCardBackground
+import com.example.faraway.ui.theme.HostGradientEnd
+import com.example.faraway.ui.theme.HostGradientStart
+import com.example.faraway.ui.theme.HostLightBlue
+import com.example.faraway.ui.theme.HostLogoutLightRed
+import com.example.faraway.ui.theme.HostLogoutRed
+import com.example.faraway.ui.theme.HostTextColor
 
 // -----------------------------------------------------------------
 // PLACEHOLDERS PARA COMPONENTES DE NAVEGAÇÃO
 // -----------------------------------------------------------------
 
-// Placeholder para NavItem (data class)
 data class HostNavItem(
     val route: String,
     val icon: ImageVector,
     val label: String
 )
 
-// Placeholder para BottomNavBar (Componente)
 @Composable
 fun HostBottomNavBarPlaceholder(navController: NavController) {
     val hostNavItems = listOf(
         HostNavItem("explore", Icons.Filled.Search, "Explorar"),
-        HostNavItem("reservas", Icons.Filled.CalendarMonth, "Reservas"), // Ícone de calendário
+        HostNavItem("reservas", Icons.Filled.CalendarMonth, "Reservas"),
         HostNavItem("chat", Icons.AutoMirrored.Filled.Chat, "Chat"),
         HostNavItem("profile", Icons.Filled.Person, "Perfil")
     )
@@ -68,7 +62,15 @@ fun HostBottomNavBarPlaceholder(navController: NavController) {
                 selected = item.route == "profile",
                 onClick = { /* Ação de Navegação */ },
                 icon = { Icon(item.icon, contentDescription = item.label) },
-                label = { Text(item.label, fontSize = 10.sp) }
+                label = { Text(item.label, fontSize = 10.sp) },
+                // CONFIGURAÇÃO DE CORES PARA COMBINAR
+                colors = NavigationBarItemDefaults.colors(
+                    indicatorColor = HostGradientStart, // Usa o Ciano principal no fundo oval
+                    selectedIconColor = Color.White,    // Ícone branco para contraste
+                    selectedTextColor = HostGradientStart,
+                    unselectedIconColor = Color.Gray,
+                    unselectedTextColor = Color.Gray
+                )
             )
         }
     }
@@ -81,26 +83,27 @@ fun HostBottomNavBarPlaceholder(navController: NavController) {
 @Composable
 fun HostProfileScreen(navController: NavController) {
     Scaffold(
+        containerColor = Color.White, // Garante fundo branco geral
         bottomBar = {
             HostBottomNavBarPlaceholder(navController = navController)
         }
     ) { paddingValues ->
-        // LazyColumn garante que a tela inteira seja rolável
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .background(Color.White) // Garante fundo branco na lista
         ) {
             item { HostProfileHeader() }
             item { HostProfileStatsAndInfo() }
             item { HostProfileSettings() }
-            item { Spacer(modifier = Modifier.height(32.dp)) } // Espaço extra no final
+            item { Spacer(modifier = Modifier.height(32.dp)) }
         }
     }
 }
 
 // -----------------------------------------------------------------
-// 1. HEADER (Cabeçalho do Anfitrião)
+// 1. HEADER (COM DEGRADÊ APLICADO)
 // -----------------------------------------------------------------
 
 @Composable
@@ -108,10 +111,18 @@ fun HostProfileHeader() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(HostPrimaryColor)
-            .padding(bottom = 80.dp) // Espaço para o card de estatísticas
+            // APLICAÇÃO DO DEGRADÊ CIANO -> ESCURO
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        HostGradientStart,
+                        HostGradientEnd
+                    )
+                )
+            )
+            .padding(bottom = 80.dp)
     ) {
-        // Top Bar (Voltar e Configurações)
+        // Top Bar
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -141,14 +152,14 @@ fun HostProfileHeader() {
             }
         }
 
-        // Foto de Perfil e Informações do Anfitrião
+        // Info do Anfitrião
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Foto de Perfil com Câmera (Placeholder)
+            // Foto de Perfil
             Box(contentAlignment = Alignment.BottomEnd) {
                 Box(
                     modifier = Modifier
@@ -176,7 +187,7 @@ fun HostProfileHeader() {
                     Icon(
                         Icons.Filled.PhotoCamera,
                         contentDescription = "Mudar Foto",
-                        tint = HostPrimaryColor,
+                        tint = HostGradientStart, // Usa a cor principal
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -184,7 +195,6 @@ fun HostProfileHeader() {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Nome do Anfitrião
             Text(
                 text = "Fátima Alves",
                 color = Color.White,
@@ -194,10 +204,9 @@ fun HostProfileHeader() {
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            // Descrição da Propriedade
             Text(
                 text = "Casa Inteira • 2 Quartos",
-                color = Color.White.copy(alpha = 0.8f),
+                color = Color.White.copy(alpha = 0.9f),
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(horizontal = 32.dp)
@@ -205,7 +214,6 @@ fun HostProfileHeader() {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Localização
             Text(
                 text = "Porto, Portugal",
                 color = Color.White,
@@ -224,7 +232,7 @@ fun HostProfileHeader() {
                     modifier = Modifier
                         .size(8.dp)
                         .clip(CircleShape)
-                        .background(Color.Green)
+                        .background(Color.Green) // Verde mantido para status
                 )
                 Text(
                     text = "Anfitrião Verificado",
@@ -235,7 +243,7 @@ fun HostProfileHeader() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Comodidades (Chips)
+            // Chips
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -252,7 +260,7 @@ fun HostAmenityChip(label: String) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(16.dp))
-            .background(Color.White.copy(alpha = 0.2f))
+            .background(Color.White.copy(alpha = 0.2f)) // Fundo translúcido
             .padding(horizontal = 10.dp, vertical = 4.dp)
     ) {
         Text(
@@ -264,7 +272,7 @@ fun HostAmenityChip(label: String) {
 }
 
 // -----------------------------------------------------------------
-// 2. ESTATÍSTICAS DO ANFITRIÃO
+// 2. ESTATÍSTICAS
 // -----------------------------------------------------------------
 
 @Composable
@@ -272,10 +280,9 @@ fun HostProfileStatsAndInfo() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .offset(y = (-60).dp) // Move o card para cima, sobrepondo o header
+            .offset(y = (-60).dp)
             .padding(horizontal = 16.dp)
     ) {
-        // Card de Estatísticas do Anfitrião
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = HostCardBackground),
@@ -292,25 +299,25 @@ fun HostProfileStatsAndInfo() {
                     icon = Icons.Filled.People,
                     value = "247",
                     label = "Hóspedes",
-                    iconColor = HostAccentColor
+                    iconColor = HostGradientStart // Cor combinando
                 )
                 HostStatItem(
                     icon = Icons.Filled.AttachMoney,
                     value = "€ 18.2K",
                     label = "Receita",
-                    iconColor = Color(0xFF4CAF50) // Verde para dinheiro
+                    iconColor = Color(0xFF4CAF50)
                 )
                 HostStatItem(
                     icon = Icons.Filled.Star,
                     value = "4.8",
                     label = "Avaliação",
-                    iconColor = Color(0xFFFFC107) // Amarelo para estrela
+                    iconColor = Color(0xFFFFC107)
                 )
                 HostStatItem(
                     icon = Icons.Filled.TrendingUp,
                     value = "87%",
                     label = "Ocupação",
-                    iconColor = HostAccentColor
+                    iconColor = HostGradientStart // Cor combinando
                 )
             }
         }
@@ -342,7 +349,7 @@ fun HostStatItem(icon: ImageVector, value: String, label: String, iconColor: Col
 }
 
 // -----------------------------------------------------------------
-// 3. CONFIGURAÇÕES DO ANFITRIÃO
+// 3. CONFIGURAÇÕES
 // -----------------------------------------------------------------
 
 @Composable
@@ -350,7 +357,7 @@ fun HostProfileSettings() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .offset(y = (-40).dp) // Ajuste para compensar o offset do card de estatísticas
+            .offset(y = (-40).dp)
             .padding(horizontal = 16.dp)
     ) {
         Text(
@@ -363,37 +370,33 @@ fun HostProfileSettings() {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Minha Propriedade
         HostSettingsItem(
             icon = Icons.Filled.Home,
             label = "Minha Propriedade",
-            iconColor = HostAccentColor,
+            iconColor = HostGradientStart,
             backgroundColor = HostLightBlue
         )
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Disponibilidade
         HostSettingsItem(
             icon = Icons.Filled.CalendarMonth,
             label = "Disponibilidade",
-            iconColor = HostAccentColor,
+            iconColor = HostGradientStart,
             backgroundColor = HostLightBlue
         )
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Central de Ajuda
         HostSettingsItem(
             icon = Icons.Filled.Help,
             label = "Central de Ajuda",
-            iconColor = HostAccentColor,
+            iconColor = HostGradientStart,
             backgroundColor = HostLightBlue
         )
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Sair da Conta (Vermelho)
         HostSettingsItem(
             icon = Icons.AutoMirrored.Filled.ExitToApp,
             label = "Sair da Conta",
@@ -448,9 +451,6 @@ fun HostSettingsItem(
     }
 }
 
-// -----------------------------------------------------------------
-// PREVIEW
-// -----------------------------------------------------------------
 @Preview(showBackground = true)
 @Composable
 fun HostProfileScreenPreview() {

@@ -1,4 +1,3 @@
-// ui/screen/GuideProfileScreen.kt
 package com.example.faraway.ui.screen
 
 import androidx.compose.foundation.background
@@ -17,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -26,30 +26,24 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.faraway.ui.theme.GuideAccentColor
+import com.example.faraway.ui.theme.GuideCardBackground
+import com.example.faraway.ui.theme.GuideLightBlue
+import com.example.faraway.ui.theme.GuideLogoutLightRed
+import com.example.faraway.ui.theme.GuideLogoutRed
+import com.example.faraway.ui.theme.GuidePrimaryBlue
+import com.example.faraway.ui.theme.GuideTextColor
+import com.example.faraway.ui.theme.navSelectedColor
 
 // -----------------------------------------------------------------
-// CORES AUXILIARES (Renomeadas para evitar conflito)
+// PLACEHOLDERS
 // -----------------------------------------------------------------
-val GuidePrimaryBlue = Color(0xFF192F50) // Azul escuro do cabeçalho
-val GuideAccentColor = Color(0xFF00BCD4) // Cor de destaque (Turquesa/Ciano)
-val GuideLightBlue = Color(0xFFE0F7FA) // Azul claro para os cards de configuração
-val GuideCardBackground = Color(0xFFFFFFFF) // Fundo branco para cards
-val GuideTextColor = Color(0xFF333333) // Cor de texto padrão
-val GuideLogoutRed = Color(0xFFE57373) // Vermelho para o botão de Sair
-val GuideLogoutLightRed = Color(0xFFFFEBEE) // Vermelho claro para o fundo do botão de Sair
-
-// -----------------------------------------------------------------
-// PLACEHOLDERS PARA COMPONENTES DE NAVEGAÇÃO
-// -----------------------------------------------------------------
-
-// Placeholder para NavItem (data class)
 data class GuideNavItem(
     val route: String,
     val icon: ImageVector,
     val label: String
 )
 
-// Placeholder para BottomNavBar (Componente)
 @Composable
 fun GuideBottomNavBarPlaceholder(navController: NavController) {
     val guideNavItems = listOf(
@@ -60,6 +54,7 @@ fun GuideBottomNavBarPlaceholder(navController: NavController) {
         GuideNavItem("profile", Icons.Filled.Person, "Perfil")
     )
 
+
     BottomAppBar(
         containerColor = GuideCardBackground,
         contentPadding = PaddingValues(horizontal = 8.dp)
@@ -69,7 +64,15 @@ fun GuideBottomNavBarPlaceholder(navController: NavController) {
                 selected = item.route == "profile",
                 onClick = { /* Ação de Navegação */ },
                 icon = { Icon(item.icon, contentDescription = item.label) },
-                label = { Text(item.label, fontSize = 10.sp) }
+                label = { Text(item.label, fontSize = 10.sp) },
+                // --- MUDANÇA DA COR AQUI ---
+                colors = NavigationBarItemDefaults.colors(
+                    indicatorColor = navSelectedColor, // O fundo oval
+                    selectedIconColor = Color.White,   // Ícone branco para contraste
+                    selectedTextColor = navSelectedColor, // Texto da mesma cor do fundo
+                    unselectedIconColor = Color.Gray,
+                    unselectedTextColor = Color.Gray
+                )
             )
         }
     }
@@ -82,37 +85,47 @@ fun GuideBottomNavBarPlaceholder(navController: NavController) {
 @Composable
 fun GuideProfileScreen(navController: NavController) {
     Scaffold(
+        containerColor = Color.White,
         bottomBar = {
             GuideBottomNavBarPlaceholder(navController = navController)
         }
     ) { paddingValues ->
-        // LazyColumn garante que a tela inteira seja rolável
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .background(Color.White)
         ) {
             item { GuideProfileHeader() }
             item { GuideProfileStatsAndInfo() }
             item { GuideProfileSettings() }
-            item { Spacer(modifier = Modifier.height(32.dp)) } // Espaço extra no final
+            item { Spacer(modifier = Modifier.height(32.dp)) }
         }
     }
 }
 
 // -----------------------------------------------------------------
-// 1. HEADER (Cabeçalho do Guia)
+// 1. HEADER
 // -----------------------------------------------------------------
 
 @Composable
 fun GuideProfileHeader() {
+    val lighterBlueTop = Color(0xFF2E548A)
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(GuidePrimaryBlue)
-            .padding(bottom = 80.dp) // Espaço para o card de estatísticas
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        lighterBlueTop,
+                        GuidePrimaryBlue
+                    )
+                )
+            )
+            .padding(bottom = 80.dp)
     ) {
-        // Top Bar (Voltar e Configurações)
+        // Top Bar
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -142,14 +155,13 @@ fun GuideProfileHeader() {
             }
         }
 
-        // Foto de Perfil e Informações do Guia
+        // Info do Guia
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Foto de Perfil com Câmera (Placeholder)
             Box(contentAlignment = Alignment.BottomEnd) {
                 Box(
                     modifier = Modifier
@@ -166,7 +178,6 @@ fun GuideProfileHeader() {
                         modifier = Modifier.size(80.dp)
                     )
                 }
-                // Ícone de Câmera
                 Box(
                     modifier = Modifier
                         .size(36.dp)
@@ -185,7 +196,6 @@ fun GuideProfileHeader() {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Nome do Guia
             Text(
                 text = "Gabriel Pereira",
                 color = Color.White,
@@ -195,7 +205,6 @@ fun GuideProfileHeader() {
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            // Especialidade do Guia
             Text(
                 text = "Tours Históricos e Culturais",
                 color = Color.White.copy(alpha = 0.8f),
@@ -206,7 +215,6 @@ fun GuideProfileHeader() {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Localização
             Text(
                 text = "Lisboa, Portugal",
                 color = GuideAccentColor,
@@ -216,7 +224,6 @@ fun GuideProfileHeader() {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Guia Verificado
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -236,33 +243,30 @@ fun GuideProfileHeader() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Idiomas
+            // IDIOMAS
             Row(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                GuideLanguageChip("Português", isSelected = true)
-                GuideLanguageChip("Inglês", isSelected = false)
-                GuideLanguageChip("Espanhol", isSelected = false)
+                GuideLanguageChip("Português")
+                GuideLanguageChip("Inglês")
+                GuideLanguageChip("Espanhol")
             }
         }
     }
 }
 
 @Composable
-fun GuideLanguageChip(label: String, isSelected: Boolean) {
-    val textColor = if (isSelected) Color.White else Color.White.copy(alpha = 0.7f)
-    val fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-
+fun GuideLanguageChip(label: String) {
     Text(
         text = label,
-        color = textColor,
+        color = Color.White,
         fontSize = 14.sp,
-        fontWeight = fontWeight
+        fontWeight = FontWeight.Normal
     )
 }
 
 // -----------------------------------------------------------------
-// 2. ESTATÍSTICAS DO GUIA
+// 2. ESTATÍSTICAS
 // -----------------------------------------------------------------
 
 @Composable
@@ -270,10 +274,9 @@ fun GuideProfileStatsAndInfo() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .offset(y = (-60).dp) // Move o card para cima, sobrepondo o header
+            .offset(y = (-60).dp)
             .padding(horizontal = 16.dp)
     ) {
-        // Card de Estatísticas do Guia
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = GuideCardBackground),
@@ -296,13 +299,13 @@ fun GuideProfileStatsAndInfo() {
                     icon = Icons.Filled.Star,
                     value = "4.9",
                     label = "Avaliação",
-                    iconColor = Color(0xFFFFC107) // Amarelo para estrela
+                    iconColor = Color(0xFFFFC107)
                 )
                 GuideStatItem(
                     icon = Icons.Filled.AttachMoney,
                     value = "€12.5K",
                     label = "Ganhos",
-                    iconColor = Color(0xFF4CAF50) // Verde para dinheiro
+                    iconColor = Color(0xFF4CAF50)
                 )
                 GuideStatItem(
                     icon = Icons.Filled.CheckCircle,
@@ -340,7 +343,7 @@ fun GuideStatItem(icon: ImageVector, value: String, label: String, iconColor: Co
 }
 
 // -----------------------------------------------------------------
-// 3. CONFIGURAÇÕES DO GUIA (CORRIGIDO O ESPAÇAMENTO)
+// 3. CONFIGURAÇÕES
 // -----------------------------------------------------------------
 
 @Composable
@@ -348,7 +351,7 @@ fun GuideProfileSettings() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .offset(y = (-40).dp) // Ajuste para compensar o offset do card de estatísticas
+            .offset(y = (-40).dp)
             .padding(horizontal = 16.dp)
     ) {
         Text(
@@ -361,7 +364,6 @@ fun GuideProfileSettings() {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Minha disponibilidade
         GuideSettingsItem(
             icon = Icons.Filled.DateRange,
             label = "Minha disponibilidade",
@@ -369,9 +371,8 @@ fun GuideProfileSettings() {
             backgroundColor = GuideLightBlue
         )
 
-        Spacer(modifier = Modifier.height(12.dp)) // ESPAÇAMENTO ADICIONADO
+        Spacer(modifier = Modifier.height(12.dp))
 
-        // Documentos Profissionais
         GuideSettingsItem(
             icon = Icons.Filled.Description,
             label = "Documentos Profissionais",
@@ -379,9 +380,8 @@ fun GuideProfileSettings() {
             backgroundColor = GuideLightBlue
         )
 
-        Spacer(modifier = Modifier.height(12.dp)) // ESPAÇAMENTO ADICIONADO
+        Spacer(modifier = Modifier.height(12.dp))
 
-        // Central de Ajuda
         GuideSettingsItem(
             icon = Icons.Filled.Help,
             label = "Central de Ajuda",
@@ -389,9 +389,8 @@ fun GuideProfileSettings() {
             backgroundColor = GuideLightBlue
         )
 
-        Spacer(modifier = Modifier.height(12.dp)) // ESPAÇAMENTO ADICIONADO
+        Spacer(modifier = Modifier.height(12.dp))
 
-        // Sair da Conta (Vermelho)
         GuideSettingsItem(
             icon = Icons.AutoMirrored.Filled.ExitToApp,
             label = "Sair da Conta",
@@ -446,9 +445,6 @@ fun GuideSettingsItem(
     }
 }
 
-// -----------------------------------------------------------------
-// PREVIEW
-// -----------------------------------------------------------------
 @Preview(showBackground = true)
 @Composable
 fun GuideProfileScreenPreview() {

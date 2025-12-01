@@ -50,18 +50,27 @@ data class NavItem(
     val icon: ImageVector,
     val label: String
 )
-
 // Placeholder para BottomNavBar (Componente)
 @Composable
-fun BottomNavBarPlaceholder(navController: NavController) {
+fun BottomNavBarPlaceholder(
+    navController: NavController,
+    navItems: List<NavItem>,
+    startRoute: String
+) {
     BottomAppBar(
         containerColor = CardBackground,
         contentPadding = PaddingValues(horizontal = 8.dp)
     ) {
-        travelerNavItems.forEach { item ->
+        navItems.forEach { item ->
             NavigationBarItem(
                 selected = item.route == "profile",
-                onClick = { /* Ação de Navegação */ },
+                onClick = {
+                    navController.navigate(item.route) {
+                        popUpTo(startRoute) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
                 icon = { Icon(item.icon, contentDescription = item.label) },
                 label = { Text(item.label, fontSize = 10.sp) }
             )
@@ -77,7 +86,7 @@ fun BottomNavBarPlaceholder(navController: NavController) {
 fun ProfileScreen(navController: NavController) {
     Scaffold(
         bottomBar = {
-            BottomNavBarPlaceholder(navController = navController)
+            BottomNavBarPlaceholder(navController = navController, navItems = travelerNavItems, startRoute = "profile")
         }
     ) { paddingValues ->
         // LazyColumn garante que a tela inteira seja rolável

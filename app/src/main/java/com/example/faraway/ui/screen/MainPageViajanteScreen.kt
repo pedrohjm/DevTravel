@@ -70,7 +70,6 @@ data class Guide(
     val imageUrl: String // URL ou ID do recurso da imagem
 )
 
-// ui.components.GuideCard.kt
 @Composable
 fun GuideCard(guide: Guide) {
     Card(
@@ -328,6 +327,7 @@ fun MainScreen(navController: NavController) {
     }
 }
 
+/*
 // Componente de Navegação Inferior
 @Composable
 fun BottomNavBar() {
@@ -369,7 +369,7 @@ fun BottomNavBar() {
         )
     }
 }
-
+*/
 
 @Preview(showBackground = true)
 @Composable

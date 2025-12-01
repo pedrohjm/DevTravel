@@ -65,7 +65,7 @@ fun BottomNavBar(
                 icon = {
                     Box(
                         modifier = Modifier
-                            .size(48.dp) // Tamanho do item para o círculo
+                            .size(24.dp) // Tamanho do item para o círculo
                             .background(
                                 color = if (selected) AccentColor.copy(alpha = 0.1f) else Color.Transparent,
                                 shape = CircleShape

@@ -314,9 +314,10 @@ fun LoginContent(
 
                 // Navegação Condicional Baseada no Papel
                 val destinationRoute = when (role) {
-                    "Guia" -> Destinations.GUIDE_TOURS_ROUTE
-                    "Anfitrião" -> Destinations.HOST_RESERVATION_ROUTE
-                    else -> Destinations.EXPLORE_ROUTE // Membro, Amigo, ou qualquer outro
+                    "Guia" -> Destinations.GUIDE_DASHBOARD_ROUTE
+                    "Anfitrião" -> Destinations.HOST_DASHBOARD_ROUTE
+                    "Membro" -> Destinations.EXPLORE_ROUTE
+                    else -> Destinations.SOCIAL_AMIGOS_ROUTE // Amigo
                 }
 
                 navController.navigate(destinationRoute) {
@@ -344,21 +345,36 @@ fun CadastroContent(navController: NavController) {
     LaunchedEffect(selectedProfile) {
         when (selectedProfile) {
             "Guia" -> {
-                navController.navigate(Destinations.GUIDE_DASHBOARD_ROUTE) {
-                    // Limpa a pilha de autenticação/cadastro
-                    popUpTo(Destinations.AUTH_ROUTE) { inclusive = true }
+                navController.navigate("sign_up") {
+                    // Implementar a lógica para salvar a role selecionada
+                    popUpTo(navController.graph.id) {
+                        inclusive = true
+                    }
                 }
             }
             "Anfitrião" -> {
-                navController.navigate(Destinations.HOST_DASHBOARD_ROUTE) {
-                    // Limpa a pilha de autenticação/cadastro
-                    popUpTo(Destinations.AUTH_ROUTE) { inclusive = true }
+                navController.navigate("sign_up") {
+                    // Implementar a lógica para salvar a role selecionada
+                    popUpTo(navController.graph.id) {
+                        inclusive = true
+                    }
                 }
             }
-            // "Membro" e "Amigo" podem navegar para a tela principal ou outra rota
-            "Membro", "Amigo" -> {
-                navController.navigate(Destinations.EXPLORE_ROUTE) {
-                    popUpTo(Destinations.AUTH_ROUTE) { inclusive = true }
+            // Fazer uma propria para o amigo
+            "Membro"-> {
+                navController.navigate("sign_up") {
+                    // Implementar a lógica para salvar a role selecionada
+                    popUpTo(navController.graph.id) {
+                        inclusive = true
+                    }
+                }
+            }
+            "Amigo" -> {
+                navController.navigate("sign_up") {
+                    // Implementar a lógica para salvar a role selecionada
+                    popUpTo(navController.graph.id) {
+                        inclusive = true
+                    }
                 }
             }
         }

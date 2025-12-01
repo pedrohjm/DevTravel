@@ -31,7 +31,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.faraway.ui.theme.PrimaryDark
 
 // --- Definições de Cores e Temas (Assumindo que estão definidas no projeto original) ---
-val PrimaryDark = Color(0xFF007BFF) // Azul escuro para o AppBar e alguns textos
 val TagColor = Color(0xFFE0E0E0) // Cor de fundo para as tags
 
 // --- PLACEHOLDERS PARA NAVEGAÇÃO (Ajuste conforme seu projeto) ---
@@ -51,7 +50,7 @@ val travelerNavItems = listOf(
     NavItem(Destinations.PROFILE_ROUTE, Icons.Default.Person, "Perfil")
 )
 
-// --- BottomNavBar COMPONENT (FORNECIDO PELO USUÁRIO) ---
+// --- BottomNavBar COMPONENT
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun BottomNavBar(

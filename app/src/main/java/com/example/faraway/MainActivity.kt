@@ -1,6 +1,5 @@
 package com.example.faraway
 
-import NavItem
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,13 +15,17 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.faraway.ui.screen.AmigosScreen
 import com.example.faraway.ui.screen.GuidePanelScreen
 import com.example.faraway.ui.screen.MainScreen
 import com.example.faraway.ui.screen.PainelDoAnfitriaoScreen
 import com.example.faraway.ui.screen.AuthScreen
 import com.example.faraway.ui.screen.MyTourScreen
 import com.example.faraway.ui.screen.MyReservationScreen
+import com.example.faraway.ui.screen.NavItem
+import com.example.faraway.ui.screen.ProfileScreen
 import com.example.faraway.ui.screen.SignUpScreen
+import com.example.faraway.ui.screen.SocialScreen
 import com.example.faraway.ui.screen.TripsScreen
 import com.example.faraway.ui.theme.FarAwayTheme
 import com.google.firebase.FirebaseApp
@@ -45,6 +48,13 @@ val guideNavItems = listOf(
     NavItem(Destinations.GUIDE_DASHBOARD_ROUTE, Icons.Filled.Search, "Explorar"),
     NavItem(Destinations.GUIDE_TOURS_ROUTE, Icons.Filled.CalendarMonth, "Tours"),
 )
+
+val amigosNavItems = listOf(
+    NavItem(Destinations.SOCIAL_AMIGOS_ROUTE, Icons.Default.Search, "Social"),
+    NavItem(Destinations.CHAT_ROUTE, Icons.AutoMirrored.Filled.Chat, "Chat"),
+    NavItem(Destinations.PROFILE_ROUTE, Icons.Default.Person, "Perfil")
+)
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,6 +83,11 @@ fun AppNavigation() {
             AuthScreen(navController = navController)
         }
 
+        // Painel Cadastro
+        composable(route = Destinations.SIGN_UP_ROUTE) {
+            SocialScreen(navController = navController)
+        }
+
         // 2. Rota de Exploração (Destino do Login)
         composable(Destinations.EXPLORE_ROUTE) {
             MainScreen(navController = navController)
@@ -99,7 +114,7 @@ fun AppNavigation() {
 
         // Placeholders para Chat e Perfil (ainda vazios)
         composable(Destinations.CHAT_ROUTE) { /* ChatScreen(navController) */ }
-        composable(Destinations.PROFILE_ROUTE) { /* ProfileScreen(navController) */ }
+        composable(Destinations.PROFILE_ROUTE) { ProfileScreen(navController = navController) }
 
         // Painel do Guia
         composable(route = Destinations.GUIDE_DASHBOARD_ROUTE) {
@@ -111,10 +126,9 @@ fun AppNavigation() {
             PainelDoAnfitriaoScreen(navController = navController)
         }
 
-        // --- Rota Social ---
+        // --- Rota Social Viajante ---
         composable(route = Destinations.SOCIAL_ROUTE) {
-            // Criamos uma lista de teste com dados de verdade para aparecer na tela
-
+            AmigosScreen(navController = navController)
         }
     }
 }

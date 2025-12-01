@@ -161,7 +161,12 @@ fun SignUpScreen(navController: NavController? = null) {
                 ),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = { navController?.navigateUp() }) {
+            IconButton(onClick = {
+                navController?.navigate("auth") {
+                    popUpTo(navController.graph.id) {
+                        inclusive = true
+                    }
+                } }) {
                 Icon(Icons.Default.ArrowBack, contentDescription = "Voltar", tint = Color.White)
             }
             Text(
@@ -416,6 +421,11 @@ fun SignUpScreen(navController: NavController? = null) {
                 onClick = {
                     if (validateFields()) {
                         println("Cadastro Sucesso! CPF: $cpf, Data: $birthDate")
+                        navController?.navigate("auth") {
+                            popUpTo(navController.graph.id) {
+                                inclusive = true
+                            }
+                        }
                     }
                 },
                 modifier = Modifier

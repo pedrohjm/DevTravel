@@ -1,8 +1,8 @@
-// ui/screen/ProfileScreen.kt
 package com.example.faraway.ui.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -95,7 +95,7 @@ fun ProfileScreen(navController: NavController) {
         ) {
             item { ProfileHeader() }
             item { ProfileStatsAndInterests() }
-            item { ProfileSettings() }
+            item { ProfileSettings(navController = navController) }
             item { Spacer(modifier = Modifier.height(32.dp)) } // Espaço extra no final
         }
     }
@@ -388,7 +388,7 @@ fun InterestChip(label: String) {
 // -----------------------------------------------------------------
 
 @Composable
-fun ProfileSettings() {
+fun ProfileSettings(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -410,7 +410,8 @@ fun ProfileSettings() {
             icon = Icons.Filled.People,
             label = "Minhas Conexões",
             iconColor = AccentColor,
-            backgroundColor = LightBlue
+            backgroundColor = LightBlue,
+            onClick = { /* Ação ao clicar */ }
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -420,7 +421,8 @@ fun ProfileSettings() {
             icon = Icons.Filled.FavoriteBorder,
             label = "Interesses e Hobbies",
             iconColor = AccentColor,
-            backgroundColor = LightBlue
+            backgroundColor = LightBlue,
+            onClick = { /* Ação ao clicar */ }
         )
 
         Spacer(modifier = Modifier.height(24.dp)) // Espaço maior antes do botão de logout
@@ -430,7 +432,14 @@ fun ProfileSettings() {
             icon = Icons.AutoMirrored.Filled.ExitToApp, // Ícone de saída
             label = "Sair da Conta",
             iconColor = LogoutRed,
-            backgroundColor = LogoutLightRed
+            backgroundColor = LogoutLightRed,
+            onClick = {
+                navController.navigate("auth") {
+                    popUpTo(navController.graph.id) {
+                        inclusive = true
+                    }
+                }
+            }
         )
     }
 }
@@ -440,7 +449,8 @@ fun SettingsItem(
     icon: ImageVector,
     label: String,
     iconColor: Color,
-    backgroundColor: Color
+    backgroundColor: Color,
+    onClick: () -> Unit
 ) {
     Card(
         shape = RoundedCornerShape(12.dp),
@@ -448,6 +458,7 @@ fun SettingsItem(
         modifier = Modifier
             .fillMaxWidth()
             .height(64.dp)
+            .clickable{onClick()}
     ) {
         Row(
             modifier = Modifier

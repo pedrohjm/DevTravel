@@ -28,27 +28,13 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.faraway.Destinations
+import com.example.faraway.travelerNavItems
 import com.example.faraway.ui.theme.PrimaryDark
 
 // --- Definições de Cores e Temas (Assumindo que estão definidas no projeto original) ---
 val TagColor = Color(0xFFE0E0E0) // Cor de fundo para as tags
 
-// --- PLACEHOLDERS PARA NAVEGAÇÃO (Ajuste conforme seu projeto) ---
-object Destinations {
-    const val EXPLORE_ROUTE = "explore"
-    const val TRIPS_ROUTE = "trips"
-    const val SOCIAL_ROUTE = "social"
-    const val CHAT_ROUTE = "chat"
-    const val PROFILE_ROUTE = "profile"
-}
-
-val travelerNavItems = listOf(
-    NavItem(Destinations.EXPLORE_ROUTE, Icons.Default.Search, "Explorar"),
-    NavItem(Destinations.TRIPS_ROUTE, Icons.Default.DateRange, "Viagens"),
-    NavItem(Destinations.SOCIAL_ROUTE, Icons.Default.People, "Social"),
-    NavItem(Destinations.CHAT_ROUTE, Icons.AutoMirrored.Filled.Chat, "Chat"),
-    NavItem(Destinations.PROFILE_ROUTE, Icons.Default.Person, "Perfil")
-)
 
 // --- BottomNavBar COMPONENT
 @Composable
@@ -341,7 +327,7 @@ fun SocialScreen(navController: NavController) {
             BottomNavBar(
                 navController = navController,
                 navItems = travelerNavItems,
-                startRoute = Destinations.EXPLORE_ROUTE
+                startRoute = Destinations.SOCIAL_ROUTE
             )
         }
     ) { paddingValues ->

@@ -85,7 +85,11 @@ fun PainelDoAnfitriaoScreen(navController: NavController) {
                     icon = { Icon(Icons.Default.Search, contentDescription = "Explorar") },
                     label = { Text("Explorar") },
                     selected = selectedItem.value == "Explorar",
-                    onClick = { selectedItem.value = "Explorar" }
+                    onClick = {
+                        navController.navigate(Destinations.GUIDE_DASHBOARD_ROUTE) {
+                            launchSingleTop = true
+                        }
+                    }
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.DateRange, contentDescription = "Reservas") },
@@ -101,13 +105,21 @@ fun PainelDoAnfitriaoScreen(navController: NavController) {
                     icon = { Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = "Chat") },
                     label = { Text("Chat") },
                     selected = selectedItem.value == "Chat",
-                    onClick = { selectedItem.value = "Chat" }
+                    onClick = {
+                        navController.navigate(Destinations.HOST_CHAT_ROUTE) {
+                            launchSingleTop = true
+                        }
+                    }
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Person, contentDescription = "Perfil") },
                     label = { Text("Perfil") },
                     selected = selectedItem.value == "Perfil",
-                    onClick = { selectedItem.value = "Perfil" }
+                    onClick = {
+                        navController.navigate(Destinations.HOST_PERFIL_ROUTE) {
+                            launchSingleTop = true
+                        }
+                    }
                 )
             }
         }

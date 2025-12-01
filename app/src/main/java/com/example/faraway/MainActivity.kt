@@ -20,6 +20,14 @@ import com.example.faraway.ui.screen.GuidePanelScreen
 import com.example.faraway.ui.screen.MainScreen
 import com.example.faraway.ui.screen.PainelDoAnfitriaoScreen
 import com.example.faraway.ui.screen.AuthScreen
+import com.example.faraway.ui.screen.ChatScreen
+import com.example.faraway.ui.screen.FriendProfileScreen
+import com.example.faraway.ui.screen.GuideChatScreen
+import com.example.faraway.ui.screen.GuideMessageScreen
+import com.example.faraway.ui.screen.GuideProfileScreen
+import com.example.faraway.ui.screen.HostChatScreen
+import com.example.faraway.ui.screen.HostMessageScreen
+import com.example.faraway.ui.screen.HostProfileScreen
 import com.example.faraway.ui.screen.MyTourScreen
 import com.example.faraway.ui.screen.MyReservationScreen
 import com.example.faraway.ui.screen.NavItem
@@ -40,19 +48,23 @@ val travelerNavItems = listOf(
 )
 
 val hostNavItems = listOf(
-    NavItem(Destinations.HOST_RESERVATION_ROUTE, Icons.Filled.Search, "Explorar"),
-    NavItem(Destinations.HOST_RESERVATION_ROUTE, Icons.Filled.CalendarMonth, "Reservas"),
+    NavItem(Destinations.HOST_DASHBOARD_ROUTE, Icons.Filled.Search, "Explorar"),
+    NavItem(Destinations.HOST_RESERVATION_ROUTE, Icons.Filled.DateRange, "Reservas"),
+    NavItem(Destinations.HOST_CHAT_ROUTE, Icons.AutoMirrored.Filled.Chat, "Chat"),
+    NavItem(Destinations.HOST_PERFIL_ROUTE, Icons.Filled.Person, "Perfil")
 )
 
 val guideNavItems = listOf(
     NavItem(Destinations.GUIDE_DASHBOARD_ROUTE, Icons.Filled.Search, "Explorar"),
     NavItem(Destinations.GUIDE_TOURS_ROUTE, Icons.Filled.CalendarMonth, "Tours"),
+    NavItem(Destinations.GUIDE_CHAT_ROUTE, Icons.AutoMirrored.Filled.Chat, "Chat"),
+    NavItem(Destinations.GUIDE_PROFILE_ROUTE, Icons.Filled.Person, "Perfil")
 )
 
 val amigosNavItems = listOf(
     NavItem(Destinations.SOCIAL_AMIGOS_ROUTE, Icons.Default.Search, "Social"),
-    NavItem(Destinations.CHAT_ROUTE, Icons.AutoMirrored.Filled.Chat, "Chat"),
-    NavItem(Destinations.PROFILE_ROUTE, Icons.Default.Person, "Perfil")
+    NavItem(Destinations.SOCIAL_CHAT_ROUTE, Icons.AutoMirrored.Filled.Chat, "Chat"),
+    NavItem(Destinations.SOCIAL_PROFILE_ROUTE, Icons.Default.Person, "Perfil")
 )
 
 
@@ -112,13 +124,12 @@ fun AppNavigation() {
             MyReservationScreen(navController = navController)
         }
 
-        // Placeholders para Chat e Perfil (ainda vazios)
-        composable(Destinations.CHAT_ROUTE) { /* ChatScreen(navController) */ }
-        composable(Destinations.PROFILE_ROUTE) { ProfileScreen(navController = navController) }
+        composable(Destinations.HOST_CHAT_ROUTE){
+            HostChatScreen(navController = navController)
+        }
 
-        // Painel do Guia
-        composable(route = Destinations.GUIDE_DASHBOARD_ROUTE) {
-            GuidePanelScreen(navController = navController)
+        composable(Destinations.HOST_PERFIL_ROUTE){
+            HostProfileScreen(navController = navController)
         }
 
         // Painel do Anfitrião
@@ -126,9 +137,58 @@ fun AppNavigation() {
             PainelDoAnfitriaoScreen(navController = navController)
         }
 
-        // --- Rota Social Viajante ---
+        // Placeholders para Chat e Perfil (ainda vazios)
+        composable(Destinations.CHAT_ROUTE) {
+            ChatScreen(navController)
+        }
+        composable(Destinations.PROFILE_ROUTE) { ProfileScreen(navController = navController) }
+
+        // --- Rota do Guia ---
+        composable(route = Destinations.GUIDE_DASHBOARD_ROUTE) {
+            GuidePanelScreen(navController = navController)
+        }
+
+        composable(route = Destinations.GUIDE_TOURS_ROUTE) {
+            MyTourScreen(navController = navController)
+        }
+
+        composable(route = Destinations.GUIDE_CHAT_ROUTE) {
+            GuideChatScreen(navController = navController)
+        }
+
+        composable(route = Destinations.GUIDE_PROFILE_ROUTE) {
+            GuideProfileScreen(navController = navController)
+        }
+        // --- Rota do Guia ---
+
+        // --- Rota Viajante ---
         composable(route = Destinations.SOCIAL_ROUTE) {
+            SocialScreen(navController = navController)
+        }
+
+
+        // ---- Rota Amigos ---
+        composable(Destinations.SOCIAL_AMIGOS_ROUTE) {
             AmigosScreen(navController = navController)
         }
+        composable(Destinations.SOCIAL_PROFILE_ROUTE) {
+            FriendProfileScreen(navController = navController)
+        }
+
+        composable(Destinations.SOCIAL_CHAT_ROUTE) {
+            //AuthScreen(navController = navController)
+        }
+
+
+
+        composable(Destinations.GUIDE_MESSAGE_SCREEN){
+            GuideMessageScreen(navController = navController)
+        }
+
+        composable(Destinations.HOST_MESSAGE_SCREEN){
+            HostMessageScreen(navController = navController)
+        }
+
+
     }
 }

@@ -56,7 +56,7 @@ fun AmigoBottomBar(
                 icon = {
                     Box(
                         modifier = Modifier
-                            .size(32.dp) // Espaçamento ajustado
+                            .size(32.dp)
                             .background(
                                 color = if (selected) AccentColor.copy(alpha = 0.1f) else Color.Transparent,
                                 shape = CircleShape
@@ -164,8 +164,8 @@ fun AmigosScreen(navController: NavController) {
         bottomBar = {
             AmigoBottomBar(
                 navController = navController,
-                navItems = amigosNavItems, // Usando a lista simplificada do Destinations.kt
-                startRoute = Destinations.EXPLORE_ROUTE
+                navItems = amigosNavItems,
+                startRoute = Destinations.SOCIAL_AMIGOS_ROUTE
             )
         }
     ) { paddingValues ->

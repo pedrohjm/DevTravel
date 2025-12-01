@@ -1,7 +1,9 @@
+// ui/screen/GuideProfileScreen.kt
 package com.example.faraway.ui.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -16,7 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -26,53 +27,48 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.faraway.ui.theme.GuideAccentColor
-import com.example.faraway.ui.theme.GuideCardBackground
-import com.example.faraway.ui.theme.GuideLightBlue
-import com.example.faraway.ui.theme.GuideLogoutLightRed
-import com.example.faraway.ui.theme.GuideLogoutRed
-import com.example.faraway.ui.theme.GuidePrimaryBlue
-import com.example.faraway.ui.theme.GuideTextColor
-import com.example.faraway.ui.theme.navSelectedColor
+import com.example.faraway.Destinations
+import com.example.faraway.guideNavItems
 
 // -----------------------------------------------------------------
-// PLACEHOLDERS
+// CORES AUXILIARES (Renomeadas para evitar conflito)
 // -----------------------------------------------------------------
-data class GuideNavItem(
-    val route: String,
-    val icon: ImageVector,
-    val label: String
-)
+val GuidePrimaryBlue = Color(0xFF192F50) // Azul escuro do cabeçalho
+val GuideAccentColor = Color(0xFF00BCD4) // Cor de destaque (Turquesa/Ciano)
+val GuideLightBlue = Color(0xFFE0F7FA) // Azul claro para os cards de configuração
+val GuideCardBackground = Color(0xFFFFFFFF) // Fundo branco para cards
+val GuideTextColor = Color(0xFF333333) // Cor de texto padrão
+val GuideLogoutRed = Color(0xFFE57373) // Vermelho para o botão de Sair
+val GuideLogoutLightRed = Color(0xFFFFEBEE) // Vermelho claro para o fundo do botão de Sair
 
+// -----------------------------------------------------------------
+// PLACEHOLDERS PARA COMPONENTES DE NAVEGAÇÃO
+// -----------------------------------------------------------------
+
+
+// Placeholder para BottomNavBar (Componente)
 @Composable
-fun GuideBottomNavBarPlaceholder(navController: NavController) {
-    val guideNavItems = listOf(
-        GuideNavItem("explore", Icons.Filled.Search, "Explorar"),
-        GuideNavItem("trips", Icons.Filled.DateRange, "Viagens"),
-        GuideNavItem("social", Icons.Filled.People, "Social"),
-        GuideNavItem("chat", Icons.AutoMirrored.Filled.Chat, "Chat"),
-        GuideNavItem("profile", Icons.Filled.Person, "Perfil")
-    )
-
-
+fun GuideBottomNavBarPlaceholder(
+    navController: NavController,
+    navItems: List<NavItem>,
+    startRoute: String
+) {
     BottomAppBar(
         containerColor = GuideCardBackground,
         contentPadding = PaddingValues(horizontal = 8.dp)
     ) {
-        guideNavItems.forEach { item ->
+        navItems.forEach { item ->
             NavigationBarItem(
                 selected = item.route == "profile",
-                onClick = { /* Ação de Navegação */ },
+                onClick = {
+                    navController.navigate(item.route) {
+                        popUpTo(startRoute) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
                 icon = { Icon(item.icon, contentDescription = item.label) },
-                label = { Text(item.label, fontSize = 10.sp) },
-                // --- MUDANÇA DA COR AQUI ---
-                colors = NavigationBarItemDefaults.colors(
-                    indicatorColor = navSelectedColor, // O fundo oval
-                    selectedIconColor = Color.White,   // Ícone branco para contraste
-                    selectedTextColor = navSelectedColor, // Texto da mesma cor do fundo
-                    unselectedIconColor = Color.Gray,
-                    unselectedTextColor = Color.Gray
-                )
+                label = { Text(item.label, fontSize = 10.sp) }
             )
         }
     }
@@ -85,47 +81,37 @@ fun GuideBottomNavBarPlaceholder(navController: NavController) {
 @Composable
 fun GuideProfileScreen(navController: NavController) {
     Scaffold(
-        containerColor = Color.White,
         bottomBar = {
-            GuideBottomNavBarPlaceholder(navController = navController)
+            GuideBottomNavBarPlaceholder(navController = navController, navItems = guideNavItems, startRoute = "profile")
         }
     ) { paddingValues ->
+        // LazyColumn garante que a tela inteira seja rolável
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Color.White)
         ) {
             item { GuideProfileHeader() }
             item { GuideProfileStatsAndInfo() }
-            item { GuideProfileSettings() }
-            item { Spacer(modifier = Modifier.height(32.dp)) }
+            item { GuideProfileSettings(navController = navController) }
+            item { Spacer(modifier = Modifier.height(32.dp)) } // Espaço extra no final
         }
     }
 }
 
 // -----------------------------------------------------------------
-// 1. HEADER
+// 1. HEADER (Cabeçalho do Guia)
 // -----------------------------------------------------------------
 
 @Composable
 fun GuideProfileHeader() {
-    val lighterBlueTop = Color(0xFF2E548A)
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        lighterBlueTop,
-                        GuidePrimaryBlue
-                    )
-                )
-            )
-            .padding(bottom = 80.dp)
+            .background(GuidePrimaryBlue)
+            .padding(bottom = 80.dp) // Espaço para o card de estatísticas
     ) {
-        // Top Bar
+        // Top Bar (Voltar e Configurações)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -155,13 +141,14 @@ fun GuideProfileHeader() {
             }
         }
 
-        // Info do Guia
+        // Foto de Perfil e Informações do Guia
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Foto de Perfil com Câmera (Placeholder)
             Box(contentAlignment = Alignment.BottomEnd) {
                 Box(
                     modifier = Modifier
@@ -178,6 +165,7 @@ fun GuideProfileHeader() {
                         modifier = Modifier.size(80.dp)
                     )
                 }
+                // Ícone de Câmera
                 Box(
                     modifier = Modifier
                         .size(36.dp)
@@ -196,6 +184,7 @@ fun GuideProfileHeader() {
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            // Nome do Guia
             Text(
                 text = "Gabriel Pereira",
                 color = Color.White,
@@ -205,6 +194,7 @@ fun GuideProfileHeader() {
 
             Spacer(modifier = Modifier.height(4.dp))
 
+            // Especialidade do Guia
             Text(
                 text = "Tours Históricos e Culturais",
                 color = Color.White.copy(alpha = 0.8f),
@@ -215,6 +205,7 @@ fun GuideProfileHeader() {
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Localização
             Text(
                 text = "Lisboa, Portugal",
                 color = GuideAccentColor,
@@ -224,6 +215,7 @@ fun GuideProfileHeader() {
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Guia Verificado
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -243,30 +235,33 @@ fun GuideProfileHeader() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // IDIOMAS
+            // Idiomas
             Row(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                GuideLanguageChip("Português")
-                GuideLanguageChip("Inglês")
-                GuideLanguageChip("Espanhol")
+                GuideLanguageChip("Português", isSelected = true)
+                GuideLanguageChip("Inglês", isSelected = false)
+                GuideLanguageChip("Espanhol", isSelected = false)
             }
         }
     }
 }
 
 @Composable
-fun GuideLanguageChip(label: String) {
+fun GuideLanguageChip(label: String, isSelected: Boolean) {
+    val textColor = if (isSelected) Color.White else Color.White.copy(alpha = 0.7f)
+    val fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+
     Text(
         text = label,
-        color = Color.White,
+        color = textColor,
         fontSize = 14.sp,
-        fontWeight = FontWeight.Normal
+        fontWeight = fontWeight
     )
 }
 
 // -----------------------------------------------------------------
-// 2. ESTATÍSTICAS
+// 2. ESTATÍSTICAS DO GUIA
 // -----------------------------------------------------------------
 
 @Composable
@@ -274,9 +269,10 @@ fun GuideProfileStatsAndInfo() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .offset(y = (-60).dp)
+            .offset(y = (-60).dp) // Move o card para cima, sobrepondo o header
             .padding(horizontal = 16.dp)
     ) {
+        // Card de Estatísticas do Guia
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = GuideCardBackground),
@@ -299,13 +295,13 @@ fun GuideProfileStatsAndInfo() {
                     icon = Icons.Filled.Star,
                     value = "4.9",
                     label = "Avaliação",
-                    iconColor = Color(0xFFFFC107)
+                    iconColor = Color(0xFFFFC107) // Amarelo para estrela
                 )
                 GuideStatItem(
                     icon = Icons.Filled.AttachMoney,
                     value = "€12.5K",
                     label = "Ganhos",
-                    iconColor = Color(0xFF4CAF50)
+                    iconColor = Color(0xFF4CAF50) // Verde para dinheiro
                 )
                 GuideStatItem(
                     icon = Icons.Filled.CheckCircle,
@@ -343,15 +339,15 @@ fun GuideStatItem(icon: ImageVector, value: String, label: String, iconColor: Co
 }
 
 // -----------------------------------------------------------------
-// 3. CONFIGURAÇÕES
+// 3. CONFIGURAÇÕES DO GUIA (CORRIGIDO O ESPAÇAMENTO)
 // -----------------------------------------------------------------
 
 @Composable
-fun GuideProfileSettings() {
+fun GuideProfileSettings(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .offset(y = (-40).dp)
+            .offset(y = (-40).dp) // Ajuste para compensar o offset do card de estatísticas
             .padding(horizontal = 16.dp)
     ) {
         Text(
@@ -364,38 +360,49 @@ fun GuideProfileSettings() {
 
         Spacer(modifier = Modifier.height(12.dp))
 
+        // Minha disponibilidade
         GuideSettingsItem(
             icon = Icons.Filled.DateRange,
             label = "Minha disponibilidade",
             iconColor = GuideAccentColor,
-            backgroundColor = GuideLightBlue
+            backgroundColor = GuideLightBlue,
+            onClick = { /* Ação ao clicar */ }
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(12.dp)) // ESPAÇAMENTO ADICIONADO
 
+        // Documentos Profissionais
         GuideSettingsItem(
             icon = Icons.Filled.Description,
             label = "Documentos Profissionais",
             iconColor = GuideAccentColor,
-            backgroundColor = GuideLightBlue
+            backgroundColor = GuideLightBlue,
+            onClick = { /* Ação ao clicar */ }
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(12.dp)) // ESPAÇAMENTO ADICIONADO
 
+        // Central de Ajuda
         GuideSettingsItem(
             icon = Icons.Filled.Help,
             label = "Central de Ajuda",
             iconColor = GuideAccentColor,
-            backgroundColor = GuideLightBlue
+            backgroundColor = GuideLightBlue,
+            onClick = { /* Ação ao clicar */ }
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(12.dp)) // ESPAÇAMENTO ADICIONADO
 
+        // Sair da Conta (Vermelho)
         GuideSettingsItem(
             icon = Icons.AutoMirrored.Filled.ExitToApp,
             label = "Sair da Conta",
             iconColor = GuideLogoutRed,
-            backgroundColor = GuideLogoutLightRed
+            backgroundColor = GuideLogoutLightRed,
+            onClick = {
+                navController.navigate(Destinations.AUTH_ROUTE) {
+                popUpTo(navController.graph.id) { inclusive = false }
+            } }
         )
     }
 }
@@ -405,13 +412,15 @@ fun GuideSettingsItem(
     icon: ImageVector,
     label: String,
     iconColor: Color,
-    backgroundColor: Color
+    backgroundColor: Color,
+    onClick: () -> Unit
 ) {
     Card(
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
         modifier = Modifier
             .fillMaxWidth()
+            .clickable{onClick()}
             .height(64.dp)
     ) {
         Row(
@@ -445,6 +454,9 @@ fun GuideSettingsItem(
     }
 }
 
+// -----------------------------------------------------------------
+// PREVIEW
+// -----------------------------------------------------------------
 @Preview(showBackground = true)
 @Composable
 fun GuideProfileScreenPreview() {

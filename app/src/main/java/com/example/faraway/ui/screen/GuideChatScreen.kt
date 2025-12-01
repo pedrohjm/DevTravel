@@ -1,8 +1,8 @@
-// ui/screen/GuideChatScreen.kt
 package com.example.faraway.ui.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -26,6 +26,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.faraway.Destinations
+import com.example.faraway.guideNavItems
 
 // -----------------------------------------------------------------
 // CORES AUXILIARES (Prefixadas com GuideChat para evitar conflito)
@@ -66,14 +68,11 @@ data class GuideChatNavItem( // RENOMEADO
 
 // Placeholder para BottomNavBar (Componente)
 @Composable
-fun GuideChatBottomNavBarPlaceholder(navController: NavController) { // RENOMEADO
-    val navItems = listOf(
-        GuideChatNavItem("explore", Icons.Filled.Search, "Explorar"),
-        GuideChatNavItem("tours", Icons.Filled.DateRange, "Tours"), // Tours em vez de Viagens
-        GuideChatNavItem("chat", Icons.AutoMirrored.Filled.Chat, "Chat"),
-        GuideChatNavItem("perfil", Icons.Filled.Person, "Perfil")
-    )
-
+fun GuideChatBottomNavBarPlaceholder(
+        navController: NavController,
+        navItems: List<NavItem>,
+        startRoute: String
+    ) {
     BottomAppBar(
         containerColor = GuideChatCardBackground,
         contentPadding = PaddingValues(horizontal = 8.dp)
@@ -81,7 +80,13 @@ fun GuideChatBottomNavBarPlaceholder(navController: NavController) { // RENOMEAD
         navItems.forEach { item ->
             NavigationBarItem(
                 selected = item.route == "chat", // Chat selecionado
-                onClick = { /* Ação de Navegação */ },
+                onClick = {
+                    navController.navigate(item.route) {
+                        popUpTo(startRoute) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
                 icon = {
                     Icon(
                         item.icon,
@@ -103,7 +108,7 @@ fun GuideChatBottomNavBarPlaceholder(navController: NavController) { // RENOMEAD
 fun GuideChatScreen(navController: NavController) { // RENOMEADO
     Scaffold(
         bottomBar = {
-            GuideChatBottomNavBarPlaceholder(navController = navController)
+            GuideChatBottomNavBarPlaceholder(navController = navController, navItems = guideNavItems, Destinations.GUIDE_CHAT_ROUTE)
         }
     ) { paddingValues ->
         Column(
@@ -114,7 +119,7 @@ fun GuideChatScreen(navController: NavController) { // RENOMEADO
             GuideChatTopBar()
             GuideChatSearchBar()
             GuideChatStatusTabs()
-            GuideChatList(chats = sampleGuideChats) // USO ATUALIZADO
+            GuideChatList(chats = sampleGuideChats, navController = navController) // USO ATUALIZADO
         }
     }
 }
@@ -218,23 +223,30 @@ fun GuideStatusItem(number: Int, label: String, isSelected: Boolean) { // RENOME
 // -----------------------------------------------------------------
 
 @Composable
-fun GuideChatList(chats: List<GuideChatItemData>) { // RENOMEADO
+fun GuideChatList(chats: List<GuideChatItemData>, navController: NavController) { // RENOMEADO
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(vertical = 8.dp)
     ) {
         items(chats) { chat ->
-            GuideChatItem(chat = chat) // USO ATUALIZADO
+            GuideChatItem(chat = chat, onClick = {
+                navController.navigate("guide_message_screen") {
+                    popUpTo(navController.graph.id) {
+                        inclusive = true
+                    }
+                }
+            }) // USO ATUALIZADO
             Divider(color = Color.LightGray.copy(alpha = 0.3f), thickness = 1.dp)
         }
     }
 }
 
 @Composable
-fun GuideChatItem(chat: GuideChatItemData) { // RENOMEADO
+fun GuideChatItem(chat: GuideChatItemData, onClick: () -> Unit) { // RENOMEADO
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable{onClick()}
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

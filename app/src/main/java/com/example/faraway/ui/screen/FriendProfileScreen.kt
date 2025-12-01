@@ -1,9 +1,9 @@
-// ui/screen/FriendProfileScreen.kt
 package com.example.faraway.ui.screen
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -29,6 +29,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.faraway.Destinations
+import com.example.faraway.amigosNavItems
 
 // -----------------------------------------------------------------
 // CORES AUXILIARES (Prefixadas com FriendProfile para evitar conflito)
@@ -43,7 +45,7 @@ val FriendProfileRed = Color(0xFFD32F2F) // Vermelho para o botão de Sair da Co
 // PLACEHOLDERS PARA DADOS E NAVEGAÇÃO
 // -----------------------------------------------------------------
 
-data class FriendProfileNavItem( // RENOMEADO
+data class FriendProfileNavItem(
     val route: String,
     val icon: ImageVector,
     val label: String
@@ -51,13 +53,11 @@ data class FriendProfileNavItem( // RENOMEADO
 
 // Placeholder para BottomNavBar (Componente)
 @Composable
-fun FriendProfileBottomNavBarPlaceholder(navController: NavController) { // RENOMEADO
-    val navItems = listOf(
-        FriendProfileNavItem("explore", Icons.Filled.Search, "Explorar"),
-        FriendProfileNavItem("chat", Icons.Filled.Chat, "Chat"),
-        FriendProfileNavItem("perfil", Icons.Filled.Person, "Perfil")
-    )
-
+fun FriendProfileBottomNavBarPlaceholder(
+        navController: NavController,
+        navItems: List<NavItem>,
+        startRoute: String
+    ) {
     BottomAppBar(
         containerColor = Color.White,
         contentPadding = PaddingValues(horizontal = 8.dp)
@@ -65,7 +65,13 @@ fun FriendProfileBottomNavBarPlaceholder(navController: NavController) { // RENO
         navItems.forEach { item ->
             NavigationBarItem(
                 selected = item.route == "perfil", // Perfil selecionado
-                onClick = { /* Ação de Navegação */ },
+                onClick = {
+                    navController.navigate(item.route) {
+                        popUpTo(startRoute) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
                 icon = {
                     Icon(
                         item.icon,
@@ -84,25 +90,25 @@ fun FriendProfileBottomNavBarPlaceholder(navController: NavController) { // RENO
 // -----------------------------------------------------------------
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FriendProfileScreen(navController: NavController) { // RENOMEADO
+fun FriendProfileScreen(navController: NavController) {
     val scrollState = rememberScrollState()
 
     Scaffold(
         bottomBar = {
-            FriendProfileBottomNavBarPlaceholder(navController = navController)
+            FriendProfileBottomNavBarPlaceholder(navController = navController,navItems = amigosNavItems ,Destinations.SOCIAL_PROFILE_ROUTE)
         }
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .verticalScroll(scrollState) // ROLAGEM ADICIONADA
+                .verticalScroll(scrollState)
         ) {
-            FriendProfileHeader()
+            FriendProfileHeader(navController = navController)
             FriendProfileStatsCard()
             FriendProfileInterests()
-            FriendProfileSettings()
-            Spacer(modifier = Modifier.height(16.dp)) // Espaçamento final
+            FriendProfileSettings(navController = navController)
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
@@ -112,7 +118,7 @@ fun FriendProfileScreen(navController: NavController) { // RENOMEADO
 // -----------------------------------------------------------------
 
 @Composable
-fun FriendProfileHeader() { // RENOMEADO
+fun FriendProfileHeader(navController: NavController) { // RENOMEADO
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -137,7 +143,13 @@ fun FriendProfileHeader() { // RENOMEADO
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
-            IconButton(onClick = { /* Ação de Configurações */ }) {
+            IconButton(onClick = {
+                navController.navigate("auth") { // editar aki dps
+                    popUpTo(navController.graph.id) {
+                        inclusive = true
+                    }
+                }
+            }) {
                 Icon(Icons.Filled.Settings, contentDescription = "Configurações", tint = Color.White)
             }
         }
@@ -243,7 +255,7 @@ fun FriendProfileStatsCard() { // RENOMEADO
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .offset(y = (-20).dp), // Subindo o card para sobrepor o header
+            .offset(y = (-20).dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -321,7 +333,7 @@ fun FriendProfileInterestChip(label: String) { // RENOMEADO
 // -----------------------------------------------------------------
 
 @Composable
-fun FriendProfileSettings() { // RENOMEADO
+fun FriendProfileSettings(navController: NavController) {
     Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)) {
         Text(
             text = "Configurações",
@@ -336,7 +348,8 @@ fun FriendProfileSettings() { // RENOMEADO
             icon = Icons.Outlined.People,
             label = "Minhas Conexões",
             iconColor = FriendProfileAccentColor,
-            backgroundColor = FriendProfileLightBlue
+            backgroundColor = FriendProfileLightBlue,
+            onClick = { /* Ação ao clicar */ }
         )
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -345,24 +358,37 @@ fun FriendProfileSettings() { // RENOMEADO
             icon = Icons.Outlined.FavoriteBorder,
             label = "Interesses e lugares visitados",
             iconColor = FriendProfileAccentColor,
-            backgroundColor = FriendProfileLightBlue
+            backgroundColor = FriendProfileLightBlue,
+            onClick = { /* Ação ao clicar */ }
         )
         Spacer(modifier = Modifier.height(8.dp))
 
-        // NOVO BOTÃO: Sair da Conta
         FriendProfileSettingsItem(
             icon = Icons.Filled.Logout,
             label = "Sair da Conta",
             iconColor = FriendProfileRed,
-            backgroundColor = FriendProfileRed.copy(alpha = 0.1f)
+            backgroundColor = FriendProfileRed.copy(alpha = 0.1f),
+            onClick = {
+                navController.navigate("auth") {
+                    popUpTo(navController.graph.id) {
+                        inclusive = true
+                    }
+                }
+            }
         )
     }
 }
 
 @Composable
-fun FriendProfileSettingsItem(icon: ImageVector, label: String, iconColor: Color, backgroundColor: Color) { // RENOMEADO
+fun FriendProfileSettingsItem(
+        icon: ImageVector,
+        label: String,
+        iconColor: Color,
+        backgroundColor: Color,
+        onClick: () -> Unit
+) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().clickable{onClick()},
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)

@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.faraway.Destinations
-import com.example.faraway.travelerNavItems
+import com.example.faraway.guideNavItems
 import com.example.faraway.ui.theme.FarAwayTheme
 import com.example.faraway.ui.theme.*
 
@@ -78,7 +78,7 @@ fun GuidePanelScreen(navController: NavController) {
         bottomBar = {
             BottomNavBar(
                 navController = navController,
-                navItems = travelerNavItems,
+                navItems = guideNavItems,
                 startRoute = Destinations.HOST_DASHBOARD_ROUTE // Rota inicial do NavHost
             )
             NavigationBar(containerColor = Color.White){
@@ -86,7 +86,11 @@ fun GuidePanelScreen(navController: NavController) {
                     icon = { Icon(Icons.Default.Search, contentDescription = "Explorar") },
                     label = { Text("Explorar") },
                     selected = selectedItem.value == "Explorar",
-                    onClick = { selectedItem.value = "Explorar" }
+                    onClick = {
+                        navController.navigate(Destinations.GUIDE_DASHBOARD_ROUTE) {
+                        launchSingleTop = true
+                        }
+                    }
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.DateRange, contentDescription = "Tours") },
@@ -104,13 +108,21 @@ fun GuidePanelScreen(navController: NavController) {
                     icon = { Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = "Chat") },
                     label = { Text("Chat") },
                     selected = selectedItem.value == "Chat",
-                    onClick = { selectedItem.value = "Chat" }
+                    onClick = {
+                        navController.navigate(Destinations.GUIDE_CHAT_ROUTE) {
+                            launchSingleTop = true
+                        }
+                    }
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Person, contentDescription = "Perfil") },
                     label = { Text("Perfil") },
                     selected = selectedItem.value == "Perfil",
-                    onClick = { selectedItem.value = "Perfil" }
+                    onClick = {
+                        navController.navigate(Destinations.GUIDE_PROFILE_ROUTE) {
+                            launchSingleTop = true
+                        }
+                    }
                 )
             }
         }

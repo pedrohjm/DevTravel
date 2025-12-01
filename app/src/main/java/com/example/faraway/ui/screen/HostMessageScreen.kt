@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.faraway.Destinations
 
 // -----------------------------------------------------------------
 // CORES AUXILIARES (Prefixadas com HostMessage para evitar conflito)
@@ -72,7 +73,7 @@ val sampleHostMessages = listOf( // RENOMEADO
 @Composable
 fun HostMessageScreen(navController: NavController) { // RENOMEADO
     Scaffold(
-        topBar = { HostMessageHeader() }, // RENOMEADO
+        topBar = { HostMessageHeader(navController = navController) }, // RENOMEADO
         bottomBar = { HostMessageInput() }, // RENOMEADO
         containerColor = HostMessageBackground // RENOMEADO
     ) { paddingValues ->
@@ -96,7 +97,7 @@ fun HostMessageScreen(navController: NavController) { // RENOMEADO
 // -----------------------------------------------------------------
 
 @Composable
-fun HostMessageHeader() { // RENOMEADO
+fun HostMessageHeader(navController: NavController) { // RENOMEADO
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -104,7 +105,11 @@ fun HostMessageHeader() { // RENOMEADO
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(onClick = { /* Ação de Voltar */ }) {
+        IconButton(onClick = {
+            navController.navigate(Destinations.HOST_CHAT_ROUTE) {
+                launchSingleTop = true
+            }
+        }) {
             Icon(
                 Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "Voltar",

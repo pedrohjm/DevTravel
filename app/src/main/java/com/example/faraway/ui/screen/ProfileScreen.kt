@@ -17,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -27,37 +26,34 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.faraway.ui.theme.CardBackground
-import com.example.faraway.ui.theme.InterestTextBlue
-import com.example.faraway.ui.theme.LightBlue
-import com.example.faraway.ui.theme.LogoutLightRed
-import com.example.faraway.ui.theme.LogoutRed
-import com.example.faraway.ui.theme.PrimaryBlue
-import com.example.faraway.ui.theme.TextColor
-
-// CORES LOCAIS (Para evitar erros de importação)
-val AccentColor2 = Color(0xFF0093A8) // Azul Turquesa/Ciano (Seu tom preferido)
-val InterestBgCyan = AccentColor2
+import com.example.faraway.travelerNavItems
 
 // -----------------------------------------------------------------
-// PLACEHOLDERS
+// CORES AUXILIARES (Baseado no design)
 // -----------------------------------------------------------------
+val PrimaryBlue = Color(0xFF192F50) // Azul escuro do cabeçalho
+val AccentColor = Color(0xFF00BCD4) // Cor de destaque (Turquesa/Ciano)
+val LightBlue = Color(0xFFE0F7FA) // Azul claro para os cards de configuração
+val CardBackground = Color(0xFFFFFFFF) // Fundo branco para cards
+val TextColor = Color(0xFF333333) // Cor de texto padrão
+val LogoutRed = Color(0xFFE57373) // Vermelho para o botão de Sair
+val LogoutLightRed = Color(0xFFFFEBEE) // Vermelho claro para o fundo do botão de Sair
+val InterestPurple = Color(0xFF8200DB) // Cor para o texto dos chips de interesse
+
+// -----------------------------------------------------------------
+// PLACEHOLDERS PARA COMPONENTES DE NAVEGAÇÃO (Para evitar erros de referência)
+// -----------------------------------------------------------------
+
+// Placeholder para NavItem (data class)
 data class NavItem(
     val route: String,
     val icon: ImageVector,
     val label: String
 )
 
+// Placeholder para BottomNavBar (Componente)
 @Composable
 fun BottomNavBarPlaceholder(navController: NavController) {
-    val travelerNavItems = listOf(
-        NavItem("explore", Icons.Filled.Search, "Explorar"),
-        NavItem("trips", Icons.Filled.DateRange, "Viagens"),
-        NavItem("social", Icons.Filled.People, "Social"),
-        NavItem("chat", Icons.AutoMirrored.Filled.Chat, "Chat"),
-        NavItem("profile", Icons.Filled.Person, "Perfil")
-    )
-
     BottomAppBar(
         containerColor = CardBackground,
         contentPadding = PaddingValues(horizontal = 8.dp)
@@ -67,14 +63,7 @@ fun BottomNavBarPlaceholder(navController: NavController) {
                 selected = item.route == "profile",
                 onClick = { /* Ação de Navegação */ },
                 icon = { Icon(item.icon, contentDescription = item.label) },
-                label = { Text(item.label, fontSize = 10.sp) },
-                colors = NavigationBarItemDefaults.colors(
-                    indicatorColor = AccentColor2,
-                    selectedIconColor = Color.White,
-                    selectedTextColor = AccentColor2,
-                    unselectedIconColor = Color.Gray,
-                    unselectedTextColor = Color.Gray
-                )
+                label = { Text(item.label, fontSize = 10.sp) }
             )
         }
     }
@@ -87,27 +76,26 @@ fun BottomNavBarPlaceholder(navController: NavController) {
 @Composable
 fun ProfileScreen(navController: NavController) {
     Scaffold(
-        containerColor = Color.White,
         bottomBar = {
             BottomNavBarPlaceholder(navController = navController)
         }
     ) { paddingValues ->
+        // LazyColumn garante que a tela inteira seja rolável
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Color.White)
         ) {
             item { ProfileHeader() }
             item { ProfileStatsAndInterests() }
             item { ProfileSettings(navController = navController) }
-            item { Spacer(modifier = Modifier.height(32.dp)) }
+            item { Spacer(modifier = Modifier.height(32.dp)) } // Espaço extra no final
         }
     }
 }
 
 // -----------------------------------------------------------------
-// 1. HEADER
+// 1. HEADER (Cabeçalho)
 // -----------------------------------------------------------------
 
 @Composable
@@ -115,17 +103,10 @@ fun ProfileHeader() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        PrimaryBlue,
-                        AccentColor2
-                    )
-                )
-            )
-            .padding(bottom = 80.dp)
+            .background(PrimaryBlue)
+            .padding(bottom = 80.dp) // Espaço para o card de estatísticas
     ) {
-        // Top Bar
+        // Top Bar (Voltar e Configurações)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -155,14 +136,14 @@ fun ProfileHeader() {
             }
         }
 
-        // Info do Usuário
+        // Foto de Perfil e Informações
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Foto de Perfil
+            // Foto de Perfil com Câmera (Placeholder)
             Box(contentAlignment = Alignment.BottomEnd) {
                 Box(
                     modifier = Modifier
@@ -179,11 +160,12 @@ fun ProfileHeader() {
                         modifier = Modifier.size(80.dp)
                     )
                 }
+                // Ícone de Câmera
                 Box(
                     modifier = Modifier
                         .size(36.dp)
                         .clip(CircleShape)
-                        .background(AccentColor2)
+                        .background(AccentColor)
                         .padding(8.dp)
                 ) {
                     Icon(
@@ -197,6 +179,7 @@ fun ProfileHeader() {
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            // Nome
             Text(
                 text = "Gabriel Ferreira",
                 color = Color.White,
@@ -206,6 +189,7 @@ fun ProfileHeader() {
 
             Spacer(modifier = Modifier.height(4.dp))
 
+            // Descrição
             Text(
                 text = "Apaixonado por futebol, viagens e degustar bebidas.",
                 color = Color.White.copy(alpha = 0.8f),
@@ -216,15 +200,17 @@ fun ProfileHeader() {
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Localização
             Text(
                 text = "Lisboa, Portugal",
-                color = LightBlue,
+                color = AccentColor,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Perfil Verificado
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -244,25 +230,29 @@ fun ProfileHeader() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Idiomas
+            // Idiomas (Chips)
             Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                horizontalArrangement = Arrangement.spacedBy(16.dp) // Aumentei o espaçamento
             ) {
-                LanguageChip("Português")
-                LanguageChip("Inglês")
-                LanguageChip("Espanhol")
+                LanguageChip("Português", isSelected = true)
+                LanguageChip("Inglês", isSelected = false)
+                LanguageChip("Espanhol", isSelected = false)
             }
         }
     }
 }
 
+// LanguageChip ATUALIZADO para remover o fundo do item selecionado
 @Composable
-fun LanguageChip(label: String) {
+fun LanguageChip(label: String, isSelected: Boolean) {
+    val textColor = if (isSelected) Color.White else Color.White.copy(alpha = 0.7f)
+    val fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+
     Text(
         text = label,
-        color = Color.White,
+        color = textColor,
         fontSize = 14.sp,
-        fontWeight = FontWeight.Normal
+        fontWeight = fontWeight
     )
 }
 
@@ -275,7 +265,7 @@ fun ProfileStatsAndInterests() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .offset(y = (-60).dp)
+            .offset(y = (-60).dp) // Move o card para cima, sobrepondo o header
             .padding(horizontal = 16.dp)
     ) {
         // Card de Estatísticas
@@ -295,33 +285,32 @@ fun ProfileStatsAndInterests() {
                     icon = Icons.Filled.People,
                     value = "156",
                     label = "Conexões",
-                    iconColor = AccentColor2
+                    iconColor = AccentColor
                 )
                 StatItem(
                     icon = Icons.Filled.LocationOn,
                     value = "28",
                     label = "Países",
-                    iconColor = AccentColor2
+                    iconColor = AccentColor
                 )
-                // --- MUDANÇA AQUI: ÍCONE DE ENCONTROS ---
                 StatItem(
-                    icon = Icons.Filled.Handshake, // Trocado de AttachMoney ($) para Handshake (🤝)
+                    icon = Icons.Filled.AttachMoney,
                     value = "156",
                     label = "Encontros",
-                    iconColor = AccentColor2 // Trocado de Verde para Azul Turquesa
+                    iconColor = Color(0xFF4CAF50) // Verde para dinheiro
                 )
-                // ----------------------------------------
                 StatItem(
                     icon = Icons.Filled.Star,
                     value = "4.9",
                     label = "Avaliação",
-                    iconColor = Color(0xFFFFC107)
+                    iconColor = Color(0xFFFFC107) // Amarelo para estrela
                 )
             }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        // Meus Interesses
         Text(
             text = "Meus Interesses",
             fontSize = 16.sp,
@@ -368,19 +357,21 @@ fun StatItem(icon: ImageVector, value: String, label: String, iconColor: Color) 
     }
 }
 
+// InterestChip ATUALIZADO com a cor roxa e borda LightBlue
 @Composable
 fun InterestChip(label: String) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(16.dp))
-            .background(InterestBgCyan.copy(alpha = 0.2f))
+            .background(Color.Transparent) // Fundo transparente
+            .border(1.dp, LightBlue, RoundedCornerShape(16.dp)) // Borda LightBlue
             .padding(horizontal = 12.dp, vertical = 6.dp)
     ) {
         Text(
             text = label,
-            color = InterestTextBlue,
+            color = InterestPurple, // Cor atualizada para 8200DB
             fontSize = 12.sp,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Medium
         )
     }
 }
@@ -394,7 +385,7 @@ fun ProfileSettings(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .offset(y = (-40).dp)
+            .offset(y = (-40).dp) // Ajuste para compensar o offset do card de estatísticas
             .padding(horizontal = 16.dp)
     ) {
         Text(
@@ -407,28 +398,31 @@ fun ProfileSettings(navController: NavController) {
 
         Spacer(modifier = Modifier.height(12.dp))
 
+        // Item de Configuração: Minhas Conexões (Cor padrão)
         SettingsItem(
             icon = Icons.Filled.People,
             label = "Minhas Conexões",
-            iconColor = AccentColor2,
+            iconColor = AccentColor,
             backgroundColor = LightBlue,
             onClick = { /* Ação ao clicar */ }
         )
 
         Spacer(modifier = Modifier.height(12.dp))
 
+        // Item de Configuração: Interesses e Hobbies (Cor padrão)
         SettingsItem(
             icon = Icons.Filled.FavoriteBorder,
             label = "Interesses e Hobbies",
-            iconColor = AccentColor2,
+            iconColor = AccentColor,
             backgroundColor = LightBlue,
             onClick = { /* Ação ao clicar */ }
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(24.dp)) // Espaço maior antes do botão de logout
 
+        // Item de Configuração: Sair da Conta (Cor de destaque - Vermelho)
         SettingsItem(
-            icon = Icons.AutoMirrored.Filled.ExitToApp,
+            icon = Icons.AutoMirrored.Filled.ExitToApp, // Ícone de saída
             label = "Sair da Conta",
             iconColor = LogoutRed,
             backgroundColor = LogoutLightRed,
@@ -490,9 +484,13 @@ fun SettingsItem(
     }
 }
 
+// -----------------------------------------------------------------
+// PREVIEW
+// -----------------------------------------------------------------
 @Preview(showBackground = true)
 @Composable
 fun ProfileScreenPreview() {
+    // Usando o tema padrão para o preview
     MaterialTheme {
         ProfileScreen(navController = rememberNavController())
     }

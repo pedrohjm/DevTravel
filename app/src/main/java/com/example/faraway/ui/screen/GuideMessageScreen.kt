@@ -1,4 +1,3 @@
-// ui/screen/GuideMessageScreen.kt
 package com.example.faraway.ui.screen
 
 import androidx.compose.foundation.background
@@ -25,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.faraway.Destinations
 
 // -----------------------------------------------------------------
 // CORES AUXILIARES (Prefixadas com GuideMessage para evitar conflito)
@@ -64,7 +64,7 @@ val sampleGuideMessages = listOf( // RENOMEADO
 @Composable
 fun GuideMessageScreen(navController: NavController) { // RENOMEADO
     Scaffold(
-        topBar = { GuideMessageHeader() }, // RENOMEADO
+        topBar = { GuideMessageHeader(navController = navController) }, // RENOMEADO
         bottomBar = { GuideMessageInput() }, // RENOMEADO
         containerColor = GuideMessageBackground // RENOMEADO
     ) { paddingValues ->
@@ -88,7 +88,7 @@ fun GuideMessageScreen(navController: NavController) { // RENOMEADO
 // -----------------------------------------------------------------
 
 @Composable
-fun GuideMessageHeader() { // RENOMEADO
+fun GuideMessageHeader(navController: NavController) { // RENOMEADO
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -96,7 +96,11 @@ fun GuideMessageHeader() { // RENOMEADO
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(onClick = { /* Ação de Voltar */ }) {
+        IconButton(onClick = {
+            navController.navigate(Destinations.GUIDE_CHAT_ROUTE) {
+                launchSingleTop = true
+            }
+        }) {
             Icon(
                 Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "Voltar",

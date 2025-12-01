@@ -1,4 +1,3 @@
-// ui/screen/ChatScreen.kt
 package com.example.faraway.ui.screen
 
 import androidx.compose.foundation.background
@@ -26,6 +25,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.faraway.Destinations
+import com.example.faraway.guideNavItems
+import com.example.faraway.travelerNavItems
 
 // -----------------------------------------------------------------
 // CORES AUXILIARES (Prefixadas com Chat para evitar conflito)
@@ -66,14 +68,11 @@ data class ChatNavItem( // RENOMEADO AQUI
 
 // Placeholder para BottomNavBar (Componente)
 @Composable
-fun ChatBottomNavBarPlaceholder(navController: NavController) {
-    val navItems = listOf(
-        ChatNavItem("explore", Icons.Filled.Search, "Explorar"), // USO ATUALIZADO
-        ChatNavItem("viagens", Icons.Filled.DateRange, "Viagens"), // USO ATUALIZADO
-        ChatNavItem("social", Icons.Filled.People, "Social"), // USO ATUALIZADO
-        ChatNavItem("chat", Icons.AutoMirrored.Filled.Chat, "Chat"), // USO ATUALIZADO
-        ChatNavItem("perfil", Icons.Filled.Person, "Perfil") // USO ATUALIZADO
-    )
+fun ChatBottomNavBarPlaceholder(
+        navController: NavController,
+        navItems: List<NavItem>,
+        startRoute: String
+    ) {
 
     BottomAppBar(
         containerColor = ChatCardBackground,
@@ -82,7 +81,13 @@ fun ChatBottomNavBarPlaceholder(navController: NavController) {
         navItems.forEach { item ->
             NavigationBarItem(
                 selected = item.route == "chat", // Chat selecionado
-                onClick = { /* Ação de Navegação */ },
+                onClick = {
+                    navController.navigate(item.route) {
+                        popUpTo(startRoute) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
                 icon = {
                     Icon(
                         item.icon,
@@ -104,7 +109,7 @@ fun ChatBottomNavBarPlaceholder(navController: NavController) {
 fun ChatScreen(navController: NavController) {
     Scaffold(
         bottomBar = {
-            ChatBottomNavBarPlaceholder(navController = navController)
+            ChatBottomNavBarPlaceholder(navController = navController, navItems = travelerNavItems, Destinations.CHAT_ROUTE)
         }
     ) { paddingValues ->
         Column(

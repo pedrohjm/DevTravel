@@ -1,8 +1,8 @@
-// ui/screen/HostChatScreen.kt
 package com.example.faraway.ui.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -25,6 +25,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.faraway.Destinations
+import com.example.faraway.guideNavItems
+import com.example.faraway.hostNavItems
 
 // -----------------------------------------------------------------
 // CORES AUXILIARES (Prefixadas com HostChat para evitar conflito)
@@ -108,13 +111,11 @@ data class HostChatNavItem( // RENOMEADO
 
 // Placeholder para BottomNavBar (Componente)
 @Composable
-fun HostChatBottomNavBarPlaceholder(navController: NavController) { // RENOMEADO
-    val navItems = listOf(
-        HostChatNavItem("explore", Icons.Filled.Search, "Explorar"),
-        HostChatNavItem("reservas", Icons.Filled.CalendarToday, "Reservas"), // Calendário para Reservas
-        HostChatNavItem("chat", Icons.Filled.Chat, "Chat"), // Ícone corrigido
-        HostChatNavItem("perfil", Icons.Filled.PersonOutline, "Perfil")
-    )
+fun HostChatBottomNavBarPlaceholder(
+    navController: NavController,
+    navItems: List<NavItem>,
+    startRoute: String
+) { // RENOMEADO
 
     BottomAppBar(
         containerColor = HostChatCardBackground,
@@ -123,7 +124,13 @@ fun HostChatBottomNavBarPlaceholder(navController: NavController) { // RENOMEADO
         navItems.forEach { item ->
             NavigationBarItem(
                 selected = item.route == "chat", // Chat selecionado
-                onClick = { /* Ação de Navegação */ },
+                onClick = {
+                    navController.navigate(item.route) {
+                        popUpTo(startRoute) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
                 icon = {
                     Icon(
                         item.icon,
@@ -145,7 +152,9 @@ fun HostChatBottomNavBarPlaceholder(navController: NavController) { // RENOMEADO
 fun HostChatScreen(navController: NavController) { // RENOMEADO
     Scaffold(
         bottomBar = {
-            HostChatBottomNavBarPlaceholder(navController = navController)
+            HostChatBottomNavBarPlaceholder(
+                navController = navController, navItems = hostNavItems, Destinations.HOST_CHAT_ROUTE
+            )
         }
     ) { paddingValues ->
         Column(
@@ -156,7 +165,7 @@ fun HostChatScreen(navController: NavController) { // RENOMEADO
             HostChatTopBar()
             HostChatSearchBar()
             HostChatStatusTabs()
-            HostChatList(chats = sampleHostChats) // USO ATUALIZADO
+            HostChatList(chats = sampleHostChats,navController = navController) // USO ATUALIZADO
         }
     }
 }
@@ -260,23 +269,30 @@ fun HostStatusItem(number: Int, label: String, isSelected: Boolean) { // RENOMEA
 // -----------------------------------------------------------------
 
 @Composable
-fun HostChatList(chats: List<HostChatItemData>) { // RENOMEADO
+fun HostChatList(chats: List<HostChatItemData>, navController: NavController) { // RENOMEADO
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(vertical = 8.dp)
     ) {
         items(chats) { chat ->
-            HostChatItem(chat = chat) // USO ATUALIZADO
+            HostChatItem(chat = chat, onClick = {
+                navController.navigate("host_message_screen") {
+                    popUpTo(navController.graph.id) {
+                        inclusive = true
+                    }
+                }
+            })
             Divider(color = Color.LightGray.copy(alpha = 0.3f), thickness = 1.dp)
         }
     }
 }
 
 @Composable
-fun HostChatItem(chat: HostChatItemData) { // RENOMEADO
+fun HostChatItem(chat: HostChatItemData, onClick: () -> Unit) { // RENOMEADO
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable{onClick()}
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

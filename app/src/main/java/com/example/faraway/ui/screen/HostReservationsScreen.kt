@@ -120,9 +120,7 @@ fun MyReservationScreen(navController: NavController) {
                     selected = false,
                     onClick = {
                         navController.navigate(Destinations.HOST_DASHBOARD_ROUTE) {
-                            // Configuração para evitar múltiplas instâncias
                             launchSingleTop = true
-                            // Opcional: popUpTo para limpar a pilha, se necessário
                         }
                     },
                     icon = { Icon(Icons.Default.Search, contentDescription = "Explorar") },
@@ -130,7 +128,11 @@ fun MyReservationScreen(navController: NavController) {
                 )
                 NavigationBarItem(
                     selected = true,
-                    onClick = { /* ação Reservas */ },
+                    onClick = {
+                        navController.navigate(Destinations.HOST_RESERVATION_ROUTE) {
+                            launchSingleTop = true
+                        }
+                    },
                     icon = { Icon(Icons.Default.DateRange, contentDescription = "Reservas") },
                     label = { Text("Reservas") }
                 )
@@ -139,12 +141,20 @@ fun MyReservationScreen(navController: NavController) {
                     icon = {Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = "Chat")},
                     label = { Text("Chat") },
                     selected = false,
-                    onClick = { /* Ação */ }
+                    onClick = {
+                        navController.navigate(Destinations.HOST_CHAT_ROUTE) {
+                            launchSingleTop = true
+                        }
+                    }
                 )
 
                 NavigationBarItem(
                     selected = false,
-                    onClick = { /* ação Perfil */ },
+                    onClick = {
+                        navController.navigate(Destinations.HOST_PERFIL_ROUTE) {
+                            launchSingleTop = true
+                        }
+                    },
                     icon = { Icon(Icons.Default.Person, contentDescription = "Perfil") },
                     label = { Text("Perfil") }
                 )

@@ -13,5 +13,7 @@ object Destinations {
     const val HOST_DASHBOARD_ROUTE = "host_dashboard"
     const val GUIDE_TOURS_ROUTE = "guide_tours" // Rota para a tela do Guia
     const val HOST_RESERVATION_ROUTE = "host_reservation" // Rota para a tela do Anfitrião
+
+    const val SIGN_UP_ROUTE = "sign_up" // Nova rota para o Cadastro
     
 }

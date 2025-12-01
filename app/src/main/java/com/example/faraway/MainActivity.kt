@@ -22,10 +22,12 @@ import com.example.faraway.ui.screen.PainelDoAnfitriaoScreen
 import com.example.faraway.ui.screen.AuthScreen
 import com.example.faraway.ui.screen.MyTourScreen
 import com.example.faraway.ui.screen.MyReservationScreen
+import com.example.faraway.ui.screen.SignUpScreen
 import com.example.faraway.ui.screen.TripsScreen
 import com.example.faraway.ui.theme.FarAwayTheme
 import com.google.firebase.FirebaseApp
 
+// Listas de Navegação
 val travelerNavItems = listOf(
     NavItem(Destinations.EXPLORE_ROUTE, Icons.Filled.Search, "Explorar"),
     NavItem(Destinations.TRIPS_ROUTE, Icons.Filled.DateRange, "Viagens"),
@@ -63,6 +65,7 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
+       // startDestination = Destinations.SIGN_UP_ROUTE
         startDestination = Destinations.AUTH_ROUTE
     ) {
         // 1. Rota de Autenticação
@@ -74,8 +77,12 @@ fun AppNavigation() {
         composable(Destinations.EXPLORE_ROUTE) {
             MainScreen(navController = navController)
         }
+        // ROTA DE CADASTRO ---
+        composable(Destinations.SIGN_UP_ROUTE) {
+            SignUpScreen(navController = navController)
+        }
 
-        // 3. Rota de Viagens (Já estava correta)
+        // 3. Rota de Viagens
         composable(Destinations.TRIPS_ROUTE) {
             TripsScreen(navController = navController)
         }
@@ -90,8 +97,7 @@ fun AppNavigation() {
             MyReservationScreen(navController = navController)
         }
 
-        // Adicione as outras rotas (Social, Chat, Perfil)
-        composable(Destinations.SOCIAL_ROUTE) { /* SocialScreen(navController) */ }
+        // Placeholders para Chat e Perfil (ainda vazios)
         composable(Destinations.CHAT_ROUTE) { /* ChatScreen(navController) */ }
         composable(Destinations.PROFILE_ROUTE) { /* ProfileScreen(navController) */ }
 
@@ -103,6 +109,12 @@ fun AppNavigation() {
         // Painel do Anfitrião
         composable(route = Destinations.HOST_DASHBOARD_ROUTE) {
             PainelDoAnfitriaoScreen(navController = navController)
+        }
+
+        // --- Rota Social ---
+        composable(route = Destinations.SOCIAL_ROUTE) {
+            // Criamos uma lista de teste com dados de verdade para aparecer na tela
+
         }
     }
 }

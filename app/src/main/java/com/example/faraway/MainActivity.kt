@@ -12,11 +12,11 @@ import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavType
+import androidx.compose.runtime.remember
 import androidx.navigation.compose.NavHost
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import com.example.faraway.ui.screen.AmigosScreen
 import com.example.faraway.ui.screen.GuidePanelScreen
 import com.example.faraway.ui.screen.MainScreen
@@ -35,6 +35,11 @@ import com.example.faraway.ui.screen.MyReservationScreen
 import com.example.faraway.ui.screen.NavItem
 import com.example.faraway.ui.screen.ProfileScreen
 import com.example.faraway.ui.screen.SignUpScreen
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.navArgument
+import com.example.faraway.ui.data.AuthRepository
+import com.example.faraway.ui.viewmodel.AuthViewModel
+import com.example.faraway.ui.viewmodel.AuthViewModelFactory
 import com.example.faraway.ui.screen.SocialScreen
 import com.example.faraway.ui.screen.TripsScreen
 import com.example.faraway.ui.screen.UserProfileScreen
@@ -88,9 +93,17 @@ class MainActivity : ComponentActivity() {
 fun AppNavigation() {
     val navController = rememberNavController()
 
+    // CRIAÇÃO DO VIEWMODEL NO ESCOPO MAIS ALTO
+    val authRepository = remember { AuthRepository() }
+    val factory = remember(authRepository) { AuthViewModelFactory(authRepository) }
+    val authViewModel: AuthViewModel = viewModel(factory = factory)
+
+    // A lógica de startDestination baseada na role do usuário logado deve ser feita aqui
+    // Mas para simplificar, vamos manter a rota inicial como AUTH_ROUTE e garantir que o ViewModel seja compartilhado.
+
     NavHost(
         navController = navController,
-       // startDestination = Destinations.SIGN_UP_ROUTE
+        // startDestination = Destinations.SIGN_UP_ROUTE
         startDestination = Destinations.AUTH_ROUTE
     ) {
         // 1. Rota de Autenticação
@@ -153,7 +166,8 @@ fun AppNavigation() {
 
         // --- Rota do Guia ---
         composable(route = Destinations.GUIDE_DASHBOARD_ROUTE) {
-            GuidePanelScreen(navController = navController)
+            // ALTERADO: Passa a instância única do AuthViewModel
+            GuidePanelScreen(navController = navController, authViewModel = authViewModel)
         }
 
         composable(route = Destinations.GUIDE_TOURS_ROUTE) {

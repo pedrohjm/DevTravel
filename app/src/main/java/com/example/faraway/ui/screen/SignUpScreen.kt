@@ -458,8 +458,19 @@ fun SignUpScreen(navController: NavController? = null, role: String) {
             Button(
                 onClick = {
                     if (validateFields()) {
-                        // Chama a função de registro do ViewModel
-                        viewModel.register(email, password, role)
+                        // Chama a função de registro do ViewModel com todos os dados
+                        viewModel.register(
+                            email = email,
+                            password = password,
+                            role = role,
+                            firstName = firstName,
+                            lastName = lastName,
+                            cpf = cpf,
+                            phone = phone,
+                            birthDate = birthDate,
+                            gender = gender,
+                            otherGender = if (gender == "Outro (especificar)") otherGender else null
+                        )
                     }
                 },
                 modifier = Modifier

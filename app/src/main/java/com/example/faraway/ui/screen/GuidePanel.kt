@@ -20,6 +20,9 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -32,18 +35,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.faraway.Destinations
 import com.example.faraway.guideNavItems
+import com.example.faraway.ui.data.AuthRepository
 import com.example.faraway.ui.theme.FarAwayTheme
 import com.example.faraway.ui.theme.*
-
+import com.example.faraway.ui.viewmodel.AuthViewModel
+import com.example.faraway.ui.viewmodel.AuthViewModelFactory
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GuidePanelScreen(navController: NavController) {
+fun GuidePanelScreen(navController: NavController, authViewModel: AuthViewModel) { // ALTERADO: Recebe o ViewModel
+    val userData by authViewModel.userData.collectAsState() // Usa o ViewModel recebido
     val selectedItem = remember { mutableStateOf("Explorar") }
 
     Scaffold(
@@ -53,7 +60,10 @@ fun GuidePanelScreen(navController: NavController) {
                 title = {
                     Column {
                         Text("Painel do Guia", fontWeight = FontWeight.Bold)
-                        Text("Gabriel Ferreira", fontSize = 14.sp)
+                        Text(
+                            text = "${userData?.firstName ?: ""} ${userData?.lastName ?: ""}".trim().ifEmpty { "Carregando..." },
+                            fontSize = 14.sp
+                        )
                     }
                 },
                 actions = {
@@ -61,7 +71,6 @@ fun GuidePanelScreen(navController: NavController) {
                         Icon(Icons.Default.Person, contentDescription = "Perfil")
                     }
                 },
-                //  DEGRADÊ APLICADO AQUI
                 modifier = Modifier.background(
                     Brush.horizontalGradient(
                         colors = listOf(Color(0xFF2364C8), Color(0xFF113162))
@@ -88,7 +97,7 @@ fun GuidePanelScreen(navController: NavController) {
                     selected = selectedItem.value == "Explorar",
                     onClick = {
                         navController.navigate(Destinations.GUIDE_DASHBOARD_ROUTE) {
-                        launchSingleTop = true
+                            launchSingleTop = true
                         }
                     }
                 )
@@ -148,7 +157,7 @@ private fun GuideDashboardContent(innerPadding: PaddingValues) {
             shape = RoundedCornerShape(25.dp),
             colors = CardDefaults.cardColors(containerColor = CurrentInfoCardBlue),
 
-        ) {
+            ) {
             Column(Modifier.padding(16.dp)) {
                 Text("Amanda Nunes", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(4.dp))
@@ -327,6 +336,6 @@ private fun GuideRequestCard(
 @Composable
 fun GuidePanelPreview() {
     FarAwayTheme {
-        GuidePanelScreen(navController = rememberNavController())
+        GuidePanelScreen(navController = rememberNavController(), authViewModel = viewModel(factory = AuthViewModelFactory(AuthRepository())))
     }
 }

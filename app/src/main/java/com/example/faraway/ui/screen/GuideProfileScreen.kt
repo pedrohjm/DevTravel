@@ -15,6 +15,10 @@ import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,10 +29,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.faraway.Destinations
 import com.example.faraway.guideNavItems
+import com.example.faraway.ui.data.AuthRepository
+import com.example.faraway.ui.viewmodel.AuthViewModel
+import com.example.faraway.ui.viewmodel.AuthViewModelFactory
 
 // -----------------------------------------------------------------
 // CORES AUXILIARES (Renomeadas para evitar conflito)
@@ -91,7 +99,7 @@ fun GuideProfileScreen(navController: NavController) {
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            item { GuideProfileHeader() }
+            item { GuideProfileHeader(authViewModel = viewModel(factory = AuthViewModelFactory(AuthRepository()))) }
             item { GuideProfileStatsAndInfo() }
             item { GuideProfileSettings(navController = navController) }
             item { Spacer(modifier = Modifier.height(32.dp)) } // Espaço extra no final
@@ -104,7 +112,9 @@ fun GuideProfileScreen(navController: NavController) {
 // -----------------------------------------------------------------
 
 @Composable
-fun GuideProfileHeader() {
+fun GuideProfileHeader(authViewModel: AuthViewModel) {
+    val userData by authViewModel.userData.collectAsState() // Usa o ViewModel recebido
+    val selectedItem = remember { mutableStateOf("Explorar") }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -186,7 +196,7 @@ fun GuideProfileHeader() {
 
             // Nome do Guia
             Text(
-                text = "Gabriel Pereira",
+                text = "${userData?.firstName ?: ""} ${userData?.lastName ?: ""}".trim().ifEmpty { "Carregando..." },
                 color = Color.White,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold

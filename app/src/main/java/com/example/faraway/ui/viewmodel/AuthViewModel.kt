@@ -1,8 +1,10 @@
 package com.example.faraway.ui.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseUser
+import com.example.faraway.ui.data.User
 import com.example.faraway.ui.data.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,6 +13,13 @@ import kotlinx.coroutines.launch
 import java.lang.Exception
 
 class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
+
+    init {
+        // Tenta buscar os dados do usuário logado assim que o ViewModel é criado
+        repository.currentUser?.uid?.let { uid ->
+            fetchUserData(uid)
+        }
+    }
 
     // Enum para o estado de autenticação (usado pela UI)
     sealed class AuthState {
@@ -28,18 +37,45 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
     private val _userRole = MutableStateFlow<String?>(null)
     val userRole: StateFlow<String?> = _userRole.asStateFlow()
 
+    // Estado do Objeto User (para exibir nome, etc.)
+    private val _userData = MutableStateFlow<User?>(null)
+    val userData: StateFlow<User?> = _userData.asStateFlow()
+
     /**
      * Função de Cadastro
      */
-    fun register(email: String, password: String, role: String) {
+    fun register(
+        email: String,
+        password: String,
+        role: String,
+        firstName: String,
+        lastName: String,
+        cpf: String,
+        phone: String,
+        birthDate: String,
+        gender: String,
+        otherGender: String?
+    ) {
         viewModelScope.launch {
             _authState.value = AuthState.Loading
             try {
-                // A função 'register' já é suspend, então a coroutine espera ela terminar.
-                repository.register(email, password, role)
+                val newUser = User(
+                    role = role,
+                    firstName = firstName,
+                    lastName = lastName,
+                    cpf = cpf,
+                    phone = phone,
+                    birthDate = birthDate,
+                    gender = gender,
+                    otherGender = otherGender
+                )
+
+                repository.register(email, password, newUser)
 
                 val user: FirebaseUser? = repository.currentUser
                 if (user != null) {
+                    // NOVO: Chama a busca dos dados completos do usuário
+                    fetchUserData(user.uid)
                     // A função 'getUserRole' também é suspend.
                     val fetchedRole = repository.getUserRole(user.uid)
                     _authState.value = AuthState.Success(fetchedRole)
@@ -64,6 +100,8 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
 
                 val user: FirebaseUser? = repository.currentUser
                 if (user != null) {
+                    // NOVO: Chama a busca dos dados completos do usuário
+                    fetchUserData(user.uid)
                     val fetchedRole = repository.getUserRole(user.uid)
                     _authState.value = AuthState.Success(fetchedRole)
                 } else {
@@ -86,12 +124,32 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
                 try {
                     val fetchedRole = repository.getUserRole(user.uid)
                     _userRole.value = fetchedRole
+                    // Tenta buscar os dados completos do usuário ao verificar o status
+                    fetchUserData(user.uid)
                 } catch (e: Exception) {
                     // O usuário está logado no Auth, mas não tem documento no Firestore.
                     // É um estado inconsistente, então deslogamos para forçar um novo login.
                     repository.logout()
                     _userRole.value = null
                 }
+            }
+        }
+    }
+
+    /**
+     * Busca os dados completos do usuário logado.
+     */
+    fun fetchUserData(uid: String? = repository.currentUser?.uid) {
+        if (uid == null) return
+
+        viewModelScope.launch {
+            try {
+                val user = repository.getUserData(uid)
+                _userData.value = user
+            } catch (e: Exception) {
+                // CORREÇÃO: Adiciona log de erro para diagnóstico
+                Log.e("AuthViewModel", "Erro ao buscar dados do usuário com UID $uid: ${e.message}")
+                _userData.value = null
             }
         }
     }

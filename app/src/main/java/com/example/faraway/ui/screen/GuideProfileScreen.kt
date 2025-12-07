@@ -400,9 +400,10 @@ fun GuideProfileSettings(navController: NavController) {
             iconColor = GuideLogoutRed,
             backgroundColor = GuideLogoutLightRed,
             onClick = {
-                navController.navigate(Destinations.AUTH_ROUTE) {
-                popUpTo(navController.graph.id) { inclusive = false }
-            } }
+                    navController.navigate(Destinations.AUTH_ROUTE) {
+                    popUpTo(navController.graph.id) { inclusive = false }
+                }
+            }
         )
     }
 }

@@ -15,6 +15,8 @@ object Destinations {
     const val CHAT_ROUTE = "chat"
     const val PROFILE_ROUTE = "profile"
 
+    const val CONFIG_ROUTE = "config"
+
     //  Guide Panel
     const val GUIDE_DASHBOARD_ROUTE = "guide_dashboard"
     const val GUIDE_CHAT_ROUTE = "guide_chat"
@@ -31,6 +33,6 @@ object Destinations {
     const val GUIDE_MESSAGE_SCREEN = "guide_message_screen"
     const val HOST_MESSAGE_SCREEN = "host_message_screen"
 
-    const val SIGN_UP_ROUTE = "sign_up" // Nova rota para o Cadastro
+    const val SIGN_UP_ROUTE = "sign_up/{role}"
     
 }

@@ -12,9 +12,11 @@ import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.faraway.ui.screen.AmigosScreen
 import com.example.faraway.ui.screen.GuidePanelScreen
 import com.example.faraway.ui.screen.MainScreen
@@ -35,6 +37,7 @@ import com.example.faraway.ui.screen.ProfileScreen
 import com.example.faraway.ui.screen.SignUpScreen
 import com.example.faraway.ui.screen.SocialScreen
 import com.example.faraway.ui.screen.TripsScreen
+import com.example.faraway.ui.screen.UserProfileScreen
 import com.example.faraway.ui.theme.FarAwayTheme
 import com.google.firebase.FirebaseApp
 
@@ -104,9 +107,14 @@ fun AppNavigation() {
         composable(Destinations.EXPLORE_ROUTE) {
             MainScreen(navController = navController)
         }
+
         // ROTA DE CADASTRO ---
-        composable(Destinations.SIGN_UP_ROUTE) {
-            SignUpScreen(navController = navController)
+        composable(
+            route = Destinations.SIGN_UP_ROUTE,
+            arguments = listOf(navArgument("role") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val role = backStackEntry.arguments?.getString("role") ?: "Membro"
+            SignUpScreen(navController = navController, role = role)
         }
 
         // 3. Rota de Viagens
@@ -187,6 +195,10 @@ fun AppNavigation() {
 
         composable(Destinations.HOST_MESSAGE_SCREEN){
             HostMessageScreen(navController = navController)
+        }
+
+        composable(Destinations.CONFIG_ROUTE){
+            UserProfileScreen(navController = navController)
         }
 
 

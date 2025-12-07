@@ -26,6 +26,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.faraway.Destinations
+import com.example.faraway.ui.data.AuthRepository
+import com.example.faraway.ui.viewmodel.AuthViewModel
+import com.example.faraway.ui.viewmodel.AuthViewModelFactory
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.statusBars
 import com.example.faraway.ui.components.RadioOption
@@ -38,9 +43,39 @@ import java.util.TimeZone
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignUpScreen(navController: NavController? = null) {
+fun SignUpScreen(navController: NavController? = null, role: String) {
 
     val scrollState = rememberScrollState()
+
+    val authRepository = remember { AuthRepository() }
+    val factory = remember(authRepository) { AuthViewModelFactory(authRepository) }
+    val viewModel: AuthViewModel = viewModel(factory = factory)
+
+    val authState by viewModel.authState.collectAsState()
+    val isLoading = authState is AuthViewModel.AuthState.Loading
+    var registrationError by remember { mutableStateOf<String?>(null) }
+
+    // Efeito para lidar com o estado de autenticação
+    LaunchedEffect(authState) {
+        when (authState) {
+            is AuthViewModel.AuthState.Success -> {
+                val userRole = (authState as AuthViewModel.AuthState.Success).role
+                val destinationRoute = when (userRole) {
+                    "Guia" -> Destinations.GUIDE_DASHBOARD_ROUTE
+                    "Anfitrião" -> Destinations.HOST_DASHBOARD_ROUTE
+                    "Membro" -> Destinations.EXPLORE_ROUTE
+                    else -> Destinations.SOCIAL_AMIGOS_ROUTE // Amigo
+                }
+                navController?.navigate(destinationRoute) {
+                    popUpTo(Destinations.AUTH_ROUTE) { inclusive = true }
+                }
+            }
+            is AuthViewModel.AuthState.Error -> {
+                registrationError = (authState as AuthViewModel.AuthState.Error).message
+            }
+            else -> {}
+        }
+    }
 
     // --- ESTADOS DOS CAMPOS
     var email by remember { mutableStateOf("") }
@@ -83,6 +118,7 @@ fun SignUpScreen(navController: NavController? = null) {
         errorCPF = false
         errorPhone = false
         errorDate = false
+        registrationError = null // Limpa erros anteriores
 
         var isValid = true
 
@@ -98,6 +134,8 @@ fun SignUpScreen(navController: NavController? = null) {
             errorPasswordMatch = true
             isValid = false
         }
+        // A validação de CPF, Telefone e Data de Nascimento é mantida, mas não é estritamente necessária para o Firebase Auth.
+        // No entanto, vamos mantê-la para garantir a integridade dos dados que seriam salvos no Firestore.
         if (cpf.length != 11) {
             errorCPF = true
             isValid = false
@@ -420,21 +458,33 @@ fun SignUpScreen(navController: NavController? = null) {
             Button(
                 onClick = {
                     if (validateFields()) {
-                        println("Cadastro Sucesso! CPF: $cpf, Data: $birthDate")
-                        navController?.navigate("auth") {
-                            popUpTo(navController.graph.id) {
-                                inclusive = true
-                            }
-                        }
+                        // Chama a função de registro do ViewModel
+                        viewModel.register(email, password, role)
                     }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
+                enabled = !isLoading, // Desabilita o botão durante o carregamento
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00AEEF))
             ) {
-                Text("Cadastrar", fontSize = 18.sp)
+                if (isLoading) {
+                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                } else {
+                    Text("Cadastrar", fontSize = 18.sp)
+                }
+            }
+
+            // Exibe erro de registro, se houver
+            registrationError?.let {
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = "Erro no Cadastro: $it",
+                    color = MaterialTheme.colorScheme.error,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
+                )
             }
 
             Spacer(Modifier.height(40.dp))
@@ -496,5 +546,5 @@ fun convertMillisToDate(millis: Long): String {
 @Preview(showBackground = true, showSystemUi = false)
 @Composable
 fun SignUpPreview() {
-    SignUpScreen()
+    SignUpScreen(role = "Anfitrião")
 }

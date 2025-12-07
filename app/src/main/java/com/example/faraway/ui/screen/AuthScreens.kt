@@ -345,7 +345,7 @@ fun CadastroContent(navController: NavController) {
     LaunchedEffect(selectedProfile) {
         when (selectedProfile) {
             "Guia" -> {
-                navController.navigate("sign_up") {
+                navController.navigate("sign_up/${selectedProfile}") {
                     // Implementar a lógica para salvar a role selecionada
                     popUpTo(navController.graph.id) {
                         inclusive = true
@@ -353,16 +353,15 @@ fun CadastroContent(navController: NavController) {
                 }
             }
             "Anfitrião" -> {
-                navController.navigate("sign_up") {
+                navController.navigate("sign_up/${selectedProfile}") {
                     // Implementar a lógica para salvar a role selecionada
                     popUpTo(navController.graph.id) {
                         inclusive = true
                     }
                 }
             }
-            // Fazer uma propria para o amigo
             "Membro"-> {
-                navController.navigate("sign_up") {
+                navController.navigate("sign_up/${selectedProfile}") {
                     // Implementar a lógica para salvar a role selecionada
                     popUpTo(navController.graph.id) {
                         inclusive = true
@@ -370,7 +369,7 @@ fun CadastroContent(navController: NavController) {
                 }
             }
             "Amigo" -> {
-                navController.navigate("sign_up") {
+                navController.navigate("sign_up/${selectedProfile}") {
                     // Implementar a lógica para salvar a role selecionada
                     popUpTo(navController.graph.id) {
                         inclusive = true

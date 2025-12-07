@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.faraway.Destinations
 import com.example.faraway.travelerNavItems
 
 // -----------------------------------------------------------------
@@ -95,7 +96,7 @@ fun ProfileScreen(navController: NavController) {
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            item { ProfileHeader() }
+            item { ProfileHeader(navController = navController) }
             item { ProfileStatsAndInterests() }
             item { ProfileSettings(navController = navController) }
             item { Spacer(modifier = Modifier.height(32.dp)) } // Espaço extra no final
@@ -108,7 +109,7 @@ fun ProfileScreen(navController: NavController) {
 // -----------------------------------------------------------------
 
 @Composable
-fun ProfileHeader() {
+fun ProfileHeader(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -136,7 +137,11 @@ fun ProfileHeader() {
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
-            IconButton(onClick = { /* Ação de Configurações */ }) {
+            IconButton(onClick = {
+                    navController.navigate(Destinations.CONFIG_ROUTE) {
+                    popUpTo(navController.graph.id) { inclusive = false }
+                }
+            }) {
                 Icon(
                     Icons.Filled.Settings,
                     contentDescription = "Configurações",

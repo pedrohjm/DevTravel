@@ -36,5 +36,6 @@ object Destinations {
     const val SIGN_UP_ROUTE = "sign_up/{role}"
 
     const val QUICK_AGENDA_ROUTE = "quick_agenda"
-    
+
+    const val HOST_PROPERTY_ROUTE = "host_property"
 }

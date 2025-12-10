@@ -78,3 +78,11 @@ val GrayLight = Color(0xFFECEFF1)
 val TextGreen = Color(0xFF00695C)
 val FooterBlue = Color(0xFF0277BD)
 val SliderTrack = Color(0xFFE0E0E0)
+
+// Cores para a Minha Propriedade
+val PropertyBgColor = Color(0xFFF0FBFD)
+val PrimaryTeal = Color(0xFF00838F)
+val LightTeal = Color(0xFFE0F7FA)
+val DarkText = Color(0xFF37474F)
+val GreenSuccess = Color(0xFFE8F5E9)
+val GreenText = Color(0xFF2E7D32)

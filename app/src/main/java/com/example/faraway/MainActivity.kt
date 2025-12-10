@@ -38,7 +38,7 @@ import com.example.faraway.ui.screen.SignUpScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.navArgument
 import com.example.faraway.ui.data.AuthRepository
-import com.example.faraway.ui.screen.AvailabilityGuideScreen
+import com.example.faraway.ui.screen.HostPropertyScreen
 import com.example.faraway.ui.viewmodel.AuthViewModel
 import com.example.faraway.ui.viewmodel.AuthViewModelFactory
 import com.example.faraway.ui.screen.SocialScreen
@@ -92,20 +92,21 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun AppNavigation() {
-    val navController = rememberNavController()
+    //val navController = rememberNavController()
 
     // CRIAÇÃO DO VIEWMODEL NO ESCOPO MAIS ALTO
     val authRepository = remember { AuthRepository() }
     val factory = remember(authRepository) { AuthViewModelFactory(authRepository) }
     val authViewModel: AuthViewModel = viewModel(factory = factory)
-
+    val navController = rememberNavController()
     // A lógica de startDestination baseada na role do usuário logado deve ser feita aqui
     // Mas para simplificar, vamos manter a rota inicial como AUTH_ROUTE e garantir que o ViewModel seja compartilhado.
 
     NavHost(
         navController = navController,
-        // startDestination = Destinations.SIGN_UP_ROUTE
-        startDestination = Destinations.AUTH_ROUTE
+         startDestination = Destinations.SIGN_UP_ROUTE
+        //startDestination = Destinations.AUTH_ROUTE
+        //startDestination = Destinations.HOST_PROPERTY_ROUTE
     ) {
         // 1. Rota de Autenticação
         composable(Destinations.AUTH_ROUTE) {
@@ -216,8 +217,12 @@ fun AppNavigation() {
             UserProfileScreen(navController = navController)
         }
 
-        composable(Destinations.AVAILABILITY_ROUTE) {
+        /*composable(Destinations.AVAILABILITY_ROUTE) {
             AvailabilityGuideScreen(navController = navController)
+        }*/
+
+        composable(Destinations.HOST_PROPERTY_ROUTE) {
+            HostPropertyScreen(navController = navController)
         }
 
 

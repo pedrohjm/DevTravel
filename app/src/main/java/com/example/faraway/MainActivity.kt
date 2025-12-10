@@ -38,6 +38,7 @@ import com.example.faraway.ui.screen.SignUpScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.navArgument
 import com.example.faraway.ui.data.AuthRepository
+import com.example.faraway.ui.screen.AvailabilityGuideScreen
 import com.example.faraway.ui.viewmodel.AuthViewModel
 import com.example.faraway.ui.viewmodel.AuthViewModelFactory
 import com.example.faraway.ui.screen.SocialScreen
@@ -213,6 +214,10 @@ fun AppNavigation() {
 
         composable(Destinations.CONFIG_ROUTE){
             UserProfileScreen(navController = navController)
+        }
+
+        composable(Destinations.AVAILABILITY_ROUTE) {
+            AvailabilityGuideScreen(navController = navController)
         }
 
 

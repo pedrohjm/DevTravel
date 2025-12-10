@@ -99,6 +99,7 @@ dependencies {
     // 5. DEPENDÊNCIAS ADICIONAIS
     // -----------------------------------------------------------------
     implementation(libs.generativeai)
+    implementation(libs.androidx.foundation)
 
     // -----------------------------------------------------------------
     // 6. DEPENDÊNCIAS DE TESTE

@@ -1,6 +1,6 @@
 package com.example.faraway.ui.screen
 
-import BottomNavBar
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,7 +10,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
@@ -30,151 +29,96 @@ import com.example.faraway.Destinations
 import com.example.faraway.hostNavItems
 import com.example.faraway.ui.data.Reservation
 import com.example.faraway.ui.data.ReservationStatus
+import com.example.faraway.ui.theme.FarAwayTheme
 
-
- // Tela principal que exibe a lista de reservas de hospedagem do anfitrião.
-/**
-  Esta screen mostra as reservas organizadas em abas por status (Próximos, Concluídos,
-  Pendente, Cancelados) e permite ao anfitrião gerenciar suas reservas.
- */
+// Tela minhas reservas
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyReservationScreen(navController: NavController) {
     var selectedTab by remember { mutableStateOf(0) }
-    val tabs = listOf("Próximos", "Concluídos", "Pendente", "Cancelados")
-
-    // Lista de dados utilizados para demonstração
-    val reservations = remember {
+    val tabs = listOf("Próximos", "Pendente", "Concluídos", "Cancelados")
+    val allReservations = remember {
         listOf(
-            Reservation("Sofia Lima",
-                "Casa Inteira",
-                "Alfama",
-                "14 Out 2025",
-                "24 Out 2025",
-                "€70", "10",
-                ReservationStatus.CONFIRMED,
-                0,
-                4),
-
-            Reservation("Miguel Santos",
-                "Quarto Privado",
-                "Centro",
-                "18 Out 2025",
-                "20 Out 2025",
-                "€55",
-                "2",
-                ReservationStatus.PENDING,
-                0,
-                1),
-
-            Reservation("Carlos Silva",
-                "Apartamento",
-                "Chiado",
-                "01 Nov 2025",
-                "05 Nov 2025",
-                "€90",
-                "4",
-                ReservationStatus.CANCELED,
-                0,
-                2)
+            Reservation("Sofia Lima", "Casa Inteira", "Alfama", "14 Out 2025", "24 Out 2025", "€70", "10",
+                ReservationStatus.CONFIRMED, 0, 4),
+            Reservation("Miguel Santos", "Quarto Privado", "Centro", "18 Out 2025", "20 Out 2025", "€55", "2",
+                ReservationStatus.PENDING, 0, 1),
+            Reservation("Carlos Silva", "Apartamento", "Chiado", "01 Nov 2025", "05 Nov 2025", "€90", "4",
+                ReservationStatus.CANCELED, 0, 2),
+            Reservation("Ana Pereira", "Studio", "Baixa", "01 Set 2025", "05 Set 2025", "€60", "4",
+                ReservationStatus.CONFIRMED, 0, 2)
         )
     }
-
-    // Scaffold é o layout base que fornece estrutura padrão com TopBar, BottomBar e conteúdo
+    val filteredReservations = when (selectedTab) {
+        0 -> allReservations.filter { it.status == ReservationStatus.CONFIRMED }
+        1 -> allReservations.filter { it.status == ReservationStatus.PENDING }
+        2 -> emptyList()
+        3 -> allReservations.filter { it.status == ReservationStatus.CANCELED }
+        else -> allReservations
+    }
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Minhas Reservas") },
                 navigationIcon = {
-                    IconButton(onClick = { /* ação de voltar */ }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Voltar",
-                            tint = Color.White
-                        )
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Voltar", tint = Color.White)
                     }
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        brush = Brush.horizontalGradient(
-                            colors = listOf(Color(0xFF0892B4), Color(0xFF033F4E))
-                        )
-                    ),
+                modifier = Modifier.background(
+                    Brush.horizontalGradient(listOf(Color(0xFF0892B4), Color(0xFF033F4E)))
+                ),
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
                     titleContentColor = Color.White
                 )
             )
         },
-
         bottomBar = {
-            // Barra de navegação inferior com 4 opções principais do app
-            BottomNavBar(
-                navController = navController,
-                navItems = hostNavItems, // Lista específica do Anfitrião
-                startRoute = Destinations.HOST_DASHBOARD_ROUTE // Rota inicial para popUpTo
-            )
+            BottomNavBar(navController, hostNavItems, Destinations.HOST_DASHBOARD_ROUTE)
             NavigationBar(containerColor = Color.White) {
                 NavigationBarItem(
                     selected = false,
-                    onClick = {
-                        navController.navigate(Destinations.HOST_DASHBOARD_ROUTE) {
-                            launchSingleTop = true
-                        }
-                    },
-                    icon = { Icon(Icons.Default.Search, contentDescription = "Explorar") },
+                    onClick = { navController.navigate(Destinations.HOST_DASHBOARD_ROUTE) { launchSingleTop = true } },
+                    icon = { Icon(Icons.Default.Search, "Explorar") },
                     label = { Text("Explorar") }
                 )
                 NavigationBarItem(
                     selected = true,
-                    onClick = {
-                        navController.navigate(Destinations.HOST_RESERVATION_ROUTE) {
-                            launchSingleTop = true
-                        }
-                    },
-                    icon = { Icon(Icons.Default.DateRange, contentDescription = "Reservas") },
+                    onClick = { /* Já estamos aqui */ },
+                    icon = { Icon(Icons.Default.DateRange, "Reservas") },
                     label = { Text("Reservas") }
                 )
-
                 NavigationBarItem(
-                    icon = {Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = "Chat")},
-                    label = { Text("Chat") },
                     selected = false,
-                    onClick = {
-                        navController.navigate(Destinations.HOST_CHAT_ROUTE) {
-                            launchSingleTop = true
-                        }
-                    }
+                    onClick = { navController.navigate(Destinations.HOST_CHAT_ROUTE) { launchSingleTop = true } },
+                    icon = { Icon(Icons.AutoMirrored.Filled.Chat, "Chat") },
+                    label = { Text("Chat") }
                 )
-
                 NavigationBarItem(
                     selected = false,
-                    onClick = {
-                        navController.navigate(Destinations.HOST_PERFIL_ROUTE) {
-                            launchSingleTop = true
-                        }
-                    },
-                    icon = { Icon(Icons.Default.Person, contentDescription = "Perfil") },
+                    onClick = { navController.navigate(Destinations.HOST_PERFIL_ROUTE) { launchSingleTop = true } },
+                    icon = { Icon(Icons.Default.Person, "Perfil") },
                     label = { Text("Perfil") }
                 )
             }
         }
-
     ) { padding ->
-        // Conteúdo principal da tela
-        Column(Modifier.padding(padding)) {
-            // Componente de abas para filtrar as reservas por status
-            TabRow(
+        Column(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
+                .background(Color.White)
+        ) {
+            ScrollableTabRow(
                 selectedTabIndex = selectedTab,
                 containerColor = Color.White,
+                edgePadding = 16.dp,
                 indicator = { tabPositions ->
                     TabRowDefaults.Indicator(
-                        Modifier
-                            .tabIndicatorOffset(tabPositions[selectedTab])
-                            .padding(horizontal = 24.dp)
-                            .height(2.dp),
-                        color = Color(0xFF00D4FF)
+                        Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
+                        color = Color(0xFF00D4FF),
+                        height = 3.dp
                     )
                 },
                 divider = {}
@@ -183,47 +127,38 @@ fun MyReservationScreen(navController: NavController) {
                     Tab(
                         selected = selectedTab == index,
                         onClick = { selectedTab = index },
-                        modifier = Modifier.height(48.dp),
                         text = {
                             Text(
                                 text = title,
-                                color = if (selectedTab == index) Color(0xFF00D4FF) else Color(0xFF6E6E6E),
-                                fontWeight = if (selectedTab == index) FontWeight.Bold else FontWeight.Medium,
-                                fontSize = 14.sp,
-                                letterSpacing = (-0.2).sp
+                                color = if (selectedTab == index) Color(0xFF00D4FF) else Color.Gray,
+                                fontWeight = if (selectedTab == index) FontWeight.Bold else FontWeight.Normal,
+                                fontSize = 14.sp
                             )
                         }
                     )
                 }
             }
-
-            Spacer(modifier = Modifier.height(14.dp))
-
-            // Lista lazy (otimizada) que renderiza apenas os itens visíveis na tela
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 10.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(reservations) { reservation ->
-                    ReservationCard(reservation)
+            Spacer(modifier = Modifier.height(16.dp))
+            if (filteredReservations.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("Nenhuma reserva encontrada.", color = Color.Gray)
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(filteredReservations) { reservation ->
+                        ReservationCard(reservation)
+                    }
                 }
             }
         }
     }
 }
 
-//Componente que representa um card individual de reserva na lista.
-
-/**
-  Exibe todas as informações da reserva: nome do hóspede, tipo de acomodação, localização,
-  datas de check-in/check-out, número de hóspedes, preço e status. Também mostra botões
-  de ação para reservas pendentes.
- */
 @Composable
 fun ReservationCard(reservation: Reservation) {
-
     fun getStatusText(status: ReservationStatus): String {
         return when (status) {
             ReservationStatus.CONFIRMED -> "Confirmado"
@@ -231,160 +166,90 @@ fun ReservationCard(reservation: Reservation) {
             ReservationStatus.CANCELED -> "Cancelado"
         }
     }
-
     fun getStatusColor(status: ReservationStatus): Color {
         return when (status) {
-            ReservationStatus.CONFIRMED -> Color(0xFFDCFCE7) // Verde claro para confirmado
-            ReservationStatus.PENDING -> Color(0xFFFEF9C2)   // Amarelo claro para pendente
-            ReservationStatus.CANCELED -> Color(0xFFFEC2C2)  // Vermelho claro para cancelado
+            ReservationStatus.CONFIRMED -> Color(0xFFDCFCE7)
+            ReservationStatus.PENDING -> Color(0xFFFEF9C2)
+            ReservationStatus.CANCELED -> Color(0xFFFEC2C2)
         }
     }
+    val acceptColor = Color(0xFF16A34A) // Verde
+    val declineColor = Color(0xFFEF4444) // Vermelho
 
-    // Card que contém todas as informações da reserva
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 4.dp, vertical = 4.dp),
-        shape = RoundedCornerShape(10.dp),
-        elevation = CardDefaults.cardElevation(3.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF2F4F6))
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(2.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F9FA))
     ) {
-        Box(modifier = Modifier.fillMaxWidth()) {
-            Column(
-                modifier = Modifier.padding(
-                    horizontal = 10.dp,
-                    vertical = 6.dp
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.Top) {
+                Box(
+                    modifier = Modifier
+                        .size(60.dp)
+                        .background(Color.LightGray, RoundedCornerShape(8.dp))
                 )
-            ) {
-                // Layout em linha para imagem e informações da reserva
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    // Placeholder para imagem da acomodação/hóspede
-                    Box(
-                        modifier = Modifier
-                            .size(65.dp)
-                            .background(Color(0xFF747481), RoundedCornerShape(10.dp))
+                Spacer(Modifier.width(12.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(reservation.name, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text("${reservation.type} • ${reservation.location}", fontSize = 12.sp, color = Color.Gray)
+                    Spacer(Modifier.height(4.dp))
+                    Text("Check-in: ${reservation.checkIn}", fontSize = 12.sp, color = Color.DarkGray)
+                    Text("Check-out: ${reservation.checkOut}", fontSize = 12.sp, color = Color.DarkGray)
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        "${reservation.price}/dia • ${reservation.nights} noites",
+                        color = Color(0xFF00838F), // Teal
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 13.sp
                     )
-
-                    Spacer(Modifier.width(10.dp))
-
-                    // Informações principais e ações da reserva
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
+                }
+                Column(horizontalAlignment = Alignment.End) {
+                    Surface(
+                        color = getStatusColor(reservation.status),
+                        shape = RoundedCornerShape(4.dp)
                     ) {
-                        // Coluna com todas as informações detalhadas da reserva
-                        Column(Modifier.weight(1f)) {
-                            // Nome do hóspede
-                            Text(reservation.name, fontWeight = FontWeight.Bold, fontSize = 15.sp)
-
-                            // Tipo de acomodação e localização
-                            Text(
-                                "${reservation.type} • ${reservation.location}",
-                                fontSize = 12.sp,
-                                color = Color.Gray
-                            )
-
-                            // Data de check-in
-                            Text(
-                                "Check-in: ${reservation.checkIn}",
-                                fontSize = 12.sp,
-                                color = Color.Gray
-                            )
-
-                            // Data de check-out
-                            Text(
-                                "Check-out: ${reservation.checkOut}",
-                                fontSize = 12.sp,
-                                color = Color.Gray
-                            )
-
-                            // Número de hóspedes (com plural correto)
-                            Text(
-                                "${reservation.guests} hóspede${if (reservation.guests > 1) "s" else ""}",
-                                fontSize = 12.sp,
-                                color = Color.Gray
-                            )
-
-                            // Preço por dia e número total de noites
-                            Text(
-                                "${reservation.price}/dia • ${reservation.nights} noites",
-                                color = Color(0xFF00D4FF),
-                                fontWeight = FontWeight.SemiBold,
-                                fontSize = 13.sp
-                            )
-                        }
-
-                        // Coluna lateral com status e botão de chat
-                        Column(
-                            horizontalAlignment = Alignment.End,
-                            verticalArrangement = Arrangement.SpaceBetween,
-                            modifier = Modifier.padding(start = 8.dp)
-                        ) {
-                            // Badge colorido mostrando o status da reserva
-                            Text(
-                                getStatusText(reservation.status),
-                                color = Color.Black,
-                                fontSize = 12.sp,
-                                modifier = Modifier
-                                    .background(
-                                        getStatusColor(reservation.status),
-                                        RoundedCornerShape(6.dp)
-                                    )
-                                    .padding(horizontal = 10.dp, vertical = 3.dp)
-                            )
-
-                            Spacer(Modifier.height(6.dp))
-
-                            // Botão para iniciar conversa com o hóspede
-                            Button(
-                                onClick = { /* Abrir chat */ },
-                                shape = RoundedCornerShape(6.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFFB9CACE)
-                                ),
-                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 2.dp)
-                            ) {
-                                Text("Chat", fontSize = 12.sp)
-                            }
-                        }
+                        Text(
+                            text = getStatusText(reservation.status),
+                            fontSize = 10.sp,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                            color = Color.Black
+                        )
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    OutlinedButton(
+                        onClick = { /* Chat */ },
+                        shape = RoundedCornerShape(8.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+                        modifier = Modifier.height(30.dp)
+                    ) {
+                        Text("Chat", fontSize = 12.sp)
                     }
                 }
-
-                // Seção adicional que aparece apenas para reservas com status PENDENTE
-                // Mostra botões para aceitar ou recusar a reserva
-                if (reservation.status == ReservationStatus.PENDING) {
-                    Spacer(Modifier.height(6.dp))
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 4.dp),
-                        horizontalArrangement = Arrangement.Center
+            }
+            if (reservation.status == ReservationStatus.PENDING) {
+                Spacer(Modifier.height(12.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    // Botão Aceitar
+                    OutlinedButton(
+                        onClick = {},
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(8.dp),
+                        border = BorderStroke(1.dp, acceptColor),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = acceptColor)
                     ) {
-                        // Botão verde para aceitar a reserva
-                        Button(
-                            onClick = { /* ação aceitar */ },
-                            modifier = Modifier
-                                .width(130.dp)
-                                .height(40.dp)
-                                .padding(end = 8.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF16A34A)),
-                            shape = RoundedCornerShape(6.dp)
-                        ) {
-                            Text("Aceitar", fontSize = 14.sp)
-                        }
+                        Text("Aceitar")
+                    }
 
-                        // Botão vermelho para recusar a reserva
-                        Button(
-                            onClick = { /* ação recusar */ },
-                            modifier = Modifier
-                                .width(120.dp)
-                                .height(40.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEA5761)),
-                            shape = RoundedCornerShape(6.dp)
-                        ) {
-                            Text("Recusar", fontSize = 14.sp)
-                        }
+                    // Botão Recusar
+                    OutlinedButton(
+                        onClick = {},
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(8.dp),
+                        border = BorderStroke(1.dp, declineColor),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = declineColor)
+                    ) {
+                        Text("Recusar")
                     }
                 }
             }
@@ -392,11 +257,10 @@ fun ReservationCard(reservation: Reservation) {
     }
 }
 
-
 @Preview(showBackground = true)
 @Composable
 fun MyReservationScreenPreview() {
-    MaterialTheme {
+    FarAwayTheme {
         MyReservationScreen(navController = rememberNavController())
     }
 }

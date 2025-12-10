@@ -107,6 +107,7 @@ fun AppNavigation() {
          startDestination = Destinations.SIGN_UP_ROUTE
         //startDestination = Destinations.AUTH_ROUTE
         //startDestination = Destinations.HOST_PROPERTY_ROUTE
+
     ) {
         // 1. Rota de Autenticação
         composable(Destinations.AUTH_ROUTE) {

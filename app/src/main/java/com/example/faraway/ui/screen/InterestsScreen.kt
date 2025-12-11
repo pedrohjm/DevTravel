@@ -196,7 +196,7 @@ fun HeaderSection() {
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .offset(y = 50.dp) // Ajuste para posicionar como na imagem
+                .offset(y = 70.dp) // Ajuste para posicionar como na imagem //quanto maior o número mais pra baixo fica
         ) {
             Icon(
                 imageVector = Icons.Filled.Add,

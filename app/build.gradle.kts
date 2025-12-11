@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 
-    // PLUGIN DO GOOGLE SERVICES
+    // PLUGIN DO GOOGLE SERVICES (MUITO IMPORTANTE)
     id("com.google.gms.google-services")
 }
 
@@ -63,14 +63,13 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.foundation)
 
-    // Ícones Estendidos (Corrigido: Usando string direta)
+    // Ícones Estendidos
     implementation("androidx.compose.material:material-icons-extended")
 
     // -----------------------------------------------------------------
     // 2. DEPENDÊNCIAS DO VIEWMODEL E COMPOSE
     // -----------------------------------------------------------------
     // Para usar o Composable viewModel() e o ViewModelProvider.Factory
-    // (Corrigido: Usando string direta)
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
 
     // -----------------------------------------------------------------
@@ -79,12 +78,15 @@ dependencies {
     // Firebase BOM (para gerenciar versões)
     implementation(platform("com.google.firebase:firebase-bom:34.5.0"))
 
-    // Firebase Auth (Corrigido: Usando string direta SEM versão para que o BOM gerencie)
-    implementation("com.google.firebase:firebase-auth-ktx:22.3.0")
+    // Firebase Auth (Classes base)
+    //implementation("com.google.firebase:firebase-auth:23.0.0")
+    // Firebase Auth (Extensões Kotlin)
+    implementation("com.google.firebase:firebase-auth-ktx:23.0.0")
+    // Firebase Firestore
+    implementation("com.google.firebase:firebase-firestore-ktx:25.1.1")
 
-    // Outras dependências do Firebase (já estavam sem versão, o que é correto com o BOM)
-    implementation("com.google.firebase:firebase-firestore")
-    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-storage:21.0.1")
+    implementation("com.google.firebase:firebase-storage-ktx:21.0.1")
 
     // Corrotinas para integração com Firebase (para usar .await())
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.0")
@@ -92,13 +94,15 @@ dependencies {
     // -----------------------------------------------------------------
     // 4. DEPENDÊNCIAS DE NAVEGAÇÃO
     // -----------------------------------------------------------------
-    // (Corrigido: Usando string direta)
     implementation("androidx.navigation:navigation-compose:2.7.7")
 
     // -----------------------------------------------------------------
     // 5. DEPENDÊNCIAS ADICIONAIS
     // -----------------------------------------------------------------
     implementation(libs.generativeai)
+
+    // Coil para carregamento de imagens (URL)
+    implementation("io.coil-kt:coil-compose:2.6.0")
 
     // -----------------------------------------------------------------
     // 6. DEPENDÊNCIAS DE TESTE

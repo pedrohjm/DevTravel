@@ -1,4 +1,3 @@
-// ui/screen/HostProfileScreen.kt
 package com.example.faraway.ui.screen
 
 import androidx.compose.foundation.background
@@ -30,6 +29,12 @@ import androidx.navigation.compose.rememberNavController
 import com.example.faraway.Destinations
 import com.example.faraway.guideNavItems
 import com.example.faraway.hostNavItems
+import com.example.faraway.ui.viewmodel.AuthViewModel
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import com.example.faraway.ui.data.User
+import coil.compose.AsyncImage // Importação para exibir imagens da web
 
 // -----------------------------------------------------------------
 // CORES AUXILIARES (Prefixadas com Host para evitar conflito)
@@ -80,7 +85,14 @@ fun HostBottomNavBarPlaceholder(
 // -----------------------------------------------------------------
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HostProfileScreen(navController: NavController) {
+fun HostProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
+    val userData by authViewModel.userData.collectAsState()
+
+    LaunchedEffect(Unit) {
+        if (userData == null) {
+            authViewModel.fetchUserData()
+        }
+    }
     Scaffold(
         bottomBar = {
             HostBottomNavBarPlaceholder(navController = navController, navItems = hostNavItems, startRoute = "profile")
@@ -92,9 +104,9 @@ fun HostProfileScreen(navController: NavController) {
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            item { HostProfileHeader() }
+            item { HostProfileHeader(navController = navController, userData = userData) }
             item { HostProfileStatsAndInfo() }
-            item { HostProfileSettings(navController = navController) }
+            item { HostProfileSettings(navController = navController, authViewModel = authViewModel) }
             item { Spacer(modifier = Modifier.height(32.dp)) } // Espaço extra no final
         }
     }
@@ -105,7 +117,13 @@ fun HostProfileScreen(navController: NavController) {
 // -----------------------------------------------------------------
 
 @Composable
-fun HostProfileHeader() {
+fun HostProfileHeader(navController: NavController, userData: User?) {
+    fun String?.fallback(default: String = "--------"): String = this?.ifBlank { default } ?: default
+
+    val fullName = "${userData?.firstName.fallback("")} ${userData?.lastName.fallback("")}".trim().ifEmpty { "Anfitrião" }
+    val description = userData?.description.fallback("Descrição da Propriedade")
+    val location = userData?.location.fallback("Localização")
+    val profileImageUrl = userData?.profileImageUrl
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -133,8 +151,11 @@ fun HostProfileHeader() {
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
-            IconButton(onClick = { /* Ação de Configurações */ }) {
-                Icon(
+            IconButton(onClick = {
+                navController.navigate(Destinations.CONFIG_ROUTE) {
+                    popUpTo(navController.graph.id) { inclusive = false }
+                }
+            }) { Icon(
                     Icons.Filled.Settings,
                     contentDescription = "Configurações",
                     tint = Color.White
@@ -159,12 +180,21 @@ fun HostProfileHeader() {
                         .border(2.dp, Color.White, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        Icons.Filled.Person,
-                        contentDescription = "Foto de Perfil Placeholder",
-                        tint = Color.Gray,
-                        modifier = Modifier.size(80.dp)
-                    )
+                    if (profileImageUrl.isNullOrEmpty()) {
+                        Icon(
+                            Icons.Filled.Person,
+                            contentDescription = "Foto de Perfil Placeholder",
+                            tint = Color.Gray,
+                            modifier = Modifier.size(80.dp)
+                        )
+                    } else {
+                        AsyncImage(
+                            model = profileImageUrl,
+                            contentDescription = "Foto de Perfil",
+                            modifier = Modifier.fillMaxSize().clip(CircleShape),
+                            contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                        )
+                    }
                 }
                 // Ícone de Câmera
                 Box(
@@ -187,7 +217,7 @@ fun HostProfileHeader() {
 
             // Nome do Anfitrião
             Text(
-                text = "Fátima Alves",
+                text = fullName,
                 color = Color.White,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
@@ -197,7 +227,7 @@ fun HostProfileHeader() {
 
             // Descrição da Propriedade
             Text(
-                text = "Casa Inteira • 2 Quartos",
+                text = description,
                 color = Color.White.copy(alpha = 0.8f),
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center,
@@ -208,7 +238,7 @@ fun HostProfileHeader() {
 
             // Localização
             Text(
-                text = "Porto, Portugal",
+                text = location,
                 color = Color.White,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium
@@ -347,7 +377,7 @@ fun HostStatItem(icon: ImageVector, value: String, label: String, iconColor: Col
 // -----------------------------------------------------------------
 
 @Composable
-fun HostProfileSettings(navController: NavController) {
+fun HostProfileSettings(navController: NavController, authViewModel: AuthViewModel) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -364,7 +394,6 @@ fun HostProfileSettings(navController: NavController) {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Minha Propriedade
         HostSettingsItem(
             icon = Icons.Filled.Home,
             label = "Minha Propriedade",
@@ -404,6 +433,7 @@ fun HostProfileSettings(navController: NavController) {
             iconColor = HostLogoutRed,
             backgroundColor = HostLogoutLightRed,
             onClick = {
+                authViewModel.logout()
                 navController.navigate(Destinations.AUTH_ROUTE) {
                     popUpTo(navController.graph.id) { inclusive = false }
                 }
@@ -456,16 +486,5 @@ fun HostSettingsItem(
                 tint = iconColor
             )
         }
-    }
-}
-
-// -----------------------------------------------------------------
-// PREVIEW
-// -----------------------------------------------------------------
-@Preview(showBackground = true)
-@Composable
-fun HostProfileScreenPreview() {
-    MaterialTheme {
-        HostProfileScreen(navController = rememberNavController())
     }
 }

@@ -26,6 +26,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage // Importação do Coil
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.faraway.ui.data.AuthRepository
+import com.example.faraway.ui.viewmodel.ProfileViewModel
+import com.example.faraway.ui.viewmodel.ProfileViewModelFactory
+import androidx.compose.runtime.LaunchedEffect // Importação necessária
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 
 // -----------------------------------------------------------------
 // CORES AUXILIARES (Prefixadas com UserProfile para evitar conflito)
@@ -82,31 +92,58 @@ fun UserProfileBottomNavBarPlaceholder(navController: NavController) { // RENOME
 // -----------------------------------------------------------------
 // COMPONENTE PRINCIPAL
 // -----------------------------------------------------------------
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UserProfileScreen(navController: NavController) { // RENOMEADO
-    Scaffold(
-        bottomBar = {
-            UserProfileBottomNavBarPlaceholder(navController = navController)
-        }
-    ) { paddingValues ->
-        Column(
+fun UserProfileScreen(
+    navController: NavController,
+    repository: AuthRepository = AuthRepository(),
+    factory: ProfileViewModelFactory = ProfileViewModelFactory(repository),
+    profileViewModel: ProfileViewModel = viewModel(factory = factory)
+) {
+    val user by profileViewModel.user.collectAsState()
+    val profileImageUrl by profileViewModel.profileImageUrl.collectAsState()
+
+    // Efeito para recarregar o perfil sempre que a tela for exibida (útil ao voltar da edição)
+    LaunchedEffect(Unit) {
+        profileViewModel.fetchCurrentUserProfile()
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()), // Rolagem para garantir visibilidade
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        UserProfileHeader(
+            navController = navController,
+            userFullName = "${user?.firstName ?: ""} ${user?.lastName ?: ""}",
+            userLocation = user?.location ?: "Carregando...",
+            profileImageUrl = profileImageUrl
+        )
+        UserProfileDescriptionBox(description = user?.description ?: "Carregando descrição...")
+        UserProfileInterestChips(interests = user?.interests ?: emptyList())
+
+        // NOVO: Botões de Ação lado a lado
+        Row(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(rememberScrollState()), // Rolagem para garantir visibilidade
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp, vertical = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp) // Espaço entre os botões
         ) {
-            UserProfileHeader(navController)
-            UserProfileDescriptionBox()
-            UserProfileInterestChips()
-            UserProfileViewProfileButton(navController, onClick = {navController.navigate("profile") {
-                popUpTo(navController.graph.id) {
-                    inclusive = true
-                }
-            }})
-            Spacer(modifier = Modifier.height(16.dp))
+            // Botão "Ver Perfil"
+            ProfileActionButton(
+                text = "Ver Perfil",
+                onClick = { navController.navigate("profile") },
+                modifier = Modifier.weight(1f) // Ocupa metade do espaço
+            )
+
+            // Botão "Editar Perfil"
+            ProfileActionButton(
+                text = "Editar Perfil",
+                onClick = { navController.navigate("edit_profile") },
+                modifier = Modifier.weight(1f) // Ocupa metade do espaço
+            )
         }
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
@@ -115,31 +152,29 @@ fun UserProfileScreen(navController: NavController) { // RENOMEADO
 // -----------------------------------------------------------------
 
 @Composable
-fun UserProfileHeader(navController: NavController) { // RENOMEADO
+fun UserProfileHeader(
+    navController: NavController,
+    userFullName: String,
+    userLocation: String,
+    profileImageUrl: String?
+) { // RENOMEADO
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(UserProfilePrimaryBlue)
-            .padding(bottom = 60.dp), // Espaço para a foto de perfil
+            .padding(bottom = 100.dp), // Aumenta o padding inferior para empurrar o conteúdo para baixo
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Top Bar
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start
-        ) {
-
-        }
+        // Top Bar (REMOVIDO: Ícone de Voltar e Engrenagem)
+        // Apenas um Spacer para manter o padding superior, se necessário
+        Spacer(modifier = Modifier.height(16.dp))
     }
 
     // Profile Picture, Name and Location (Overlay)
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .offset(y = (-40).dp), // Move para cima para sobrepor o header
+            .offset(y = 0.dp), // Remove o offset negativo para que a foto fique no centro vertical do padding
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Profile Picture
@@ -151,22 +186,32 @@ fun UserProfileHeader(navController: NavController) { // RENOMEADO
                 .border(4.dp, Color.White, CircleShape),
             contentAlignment = Alignment.Center
         ) {
-            // Placeholder para a imagem de perfil
-            Icon(Icons.Filled.Person, contentDescription = "Foto", tint = Color.Gray, modifier = Modifier.size(60.dp))
+            if (profileImageUrl.isNullOrEmpty()) {
+                // Placeholder se não houver URL
+                Icon(Icons.Filled.Person, contentDescription = "Foto", tint = Color.Gray, modifier = Modifier.size(60.dp))
+            } else {
+                // Imagem do Coil
+                AsyncImage(
+                    model = profileImageUrl,
+                    contentDescription = "Foto de Perfil",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
         // User Info
         Text(
-            text = "Gabriel Ferreira",
-            color = UserProfileTextColor,
+            text = userFullName, // DADO DO VIEWMODEL
+            color = Color.White, // Alterado para branco para visibilidade no fundo azul
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold
         )
         Text(
-            text = "Lisboa, Portugal",
-            color = Color.Gray,
+            text = userLocation, // DADO DO VIEWMODEL
+            color = Color.White.copy(alpha = 0.7f), // Alterado para branco suave para visibilidade
             fontSize = 14.sp
         )
     }
@@ -177,7 +222,7 @@ fun UserProfileHeader(navController: NavController) { // RENOMEADO
 // -----------------------------------------------------------------
 
 @Composable
-fun UserProfileDescriptionBox() { // NOVO COMPONENTE
+fun UserProfileDescriptionBox(description: String) { // NOVO COMPONENTE
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -188,7 +233,7 @@ fun UserProfileDescriptionBox() { // NOVO COMPONENTE
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Text(
-            text = "Apaixonado por futebol, viagens e degustar bebidas. Amo conhecer novas culturas e compartilhar experiências únicas. Sempre busco aventuras e momentos especiais. Estou disposto em te ajudar :)",
+            text = description, // DADO DO VIEWMODEL
             modifier = Modifier.padding(16.dp),
             color = UserProfileTextColor,
             fontSize = 14.sp,
@@ -202,8 +247,8 @@ fun UserProfileDescriptionBox() { // NOVO COMPONENTE
 // -----------------------------------------------------------------
 
 @Composable
-fun UserProfileInterestChips() { // NOVO COMPONENTE
-    val interests = listOf("Futebol", "Culinária", "Viagens", "Música", "Fotografia")
+fun UserProfileInterestChips(interests: List<String>) {
+    if (interests.isEmpty()) return
 
     Column(
         modifier = Modifier
@@ -212,16 +257,12 @@ fun UserProfileInterestChips() { // NOVO COMPONENTE
             .offset(y = (-10).dp), // Ajuste de posição
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Primeira linha de chips
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            interests.take(4).forEach { interest ->
-                UserProfileInterestChip(interest)
-            }
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        // Segunda linha de chips
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            interests.drop(4).forEach { interest ->
+        // Exibe todos os chips em LazyRow para melhor manuseio de muitos itens
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(horizontal = 0.dp)
+        ) {
+            items(interests) { interest ->
                 UserProfileInterestChip(interest)
             }
         }
@@ -244,26 +285,25 @@ fun UserProfileInterestChip(label: String) { // NOVO COMPONENTE
 }
 
 // -----------------------------------------------------------------
-// 4. VIEW PROFILE BUTTON
+// 4. PROFILE ACTION BUTTON
 // -----------------------------------------------------------------
 
 @Composable
-fun UserProfileViewProfileButton(navController: NavController,onClick:() -> Unit) { // NOVO COMPONENTE
+fun ProfileActionButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Button(
-        onClick = {navController.navigate("perfil")
-                  },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 16.dp)
+        onClick = onClick,
+        modifier = modifier
             .height(50.dp),
         contentPadding = PaddingValues(),
         colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
     ) {
         Box(
-
             modifier = Modifier
                 .fillMaxSize()
-                .clickable{onClick()}
                 .background(
                     Brush.horizontalGradient(
                         colors = listOf(UserProfileGradientStart, UserProfileGradientEnd)
@@ -274,7 +314,7 @@ fun UserProfileViewProfileButton(navController: NavController,onClick:() -> Unit
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "Ver Perfil",
+                text = text,
                 color = Color.White,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
@@ -288,7 +328,7 @@ fun UserProfileViewProfileButton(navController: NavController,onClick:() -> Unit
 // -----------------------------------------------------------------
 @Preview(showBackground = true)
 @Composable
-fun UserProfileScreenPreview() { // RENOMEADO
+fun UserProfileScreenPreview() {
     MaterialTheme {
         UserProfileScreen(navController = rememberNavController())
     }

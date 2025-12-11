@@ -19,6 +19,9 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -37,12 +40,21 @@ import com.example.faraway.Destinations
 import com.example.faraway.travelerNavItems
 import com.example.faraway.ui.theme.FarAwayTheme
 import com.example.faraway.ui.theme.*
+import com.example.faraway.ui.viewmodel.AuthViewModel
 
 /** Painel do Anfitrião.*/
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PainelDoAnfitriaoScreen(navController: NavController) {
+fun PainelDoAnfitriaoScreen(navController: NavController, authViewModel: AuthViewModel) {
     val selectedItem = remember { mutableStateOf("Explorar") }
+
+    val userData by authViewModel.userData.collectAsState()
+
+    LaunchedEffect(Unit) {
+        if (userData == null) {
+            authViewModel.fetchUserData()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -50,7 +62,11 @@ fun PainelDoAnfitriaoScreen(navController: NavController) {
                 title = {
                     Column {
                         Text("Painel do Anfitrião", fontWeight = FontWeight.Bold)
-                        Text("Fátima Alves", fontSize = 14.sp)
+                        Text(text = "${userData?.firstName ?: ""} ${userData?.lastName ?: ""}".trim().ifEmpty { "Carregando..." },
+                            color = Color.White,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 },
                 actions = {
@@ -300,14 +316,5 @@ private fun HostRequestCard(
 
             }
         }
-    }
-}
-
-/** PREVIEW*/
-@Preview(showBackground = true)
-@Composable
-fun PainelDoAnfitriaoPreview() {
-    FarAwayTheme {
-        PainelDoAnfitriaoScreen(navController = rememberNavController())
     }
 }

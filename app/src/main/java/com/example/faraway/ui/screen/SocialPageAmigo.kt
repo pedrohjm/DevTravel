@@ -19,11 +19,16 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.faraway.Destinations
 import com.example.faraway.amigosNavItems
+import com.example.faraway.ui.data.AuthRepository
+import com.example.faraway.ui.data.User
+import com.example.faraway.ui.viewmodel.MainViewModel
+import com.example.faraway.ui.viewmodel.MainViewModelFactory
 
 
 @Composable
@@ -91,30 +96,17 @@ val PrimaryDark = Color(0xFF007BFF) // Azul escuro original
 // --- Composable Principal da Tela Amigos ---
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun AmigosScreen(navController: NavController) {
-    // Dados de exemplo (Mantidos)
-    val socialUsers = remember {
-        listOf(
-            SocialUser(
-                id = 1,
-                name = "Marcos Lima",
-                nationality = "Nacionalidade brasileira",
-                location = "Lisboa, Portugal",
-                description = "Meu passatempo favorito é colecionar carimbos no passaporte e amigos pelo mundo.",
-                tags = listOf("Cultura", "Música"),
-                imageUrl = 0 // Placeholder
-            ),
-            SocialUser(
-                id = 2,
-                name = "Laura Ribeiro",
-                nationality = "Nacionalidade brasileira",
-                location = "Lisboa, Portugal",
-                description = "Para mim, viajar é sinônimo de festa, novas culturas e muitas histórias para contar.",
-                tags = listOf("Café e Conversa", "Música"),
-                imageUrl = 0 // Placeholder
-            )
-        )
-    }
+fun AmigosScreen(
+    navController: NavController,
+    repository: AuthRepository = AuthRepository(),
+    factory: MainViewModelFactory = MainViewModelFactory(repository),
+    mainViewModel: MainViewModel = viewModel(factory = factory)
+) {
+    // Coletando a lista de amigos do ViewModel
+    val friends by mainViewModel.friends.collectAsState()
+
+    // Assumindo que SocialUserCard pode receber um objeto User
+    val socialUsers: List<User> = friends
 
     var searchText by remember { mutableStateOf("") }
 
@@ -187,7 +179,10 @@ fun AmigosScreen(navController: NavController) {
                 contentPadding = PaddingValues(vertical = 8.dp)
             ) {
                 items(socialUsers) { user ->
-                    SocialUserCard(user = user) // Componente Comum
+                    user?.let {
+                        // A função toSocialUser() só é chamada se 'it' (o usuário) não for nulo
+                        SocialUserCard(user = it.toSocialUser())
+                    }
                 }
             }
         }

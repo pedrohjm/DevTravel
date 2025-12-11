@@ -34,5 +34,8 @@ object Destinations {
     const val HOST_MESSAGE_SCREEN = "host_message_screen"
 
     const val SIGN_UP_ROUTE = "sign_up/{role}"
-    
+
+    const val EDIT_PROFILE_ROUTE = "edit_profile"
+
+    const val VIEW_PROFILE_ROUTE = "view_profile"
 }

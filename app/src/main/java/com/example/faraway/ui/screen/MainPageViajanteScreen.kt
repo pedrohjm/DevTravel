@@ -21,12 +21,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Chat
-import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.People
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
@@ -34,12 +30,11 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,31 +43,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.faraway.ui.theme.AccentColor
-import com.example.faraway.ui.theme.FarAwayTheme
 import com.example.faraway.ui.theme.PrimaryDark
 import com.example.faraway.ui.theme.TagColor
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.faraway.Destinations
 import com.example.faraway.travelerNavItems
-
-data class Guide(
-    val name: String,
-    val location: String,
-    val description: String,
-    val price: String,
-    val rating: Double,
-    val reviewCount: Int,
-    val type: String, // "Guia" ou "Anfitrião"
-    val imageUrl: String // URL ou ID do recurso da imagem
-)
+import com.example.faraway.ui.data.User
+import com.example.faraway.ui.viewmodel.AuthViewModel
+import com.example.faraway.ui.viewmodel.MainViewModel
+import coil.compose.AsyncImage
+import androidx.compose.ui.layout.ContentScale
 
 @Composable
-fun GuideCard(guide: Guide) {
+fun GuideCard(user: User, navController: NavController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -81,33 +67,38 @@ fun GuideCard(guide: Guide) {
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column {
-            // 1. Imagem e Tag
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
             ) {
-                // Imagem (Use Coil ou Glide para carregar a imagem real)
-                // Exemplo com um placeholder:
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.LightGray) // Cor de fundo cinza para o placeholder
-                ) {
-                    // Se quiser, pode adicionar um ícone de imagem no centro do Box
-                    Icon(
-                        imageVector = Icons.Filled.Image,
-                        contentDescription = "Placeholder de Imagem",
-                        tint = Color.Gray,
+                if (user.profileImageUrl.isNullOrEmpty()) {
+                    Box(
                         modifier = Modifier
-                            .align(Alignment.Center)
-                            .size(48.dp)
+                            .fillMaxSize()
+                            .background(Color.LightGray)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Image,
+                            contentDescription = "Placeholder de Imagem",
+                            tint = Color.Gray,
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .size(48.dp)
+                        )
+                    }
+                } else {
+                    AsyncImage(
+                        model = user.profileImageUrl,
+                        contentDescription = "Foto do Guia",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
                     )
                 }
 
-                // Tag "Guia" / "Anfitrião"
+                // Tag "Guia" ou "Anfitrião"
                 Text(
-                    text = guide.type,
+                    text = user.role,
                     color = Color.White,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
@@ -128,7 +119,7 @@ fun GuideCard(guide: Guide) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = guide.name,
+                        text = "${user.firstName} ${user.lastName}",
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
                         color = Color.Black
@@ -137,12 +128,12 @@ fun GuideCard(guide: Guide) {
                         Icon(
                             imageVector = Icons.Filled.Star,
                             contentDescription = "Avaliação",
-                            tint = Color(0xFFFFC107), // Amarelo para estrela
+                            tint = Color(0xFFFFC107),
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(Modifier.width(4.dp))
                         Text(
-                            text = "${guide.rating} (${guide.reviewCount})",
+                            text = "4.9 (127)", // Placeholder
                             fontSize = 14.sp
                         )
                     }
@@ -158,12 +149,12 @@ fun GuideCard(guide: Guide) {
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(Modifier.width(4.dp))
-                    Text(text = guide.location, fontSize = 14.sp)
+                    Text(text = user.location ?: "--------", fontSize = 14.sp)
                 }
                 Spacer(Modifier.height(8.dp))
 
                 // Descrição
-                Text(text = guide.description, fontSize = 14.sp)
+                Text(text = user.description ?: "--------", fontSize = 14.sp)
                 Spacer(Modifier.height(12.dp))
 
                 // Preço e Botão
@@ -173,13 +164,15 @@ fun GuideCard(guide: Guide) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = guide.price,
+                        text = "€25/hora", // Placeholder
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
                         color = PrimaryDark
                     )
                     Button(
-                        onClick = { /* Ação do botão */ },
+                        onClick = {
+                            navController.navigate("${Destinations.VIEW_PROFILE_ROUTE}/${user.uid}")
+                        },
                         colors = ButtonDefaults.buttonColors(containerColor = AccentColor),
                         shape = RoundedCornerShape(8.dp),
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp)
@@ -192,7 +185,6 @@ fun GuideCard(guide: Guide) {
     }
 }
 
-// ui.components.SearchBar.kt
 @Composable
 fun SearchBar() {
     Row(
@@ -209,7 +201,6 @@ fun SearchBar() {
             modifier = Modifier.size(24.dp)
         )
         Spacer(Modifier.width(8.dp))
-        // TextField para a entrada de texto
         BasicTextField(
             value = "Buscar destino, guia, acomodação...",
             onValueChange = { /* Atualizar estado de busca */ },
@@ -228,7 +219,6 @@ fun SearchBar() {
     }
 }
 
-// ui.components.FilterTabs.kt
 @Composable
 fun FilterTabs(
     filters: List<String>,
@@ -237,10 +227,9 @@ fun FilterTabs(
 ) {
     LazyRow(
         modifier = Modifier
-            .fillMaxWidth()
             .padding(vertical = 8.dp),
         contentPadding = PaddingValues(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(filters) { filter ->
             val isSelected = filter == selectedFilter
@@ -261,35 +250,36 @@ fun FilterTabs(
 }
 
 @Composable
-fun MainScreen(navController: NavController) {
-    // Exemplo de dados
-    val guideList = remember {
-        listOf(
-            Guide("Gabriel Pereira", "Lisboa, Portugal", "Guia especializado em história e cultura portuguesa. Tours personalizados.", "€25/hora", 4.9, 127, "Guia", "url_gabriel"),
-            Guide("Maria Silva", "Porto, Portugal", "Anfitriã com casa de campo para aluguel. Experiências locais.", "€50/noite", 4.7, 85, "Anfitrião", "url_maria"),
-            // Adicione mais itens aqui
-        )
+fun MainScreen(navController: NavController, authViewModel: AuthViewModel, mainViewModel: MainViewModel) {
+    val userData by authViewModel.userData.collectAsState()
+
+    LaunchedEffect(Unit) {
+        if (userData == null) {
+            authViewModel.fetchUserData()
+        }
     }
 
-    // Estado para o filtro selecionado
-    var selectedFilter by remember { mutableStateOf("Todos") }
-    val filters = listOf("Todos", "Guias", "Anfitriões", "Amigos")
+    val guides by mainViewModel.guides.collectAsState()
+    val hosts by mainViewModel.hosts.collectAsState()
 
-    // Estrutura principal da tela
+    val combinedList = guides + hosts
+
+    var selectedFilter by remember { mutableStateOf("Todos") }
+    val filters = listOf("Todos", "Guias", "Anfitriões")
+
     Scaffold(
         bottomBar = {
             BottomNavBar(
                 navController = navController,
                 navItems = travelerNavItems,
-                startRoute = Destinations.EXPLORE_ROUTE // Rota inicial do NavHost
-        ) }
+                startRoute = Destinations.EXPLORE_ROUTE
+            ) }
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // 1. Header (Topo)
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -297,7 +287,7 @@ fun MainScreen(navController: NavController) {
                     .padding(16.dp)
             ) {
                 Text(
-                    text = "Olá, Membro! 👋",
+                    text = "Olá, " + "${userData?.firstName ?: ""} ${userData?.lastName ?: ""}".trim().ifEmpty { "Carregando..." },
                     color = Color.White,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
@@ -307,11 +297,16 @@ fun MainScreen(navController: NavController) {
             }
 
             // 2. Tabs/Filtros
-            FilterTabs(
-                filters = filters,
-                selectedFilter = selectedFilter,
-                onFilterSelected = { selectedFilter = it }
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center // Centraliza o bloco de botões
+            ) {
+                FilterTabs(
+                    filters = filters,
+                    selectedFilter = selectedFilter,
+                    onFilterSelected = { selectedFilter = it }
+                )
+            }
 
             // 3. Conteúdo Principal (Lista de Cards)
             LazyColumn(
@@ -320,62 +315,16 @@ fun MainScreen(navController: NavController) {
                     .padding(horizontal = 16.dp),
                 contentPadding = PaddingValues(bottom = 16.dp)
             ) {
-                items(guideList) { guide ->
-                    GuideCard(guide = guide)
+                val filteredList = when (selectedFilter) {
+                    "Guias" -> combinedList.filter { it.role == "Guia" }
+                    "Anfitriões" -> combinedList.filter { it.role == "Anfitrião" }
+                    else -> combinedList
+                }
+
+                items(filteredList) { user ->
+                    GuideCard(user = user, navController = navController)
                 }
             }
         }
-    }
-}
-
-/*
-// Componente de Navegação Inferior
-@Composable
-fun BottomNavBar() {
-    NavigationBar(
-        containerColor = Color.White,
-        contentColor = Color.Gray
-    ) {
-        // Exemplo de itens de navegação
-        NavigationBarItem(
-            icon = { Icon(Icons.Filled.Search, contentDescription = "Explorar") },
-            label = { Text("Explorar", color = AccentColor) },
-            selected = true, // Item selecionado
-            onClick = { /* Ação */ },
-            colors = NavigationBarItemDefaults.colors(selectedIconColor = AccentColor)
-        )
-        NavigationBarItem(
-            icon = { Icon(Icons.Filled.DateRange, contentDescription = "Viagens") },
-            label = { Text("Viagens") },
-            selected = false,
-            onClick = { /* Ação */ }
-        )
-        NavigationBarItem(
-            icon = {Icon(Icons.Filled.People, contentDescription = "Social") },
-            label = { Text("Social") },
-            selected = false,
-            onClick = { /* Ação */ }
-        )
-        NavigationBarItem(
-            icon = {Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = "Chat")},
-            label = { Text("Chat") },
-            selected = false,
-            onClick = { /* Ação */ }
-        )
-        NavigationBarItem(
-            icon = { Icon(Icons.Filled.Person, contentDescription = "Perfil") },
-            label = { Text("Perfil") },
-            selected = false,
-            onClick = { /* Ação */ }
-        )
-    }
-}
-*/
-
-@Preview(showBackground = true)
-@Composable
-fun MainPagePreview() {
-    FarAwayTheme {
-        MainScreen(navController = rememberNavController())
     }
 }

@@ -2,6 +2,7 @@ package com.example.faraway
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material.icons.Icons
@@ -13,6 +14,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.compose.NavHost
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
@@ -38,13 +40,18 @@ import com.example.faraway.ui.screen.SignUpScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.navArgument
 import com.example.faraway.ui.data.AuthRepository
+import com.example.faraway.ui.screen.EditProfileScreen
 import com.example.faraway.ui.viewmodel.AuthViewModel
 import com.example.faraway.ui.viewmodel.AuthViewModelFactory
 import com.example.faraway.ui.screen.SocialScreen
 import com.example.faraway.ui.screen.TripsScreen
 import com.example.faraway.ui.screen.UserProfileScreen
+import com.example.faraway.ui.screen.ViewProfileScreen
 import com.example.faraway.ui.theme.FarAwayTheme
 import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.FirebaseAuth
+import com.example.faraway.ui.viewmodel.MainViewModel
+import com.example.faraway.ui.viewmodel.MainViewModelFactory
 
 // Listas de Navegação
 val travelerNavItems = listOf(
@@ -80,6 +87,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         FirebaseApp.initializeApp(this)
+        FirebaseAuth.getInstance().signOut()
         enableEdgeToEdge()
         setContent {
             FarAwayTheme {
@@ -93,17 +101,17 @@ class MainActivity : ComponentActivity() {
 fun AppNavigation() {
     val navController = rememberNavController()
 
-    // CRIAÇÃO DO VIEWMODEL NO ESCOPO MAIS ALTO
     val authRepository = remember { AuthRepository() }
     val factory = remember(authRepository) { AuthViewModelFactory(authRepository) }
-    val authViewModel: AuthViewModel = viewModel(factory = factory)
 
-    // A lógica de startDestination baseada na role do usuário logado deve ser feita aqui
-    // Mas para simplificar, vamos manter a rota inicial como AUTH_ROUTE e garantir que o ViewModel seja compartilhado.
+    // CRIAÇÃO DO VIEWMODEL NO ESCOPO MAIS ALTO, VINCULADO À ACTIVITY
+    val activity = LocalActivity.current
+    val authViewModel: AuthViewModel = viewModel(factory = factory, viewModelStoreOwner = activity as ViewModelStoreOwner)
+
+    val mainViewModel: MainViewModel = viewModel(factory = MainViewModelFactory(authRepository), viewModelStoreOwner = activity as ViewModelStoreOwner)
 
     NavHost(
         navController = navController,
-        // startDestination = Destinations.SIGN_UP_ROUTE
         startDestination = Destinations.AUTH_ROUTE
     ) {
         // 1. Rota de Autenticação
@@ -118,7 +126,7 @@ fun AppNavigation() {
 
         // 2. Rota de Exploração (Destino do Login)
         composable(Destinations.EXPLORE_ROUTE) {
-            MainScreen(navController = navController)
+            MainScreen(navController = navController, authViewModel = authViewModel, mainViewModel = mainViewModel)
         }
 
         // ROTA DE CADASTRO ---
@@ -150,19 +158,19 @@ fun AppNavigation() {
         }
 
         composable(Destinations.HOST_PERFIL_ROUTE){
-            HostProfileScreen(navController = navController)
+            HostProfileScreen(navController = navController, authViewModel = authViewModel)
         }
 
         // Painel do Anfitrião
         composable(route = Destinations.HOST_DASHBOARD_ROUTE) {
-            PainelDoAnfitriaoScreen(navController = navController)
+            PainelDoAnfitriaoScreen(navController = navController, authViewModel = authViewModel)
         }
 
         // Placeholders para Chat e Perfil (ainda vazios)
         composable(Destinations.CHAT_ROUTE) {
             ChatScreen(navController)
         }
-        composable(Destinations.PROFILE_ROUTE) { ProfileScreen(navController = navController) }
+        composable(Destinations.PROFILE_ROUTE) { ProfileScreen(navController = navController, authViewModel = authViewModel) }
 
         // --- Rota do Guia ---
         composable(route = Destinations.GUIDE_DASHBOARD_ROUTE) {
@@ -179,7 +187,7 @@ fun AppNavigation() {
         }
 
         composable(route = Destinations.GUIDE_PROFILE_ROUTE) {
-            GuideProfileScreen(navController = navController)
+            GuideProfileScreen(navController = navController, authViewModel = authViewModel)
         }
         // --- Rota do Guia ---
 
@@ -194,7 +202,7 @@ fun AppNavigation() {
             AmigosScreen(navController = navController)
         }
         composable(Destinations.SOCIAL_PROFILE_ROUTE) {
-            FriendProfileScreen(navController = navController)
+            FriendProfileScreen(navController = navController, authViewModel = authViewModel)
         }
 
         composable(Destinations.SOCIAL_CHAT_ROUTE) {
@@ -215,6 +223,18 @@ fun AppNavigation() {
             UserProfileScreen(navController = navController)
         }
 
+        composable("edit_profile") {
+            EditProfileScreen(navController = navController, authViewModel = authViewModel)
+        }
 
+        composable(
+            route = "${Destinations.VIEW_PROFILE_ROUTE}/{userId}",
+            arguments = listOf(
+                navArgument("userId") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId") ?: ""
+            ViewProfileScreen(navController = navController, userId = userId)
+        }
     }
 }

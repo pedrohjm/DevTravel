@@ -177,7 +177,6 @@ fun AuthScreen(navController: NavController) {
                 }
             }
 
-            // Texto final
             Text(
                 text = "Conectando viajantes a experiências autênticas",
                 fontSize = 14.sp,
@@ -188,7 +187,7 @@ fun AuthScreen(navController: NavController) {
         }
         SnackbarHost(
             hostState = snackbarHostState,
-            modifier = Modifier.align(Alignment.BottomCenter) // Posiciona na parte de baixo
+            modifier = Modifier.align(Alignment.BottomCenter)
         )
     }
 }
@@ -317,16 +316,15 @@ fun LoginContent(
                     "Guia" -> Destinations.GUIDE_DASHBOARD_ROUTE
                     "Anfitrião" -> Destinations.HOST_DASHBOARD_ROUTE
                     "Membro" -> Destinations.EXPLORE_ROUTE
-                    else -> Destinations.SOCIAL_AMIGOS_ROUTE // Amigo
+                    else -> Destinations.SOCIAL_AMIGOS_ROUTE
                 }
 
                 navController.navigate(destinationRoute) {
-                    popUpTo(Destinations.AUTH_ROUTE) { inclusive = true } // Limpa a pilha de autenticação
+                    popUpTo(Destinations.AUTH_ROUTE) { inclusive = true }
                 }
             }
             is AuthViewModel.AuthState.Error -> {
                 val errorMessage = (authState as AuthViewModel.AuthState.Error).message
-                // CORREÇÃO: Mostrar Snackbar com a mensagem de erro
                 snackbarHostState.showSnackbar(
                     message = errorMessage,
                     actionLabel = "OK",

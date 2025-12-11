@@ -1,6 +1,5 @@
 package com.example.faraway.ui.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseUser
@@ -11,12 +10,15 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.lang.Exception
+import android.util.Log // NOVO: Import para Logcat
 
 class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
 
     init {
+        Log.d("AuthViewModel", "AuthViewModel inicializado.")
         // Tenta buscar os dados do usuário logado assim que o ViewModel é criado
         repository.currentUser?.uid?.let { uid ->
+            Log.d("AuthViewModel", "Usuário encontrado no init, buscando dados para UID: $uid")
             fetchUserData(uid)
         }
     }
@@ -74,9 +76,10 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
 
                 val user: FirebaseUser? = repository.currentUser
                 if (user != null) {
+                    // A função 'getUserRole' também é suspend.
+                    _userData.value = null // Limpa os dados do usuário anterior
                     // NOVO: Chama a busca dos dados completos do usuário
                     fetchUserData(user.uid)
-                    // A função 'getUserRole' também é suspend.
                     val fetchedRole = repository.getUserRole(user.uid)
                     _authState.value = AuthState.Success(fetchedRole)
                 } else {
@@ -100,6 +103,7 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
 
                 val user: FirebaseUser? = repository.currentUser
                 if (user != null) {
+                    _userData.value = null // Limpa os dados do usuário anterior
                     // NOVO: Chama a busca dos dados completos do usuário
                     fetchUserData(user.uid)
                     val fetchedRole = repository.getUserRole(user.uid)
@@ -131,23 +135,36 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
                     // É um estado inconsistente, então deslogamos para forçar um novo login.
                     repository.logout()
                     _userRole.value = null
+                    _userData.value = null // NOVO: Limpa os dados do usuário no caso de inconsistência
                 }
             }
         }
+    }
+
+    fun logout() {
+        repository.logout()
+        _userRole.value = null
+        _userData.value = null // Limpa os dados do usuário no logout
+        _authState.value = AuthState.Idle
     }
 
     /**
      * Busca os dados completos do usuário logado.
      */
     fun fetchUserData(uid: String? = repository.currentUser?.uid) {
-        if (uid == null) return
+        if (uid == null) {
+            Log.w("AuthViewModel", "fetchUserData chamado com UID nulo")
+            return
+        }
 
+        Log.d("AuthViewModel", "Iniciando busca de dados para UID: $uid")
         viewModelScope.launch {
             try {
                 val user = repository.getUserData(uid)
                 _userData.value = user
+                Log.d("AuthViewModel", "Dados do usuário carregados com sucesso: ${user.firstName} ${user.lastName}")
             } catch (e: Exception) {
-                // CORREÇÃO: Adiciona log de erro para diagnóstico
+                // NOVO: Adiciona log de erro para diagnóstico
                 Log.e("AuthViewModel", "Erro ao buscar dados do usuário com UID $uid: ${e.message}")
                 _userData.value = null
             }

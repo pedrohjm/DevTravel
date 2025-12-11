@@ -19,18 +19,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.faraway.Destinations
 import com.example.faraway.travelerNavItems
+import com.example.faraway.ui.data.AuthRepository
+import com.example.faraway.ui.data.User
 import com.example.faraway.ui.theme.PrimaryDark
+import coil.compose.AsyncImage // Importação para exibir imagens da web
+import com.example.faraway.ui.viewmodel.MainViewModel
+import coil.compose.AsyncImage // Importação para exibir imagens da web
+import androidx.compose.ui.layout.ContentScale // Importação para ContentScaleFactory
+import com.example.faraway.ui.viewmodel.MainViewModelFactory
 
 // --- Definições de Cores e Temas (Assumindo que estão definidas no projeto original) ---
 val TagColor = Color(0xFFE0E0E0) // Cor de fundo para as tags
@@ -104,8 +111,20 @@ data class SocialUser(
     val location: String,
     val description: String,
     val tags: List<String>,
-    val imageUrl: Int // Usaremos Int para um drawable placeholder
+    val imageUrl: String? // Alterado para String? para a URL do Firebase Storage
 )
+
+fun User.toSocialUser(): SocialUser {
+    return SocialUser(
+        id = this.uid.hashCode(), // Usando hashCode() como um ID Int temporário
+        name = "${this.firstName} ${this.lastName}",
+        nationality = "Nacionalidade não especificada", // Placeholder
+        location = this.location ?: "Localização não informada",
+        description = this.description ?: "Sem descrição",
+        tags = this.interests ?: emptyList(),
+        imageUrl = this.profileImageUrl // Usa a URL real do perfil
+    )
+}
 
 // --- 2. Composable para o Card de Usuário Social ---
 @Composable
@@ -121,21 +140,32 @@ fun SocialUserCard(user: SocialUser) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .heightIn(min = 100.dp) // Garante uma altura mínima para o Row
                 .padding(16.dp)
         ) {
-            // Imagem do Perfil (Placeholder)
+            // Imagem do Perfil (Real ou Placeholder)
             Box(
                 modifier = Modifier
-                    .size(80.dp)
+                    .width(80.dp) // Mantém a largura
+                    .fillMaxHeight() // Ocupa toda a altura disponível
                     .clip(RoundedCornerShape(8.dp))
                     .background(Color.LightGray)
             ) {
-                Icon(
-                    imageVector = Icons.Default.Person, // Ícone mais apropriado
-                    contentDescription = "Foto de Perfil",
-                    tint = Color.Gray,
-                    modifier = Modifier.align(Alignment.Center).size(40.dp)
-                )
+                if (user.imageUrl.isNullOrEmpty()) {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "Foto de Perfil",
+                        tint = Color.Gray,
+                        modifier = Modifier.align(Alignment.Center).size(40.dp)
+                    )
+                } else {
+                    AsyncImage(
+                        model = user.imageUrl,
+                        contentDescription = "Foto de Perfil",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                }
             }
 
             Spacer(Modifier.width(16.dp))
@@ -272,30 +302,17 @@ fun SocialSearchBar(searchText: String, onSearchTextChanged: (String) -> Unit) {
 // --- 4. Composable Principal da Tela Social ---
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun SocialScreen(navController: NavController) {
-    // Dados de exemplo
-    val socialUsers = remember {
-        listOf(
-            SocialUser(
-                id = 1,
-                name = "Marcos Lima",
-                nationality = "Nacionalidade brasileira",
-                location = "Lisboa, Portugal",
-                description = "Meu passatempo favorito é colecionar carimbos no passaporte e amigos pelo mundo.",
-                tags = listOf("Cultura", "Música"),
-                imageUrl = 0 // Placeholder
-            ),
-            SocialUser(
-                id = 2,
-                name = "Laura Ribeiro",
-                nationality = "Nacionalidade brasileira",
-                location = "Lisboa, Portugal",
-                description = "Para mim, viajar é sinônimo de festa, novas culturas e muitas histórias para contar.",
-                tags = listOf("Café e Conversa", "Música"),
-                imageUrl = 0 // Placeholder
-            )
-        )
-    }
+fun SocialScreen(
+    navController: NavController,
+    repository: AuthRepository = AuthRepository(),
+    factory: MainViewModelFactory = MainViewModelFactory(repository),
+    mainViewModel: MainViewModel = viewModel(factory = factory)
+) {
+    // Coletando a lista de amigos do ViewModel
+    val friends by mainViewModel.friends.collectAsState()
+
+    // Assumindo que SocialUserCard pode receber um objeto User
+    val socialUsers: List<User> = friends
 
     var searchText by remember { mutableStateOf("") }
 
@@ -349,7 +366,10 @@ fun SocialScreen(navController: NavController) {
                 contentPadding = PaddingValues(vertical = 8.dp)
             ) {
                 items(socialUsers) { user ->
-                    SocialUserCard(user = user)
+                    user?.let {
+                        // A função toSocialUser() só é chamada se 'it' (o usuário) não for nulo
+                        SocialUserCard(user = it.toSocialUser())
+                    }
                 }
             }
         }

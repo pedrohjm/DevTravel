@@ -29,17 +29,11 @@ import com.example.faraway.Destinations
 import com.example.faraway.guideNavItems
 import com.example.faraway.travelerNavItems
 
-// -----------------------------------------------------------------
-// CORES AUXILIARES (Prefixadas com Chat para evitar conflito)
-// -----------------------------------------------------------------
 val ChatPrimaryBlue = Color(0xFF192F50) // Azul escuro do cabeçalho
 val ChatAccentColor = Color(0xFF00BCD4) // Cor de destaque (Ciano/Turquesa)
 val ChatTextColor = Color(0xFF333333) // Cor de texto padrão
 val ChatCardBackground = Color(0xFFFFFFFF) // Fundo branco
 
-// -----------------------------------------------------------------
-// PLACEHOLDERS PARA DADOS E NAVEGAÇÃO
-// -----------------------------------------------------------------
 
 data class ChatItemData(
     val id: Int,
@@ -48,7 +42,7 @@ data class ChatItemData(
     val time: String,
     val unreadCount: Int,
     val isOnline: Boolean,
-    val imageUrl: String // Placeholder para a imagem
+    val imageUrl: String
 )
 
 val sampleChats = listOf(
@@ -56,17 +50,15 @@ val sampleChats = listOf(
     ChatItemData(2, "Mariana Costa", "Sua reserva está confirmada!", "Ontem", 2, false, "url2"),
     ChatItemData(3, "Lucas Martins", "Vamos nos encontrar no café amanhã?", "2d atrás", 0, true, "url3"),
     ChatItemData(4, "Ana Souza", "Você pode me enviar os documentos?", "1 semana", 0, false, "url4"),
-    ChatItemData(5, "Pedro Rocha", "Tudo certo para o tour de hoje.", "10:00", 1, false, "url5"), // CORRIGIDO: isOnline = false
+    ChatItemData(5, "Pedro Rocha", "Tudo certo para o tour de hoje.", "10:00", 1, false, "url5"),
 )
 
-// Placeholder para NavItem (data class)
-data class ChatNavItem( // RENOMEADO AQUI
+data class ChatNavItem(
     val route: String,
     val icon: ImageVector,
     val label: String
 )
 
-// Placeholder para BottomNavBar (Componente)
 @Composable
 fun ChatBottomNavBarPlaceholder(
         navController: NavController,
@@ -80,7 +72,7 @@ fun ChatBottomNavBarPlaceholder(
     ) {
         navItems.forEach { item ->
             NavigationBarItem(
-                selected = item.route == "chat", // Chat selecionado
+                selected = item.route == "chat",
                 onClick = {
                     navController.navigate(item.route) {
                         popUpTo(startRoute) { saveState = true }
@@ -101,9 +93,6 @@ fun ChatBottomNavBarPlaceholder(
     }
 }
 
-// -----------------------------------------------------------------
-// COMPONENTE PRINCIPAL
-// -----------------------------------------------------------------
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(navController: NavController) {
@@ -125,9 +114,6 @@ fun ChatScreen(navController: NavController) {
     }
 }
 
-// -----------------------------------------------------------------
-// 1. TOP BAR
-// -----------------------------------------------------------------
 
 @Composable
 fun ChatTopBar() {
@@ -155,9 +141,6 @@ fun ChatTopBar() {
     }
 }
 
-// -----------------------------------------------------------------
-// 2. SEARCH BAR
-// -----------------------------------------------------------------
 
 @Composable
 fun ChatSearchBar() {
@@ -182,10 +165,6 @@ fun ChatSearchBar() {
             .border(1.dp, Color.LightGray.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
     )
 }
-
-// -----------------------------------------------------------------
-// 3. STATUS TABS
-// -----------------------------------------------------------------
 
 @Composable
 fun ChatStatusTabs() {
@@ -219,9 +198,6 @@ fun StatusItem(number: Int, label: String, isSelected: Boolean) {
     }
 }
 
-// -----------------------------------------------------------------
-// 4. CHAT LIST
-// -----------------------------------------------------------------
 
 @Composable
 fun ChatList(chats: List<ChatItemData>) {
@@ -244,9 +220,7 @@ fun ChatItem(chat: ChatItemData) {
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Foto de Perfil com Status Online
         Box(contentAlignment = Alignment.BottomEnd) {
-            // Placeholder para a imagem de perfil
             Box(
                 modifier = Modifier
                     .size(56.dp)
@@ -257,7 +231,6 @@ fun ChatItem(chat: ChatItemData) {
                 Icon(Icons.Filled.Person, contentDescription = "Foto", tint = Color.White)
             }
 
-            // Ponto de Status Online
             if (chat.isOnline) {
                 Box(
                     modifier = Modifier
@@ -271,7 +244,6 @@ fun ChatItem(chat: ChatItemData) {
 
         Spacer(modifier = Modifier.width(12.dp))
 
-        // Nome e Mensagem
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = chat.name,
@@ -291,7 +263,6 @@ fun ChatItem(chat: ChatItemData) {
 
         Spacer(modifier = Modifier.width(8.dp))
 
-        // Hora e Badge de Não Lidas
         Column(horizontalAlignment = Alignment.End) {
             Text(
                 text = chat.time,
@@ -319,9 +290,6 @@ fun ChatItem(chat: ChatItemData) {
     }
 }
 
-// -----------------------------------------------------------------
-// PREVIEW
-// -----------------------------------------------------------------
 @Preview(showBackground = true)
 @Composable
 fun ChatScreenPreview() {

@@ -14,6 +14,9 @@ import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,6 +31,10 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.faraway.Destinations
 import com.example.faraway.travelerNavItems
+import com.example.faraway.ui.data.User
+import coil.compose.AsyncImage // Importação para exibir imagens da web
+import com.example.faraway.ui.viewmodel.AuthViewModel
+import com.example.faraway.ui.data.AuthRepository
 
 // -----------------------------------------------------------------
 // CORES AUXILIARES (Baseado no design)
@@ -84,22 +91,29 @@ fun BottomNavBarPlaceholder(
 // -----------------------------------------------------------------
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(navController: NavController) {
+fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
+    val userData by authViewModel.userData.collectAsState()
+
+    LaunchedEffect(Unit) {
+        if (userData == null) {
+            authViewModel.fetchUserData()
+        }
+    }
+
     Scaffold(
         bottomBar = {
             BottomNavBarPlaceholder(navController = navController, navItems = travelerNavItems, startRoute = "profile")
         }
     ) { paddingValues ->
-        // LazyColumn garante que a tela inteira seja rolável
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            item { ProfileHeader(navController = navController) }
-            item { ProfileStatsAndInterests() }
-            item { ProfileSettings(navController = navController) }
-            item { Spacer(modifier = Modifier.height(32.dp)) } // Espaço extra no final
+            item { ProfileHeader(navController = navController, userData) }
+            item { ProfileStatsAndInterests(userData = userData) }
+            item { ProfileSettings(navController = navController, authViewModel = authViewModel) }
+            item { Spacer(modifier = Modifier.height(32.dp)) }
         }
     }
 }
@@ -109,7 +123,15 @@ fun ProfileScreen(navController: NavController) {
 // -----------------------------------------------------------------
 
 @Composable
-fun ProfileHeader(navController: NavController) {
+fun ProfileHeader(navController: NavController, userData: User?) {
+    val profileImageUrl = userData?.profileImageUrl // Obtém a URL da imagem do usuário
+    fun String?.fallback(): String = this?.ifBlank { "--------" } ?: "--------"
+
+    val fullName = "${userData?.firstName.fallback()} ${userData?.lastName.fallback()}".trim().ifEmpty { "--------" }
+    val description = userData?.description.fallback()
+    val location = userData?.location.fallback()
+    val languages = userData?.languages ?: emptyList()
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -138,7 +160,7 @@ fun ProfileHeader(navController: NavController) {
                 fontWeight = FontWeight.Bold
             )
             IconButton(onClick = {
-                    navController.navigate(Destinations.CONFIG_ROUTE) {
+                navController.navigate(Destinations.CONFIG_ROUTE) {
                     popUpTo(navController.graph.id) { inclusive = false }
                 }
             }) {
@@ -167,12 +189,21 @@ fun ProfileHeader(navController: NavController) {
                         .border(2.dp, Color.White, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        Icons.Filled.Person,
-                        contentDescription = "Foto de Perfil Placeholder",
-                        tint = Color.Gray,
-                        modifier = Modifier.size(80.dp)
-                    )
+                    if (profileImageUrl.isNullOrEmpty()) {
+                        Icon(
+                            Icons.Filled.Person,
+                            contentDescription = "Foto de Perfil Placeholder",
+                            tint = Color.Gray,
+                            modifier = Modifier.size(80.dp)
+                        )
+                    } else {
+                        AsyncImage(
+                            model = profileImageUrl,
+                            contentDescription = "Foto de Perfil",
+                            modifier = Modifier.fillMaxSize().clip(CircleShape),
+                            contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                        )
+                    }
                 }
                 // Ícone de Câmera
                 Box(
@@ -195,7 +226,7 @@ fun ProfileHeader(navController: NavController) {
 
             // Nome
             Text(
-                text = "Gabriel Ferreira",
+                text = fullName,
                 color = Color.White,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
@@ -205,7 +236,7 @@ fun ProfileHeader(navController: NavController) {
 
             // Descrição
             Text(
-                text = "Apaixonado por futebol, viagens e degustar bebidas.",
+                text = description,
                 color = Color.White.copy(alpha = 0.8f),
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center,
@@ -216,7 +247,7 @@ fun ProfileHeader(navController: NavController) {
 
             // Localização
             Text(
-                text = "Lisboa, Portugal",
+                text = location,
                 color = AccentColor,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium
@@ -246,11 +277,20 @@ fun ProfileHeader(navController: NavController) {
 
             // Idiomas (Chips)
             Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp) // Aumentei o espaçamento
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                LanguageChip("Português", isSelected = true)
-                LanguageChip("Inglês", isSelected = false)
-                LanguageChip("Espanhol", isSelected = false)
+                if (languages.isEmpty()) {
+                    Text(
+                        text = "--------",
+                        color = Color.White.copy(alpha = 0.7f),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal
+                    )
+                } else {
+                    languages.forEach { lang ->
+                        GuideLanguageChip(lang, isSelected = true) // Assume-se que todas as línguas listadas são as faladas
+                    }
+                }
             }
         }
     }
@@ -261,12 +301,16 @@ fun ProfileHeader(navController: NavController) {
 fun LanguageChip(label: String, isSelected: Boolean) {
     val textColor = if (isSelected) Color.White else Color.White.copy(alpha = 0.7f)
     val fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+    val backgroundColor = if (isSelected) AccentColor else Color.LightGray.copy(alpha = 0.3f)
 
     Text(
         text = label,
         color = textColor,
         fontSize = 14.sp,
-        fontWeight = fontWeight
+        fontWeight = fontWeight,
+        modifier = Modifier
+            .background(backgroundColor, RoundedCornerShape(12.dp))
+            .padding(horizontal = 12.dp, vertical = 6.dp)
     )
 }
 
@@ -275,11 +319,11 @@ fun LanguageChip(label: String, isSelected: Boolean) {
 // -----------------------------------------------------------------
 
 @Composable
-fun ProfileStatsAndInterests() {
+fun ProfileStatsAndInterests(userData: User?) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .offset(y = (-60).dp) // Move o card para cima, sobrepondo o header
+            .offset(y = (-60).dp)
             .padding(horizontal = 16.dp)
     ) {
         // Card de Estatísticas
@@ -311,13 +355,13 @@ fun ProfileStatsAndInterests() {
                     icon = Icons.Filled.AttachMoney,
                     value = "156",
                     label = "Encontros",
-                    iconColor = Color(0xFF4CAF50) // Verde para dinheiro
+                    iconColor = Color(0xFF4CAF50)
                 )
                 StatItem(
                     icon = Icons.Filled.Star,
                     value = "4.9",
                     label = "Avaliação",
-                    iconColor = Color(0xFFFFC107) // Amarelo para estrela
+                    iconColor = Color(0xFFFFC107)
                 )
             }
         }
@@ -335,14 +379,22 @@ fun ProfileStatsAndInterests() {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Chips de Interesses
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.padding(horizontal = 8.dp)
         ) {
-            InterestChip("Futebol")
-            InterestChip("Culinária")
-            InterestChip("Fotografia")
+            val interests = userData?.interests ?: emptyList()
+            if (interests.isEmpty()) {
+                Text(
+                    text = "--------",
+                    fontSize = 14.sp,
+                    color = TextColor.copy(alpha = 0.5f)
+                )
+            } else {
+                interests.forEach { interest ->
+                    InterestChip(interest)
+                }
+            }
         }
     }
 }
@@ -395,7 +447,7 @@ fun InterestChip(label: String) {
 // -----------------------------------------------------------------
 
 @Composable
-fun ProfileSettings(navController: NavController) {
+fun ProfileSettings(navController: NavController, authViewModel: AuthViewModel ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -441,6 +493,7 @@ fun ProfileSettings(navController: NavController) {
             iconColor = LogoutRed,
             backgroundColor = LogoutLightRed,
             onClick = {
+                authViewModel.logout()
                 navController.navigate("auth") {
                     popUpTo(navController.graph.id) {
                         inclusive = true
@@ -495,17 +548,5 @@ fun SettingsItem(
                 tint = iconColor
             )
         }
-    }
-}
-
-// -----------------------------------------------------------------
-// PREVIEW
-// -----------------------------------------------------------------
-@Preview(showBackground = true)
-@Composable
-fun ProfileScreenPreview() {
-    // Usando o tema padrão para o preview
-    MaterialTheme {
-        ProfileScreen(navController = rememberNavController())
     }
 }

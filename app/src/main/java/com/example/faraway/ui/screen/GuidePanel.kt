@@ -31,6 +31,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -45,16 +46,33 @@ import com.example.faraway.ui.theme.FarAwayTheme
 import com.example.faraway.ui.theme.*
 import com.example.faraway.ui.viewmodel.AuthViewModel
 import com.example.faraway.ui.viewmodel.AuthViewModelFactory
+import com.example.faraway.ui.viewmodel.GuidePanelViewModel
+import com.example.faraway.ui.viewmodel.GuidePanelViewModelFactory
+import com.example.faraway.ui.viewmodel.FriendRequest
+import coil.compose.AsyncImage
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GuidePanelScreen(navController: NavController, authViewModel: AuthViewModel) { // ALTERADO: Recebe o ViewModel
-    val userData by authViewModel.userData.collectAsState() // Usa o ViewModel recebido
+fun GuidePanelScreen(
+    navController: NavController,
+    authViewModel: AuthViewModel,
+    repository: AuthRepository = AuthRepository(),
+    viewModel: GuidePanelViewModel = viewModel(
+        factory = GuidePanelViewModelFactory(repository)
+    )
+) {
+    val userData by authViewModel.userData.collectAsState()
     val selectedItem = remember { mutableStateOf("Explorar") }
 
+    LaunchedEffect(Unit) {
+        if (userData == null) {
+            authViewModel.fetchUserData()
+        }
+        viewModel.fetchPendingRequests() // Busca as solicitações ao iniciar
+    }
+
     Scaffold(
-        // Painel do Guia
         topBar = {
             TopAppBar(
                 title = {
@@ -136,13 +154,19 @@ fun GuidePanelScreen(navController: NavController, authViewModel: AuthViewModel)
             }
         }
     ) { innerPadding ->
-        GuideDashboardContent(innerPadding)
+        GuideDashboardContent(innerPadding, viewModel)
     }
 }
 
 /** O CONTEÚDO DA TELA DO GUIA*/
 @Composable
-private fun GuideDashboardContent(innerPadding: PaddingValues) {
+private fun GuideDashboardContent(
+    innerPadding: PaddingValues,
+    viewModel: GuidePanelViewModel
+) {
+    val pendingRequests by viewModel.pendingRequests.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+
     Column(
         modifier = Modifier
             .padding(innerPadding)
@@ -150,7 +174,11 @@ private fun GuideDashboardContent(innerPadding: PaddingValues) {
             .verticalScroll(rememberScrollState())
     ) {
         // --- Tour Atuais ---
-        Text("Tour Atuais", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+        Text(
+            "Tour Atuais",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
+        )
         Spacer(Modifier.height(8.dp))
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -159,16 +187,28 @@ private fun GuideDashboardContent(innerPadding: PaddingValues) {
 
             ) {
             Column(Modifier.padding(16.dp)) {
-                Text("Amanda Nunes", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(
+                    "Amanda Nunes",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
                 Spacer(Modifier.height(4.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.CalendarMonth, contentDescription = "Data", modifier = Modifier.size(16.dp))
+                        Icon(
+                            Icons.Default.CalendarMonth,
+                            contentDescription = "Data",
+                            modifier = Modifier.size(16.dp)
+                        )
                         Spacer(Modifier.width(4.dp))
                         Text("13 Out 2025")
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.AccessTime, contentDescription = "Hora", modifier = Modifier.size(16.dp))
+                        Icon(
+                            Icons.Default.AccessTime,
+                            contentDescription = "Hora",
+                            modifier = Modifier.size(16.dp)
+                        )
                         Spacer(Modifier.width(4.dp))
                         Text("18:00")
                     }
@@ -178,47 +218,58 @@ private fun GuideDashboardContent(innerPadding: PaddingValues) {
             }
         }
 
-        Spacer(Modifier.height(24.dp))
-
-        // ---Novas Solicitações ---
+        Spacer(Modifier.height(16.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Novas Solicitações", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            Text(
+                "Novas Solicitações",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
             Spacer(Modifier.width(8.dp))
-            Box(
-                modifier = Modifier
-                    .background(NotificationBadgeBlue, shape = CircleShape)
-                    .padding(horizontal = 8.dp, vertical = 2.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text("2", color = Color.White, fontWeight = FontWeight.Bold)
+            if (pendingRequests.isNotEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .background(NotificationBadgeBlue, shape = CircleShape)
+                        .padding(horizontal = 8.dp, vertical = 2.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        "${pendingRequests.size}",
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
         Spacer(Modifier.height(8.dp))
 
         // Cartões de Solicitação
-        GuideRequestCard(
-            name = "Maria Silva",
-            date = "25 Nov 2025",
-            time = "10:00",
-            description = "Gostaria de conhecer a história e cultura de Lisboa..."
-        )
-        GuideRequestCard(
-            name = "Pedro Santos",
-            date = "28 Out 2025",
-            time = "19:00",
-            description = "Tour gastronômico pela cidade, adoro comida local!"
-        )
+        if (isLoading) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+        } else if (pendingRequests.isEmpty()) {
+            Text("Nenhuma solicitação pendente.", color = Color.Gray)
+        } else {
+            pendingRequests.forEach { request ->
+                GuideRequestCard(
+                    request = request,
+                    viewModel = viewModel
+                )
+            }
+        }
     }
 }
 
-/** O CARTÃO DE SOLICITAÇÃO*/
 @Composable
-private fun GuideRequestCard(
-    name: String,
-    date: String,
-    time: String,
-    description: String
+fun GuideRequestCard(
+    request: FriendRequest,
+    viewModel: GuidePanelViewModel
 ) {
+    val sender = request.senderUser
+    val name = sender?.firstName ?: "Usuário"
+    val description = sender?.description ?: "Sem descrição."
+    val date = "Data Indefinida" // Você pode formatar a data/hora do timestamp se necessário
+    val time = "Hora Indefinida"
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -233,33 +284,49 @@ private fun GuideRequestCard(
                 verticalAlignment = Alignment.Top
             ) {
                 // Imagem
-                Image(
-                    imageVector = Icons.Default.Person,
+                AsyncImage(
+                    model = sender?.profileImageUrl,
                     contentDescription = "Foto de $name",
                     modifier = Modifier
                         .size(60.dp)
                         .clip(RoundedCornerShape(12.dp))
                         .background(Color.Gray.copy(alpha = 0.1f)),
                     contentScale = ContentScale.Crop,
-                    alpha = 0.5f
                 )
                 Spacer(Modifier.width(16.dp))
                 Column {
-                    Text(name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(
+                        name,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        description,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Gray,
+                        maxLines = 2
+                    )
+                    Spacer(Modifier.height(8.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.CalendarMonth, contentDescription = "Data", modifier = Modifier.size(16.dp))
+                            Icon(
+                                Icons.Default.CalendarMonth,
+                                contentDescription = "Data",
+                                modifier = Modifier.size(16.dp)
+                            )
                             Spacer(Modifier.width(4.dp))
-                            Text(date, fontSize = 14.sp)
+                            Text(date)
                         }
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.AccessTime, contentDescription = "Hora", modifier = Modifier.size(16.dp))
+                            Icon(
+                                Icons.Default.AccessTime,
+                                contentDescription = "Hora",
+                                modifier = Modifier.size(16.dp)
+                            )
                             Spacer(Modifier.width(4.dp))
-                            Text(time, fontSize = 14.sp)
+                            Text(time)
                         }
                     }
-                    Spacer(Modifier.height(8.dp))
-                    Text(description, fontSize = 14.sp, maxLines = 2)
                 }
             }
             Spacer(Modifier.height(16.dp))
@@ -269,73 +336,35 @@ private fun GuideRequestCard(
             ) {
                 // Botão Aceitar
                 Button(
-                    onClick = { /* Aceitar */ },
+                    onClick = { viewModel.updateRequestStatus(request.requestId, "accepted") },
                     modifier = Modifier.weight(1f),
-                    border = BorderStroke(1.dp, AcceptButtonColor2),
-                    // cor do conteúdo (ícone E texto)
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor =AcceptButtonColor2,
-                    ),
+                    colors = ButtonDefaults.buttonColors(containerColor = AccentColor),
                     shape = RoundedCornerShape(8.dp)
 
                 ) {
                     Icon(
                         Icons.Default.Check,
                         contentDescription = "Aceitar",
-                        //modifier = Modifier.size(ButtonDefaults.IconSize),
-                        modifier = Modifier.size(12.dp))
-//                    Spacer(Modifier.width(4.dp))
+                        modifier = Modifier.size(12.dp)
+                    )
                     Text("Aceitar", fontSize = 12.sp)
                 }
                 Spacer(Modifier.width(8.dp))
 
                 // Botão Recusar
                 OutlinedButton(
-                    onClick = { /* Recusar */ },
+                    onClick = { viewModel.updateRequestStatus(request.requestId, "rejected") },
                     modifier = Modifier.weight(1f),
-                    border = BorderStroke(1.dp, DeclineButtonColor),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = DeclineButtonColor
-                    ),
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Close,
+                        Icons.Default.Close,
                         contentDescription = "Recusar",
                         modifier = Modifier.size(12.dp)
                     )
-                    Spacer(Modifier.width(4.dp))
-                    Text(
-                        text = "Recusar",
-                        fontSize = 10.sp
-                    )
-                }
-                Spacer(Modifier.width(8.dp))
-
-                // Botão Pendente
-                OutlinedButton(
-                    onClick = { /* Ação de pendente */ },
-                    modifier = Modifier.weight(1f),
-                    border = BorderStroke(1.dp, PendingButtonColor),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = PendingButtonColor2
-                    ),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text(
-                        text = "Pendente",
-                        fontSize = 12.sp
-                    )
+                    Text("Recusar", fontSize = 12.sp)
                 }
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GuidePanelPreview() {
-    FarAwayTheme {
-        GuidePanelScreen(navController = rememberNavController(), authViewModel = viewModel(factory = AuthViewModelFactory(AuthRepository())))
     }
 }

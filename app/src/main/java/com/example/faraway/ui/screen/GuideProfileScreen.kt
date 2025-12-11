@@ -1,4 +1,3 @@
-// ui/screen/GuideProfileScreen.kt
 package com.example.faraway.ui.screen
 
 import androidx.compose.foundation.background
@@ -17,7 +16,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,8 +33,11 @@ import androidx.navigation.compose.rememberNavController
 import com.example.faraway.Destinations
 import com.example.faraway.guideNavItems
 import com.example.faraway.ui.data.AuthRepository
+import com.example.faraway.ui.data.User
 import com.example.faraway.ui.viewmodel.AuthViewModel
 import com.example.faraway.ui.viewmodel.AuthViewModelFactory
+import com.google.firebase.auth.FirebaseAuth
+import coil.compose.AsyncImage // Importação para exibir imagens da web
 
 // -----------------------------------------------------------------
 // CORES AUXILIARES (Renomeadas para evitar conflito)
@@ -87,7 +88,9 @@ fun GuideBottomNavBarPlaceholder(
 // -----------------------------------------------------------------
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GuideProfileScreen(navController: NavController) {
+fun GuideProfileScreen(navController: NavController, authViewModel: AuthViewModel) { // ALTERADO: Recebe AuthViewModel
+    val userData by authViewModel.userData.collectAsState()
+
     Scaffold(
         bottomBar = {
             GuideBottomNavBarPlaceholder(navController = navController, navItems = guideNavItems, startRoute = "profile")
@@ -99,9 +102,9 @@ fun GuideProfileScreen(navController: NavController) {
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            item { GuideProfileHeader(authViewModel = viewModel(factory = AuthViewModelFactory(AuthRepository()))) }
+            item { GuideProfileHeader(userData, navController = navController) }
             item { GuideProfileStatsAndInfo() }
-            item { GuideProfileSettings(navController = navController) }
+            item { GuideProfileSettings(navController = navController, authViewModel = authViewModel) }
             item { Spacer(modifier = Modifier.height(32.dp)) } // Espaço extra no final
         }
     }
@@ -112,9 +115,16 @@ fun GuideProfileScreen(navController: NavController) {
 // -----------------------------------------------------------------
 
 @Composable
-fun GuideProfileHeader(authViewModel: AuthViewModel) {
-    val userData by authViewModel.userData.collectAsState() // Usa o ViewModel recebido
-    val selectedItem = remember { mutableStateOf("Explorar") }
+fun GuideProfileHeader(userData: User?, navController: NavController) {
+
+    // Função auxiliar para o fallback "--------"
+    fun String?.fallback(): String = this?.ifBlank { "--------" } ?: "--------"
+
+    val fullName = "${userData?.firstName.fallback()} ${userData?.lastName.fallback()}".trim().ifEmpty { "--------" }
+    val description = userData?.description.fallback()
+    val location = userData?.location.fallback()
+    val languages = userData?.languages ?: emptyList()
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -129,7 +139,7 @@ fun GuideProfileHeader(authViewModel: AuthViewModel) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = { /* Ação de Voltar */ }) {
+            IconButton(onClick = { } ) {
                 Icon(
                     Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Voltar",
@@ -142,7 +152,11 @@ fun GuideProfileHeader(authViewModel: AuthViewModel) {
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
-            IconButton(onClick = { /* Ação de Configurações */ }) {
+            IconButton(onClick = {
+                navController.navigate(Destinations.CONFIG_ROUTE) {
+                    popUpTo(navController.graph.id) { inclusive = false }
+                }
+            } ) {
                 Icon(
                     Icons.Filled.Settings,
                     contentDescription = "Configurações",
@@ -168,12 +182,22 @@ fun GuideProfileHeader(authViewModel: AuthViewModel) {
                         .border(2.dp, Color.White, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        Icons.Filled.Person,
-                        contentDescription = "Foto de Perfil Placeholder",
-                        tint = Color.Gray,
-                        modifier = Modifier.size(80.dp)
-                    )
+                    val profileImageUrl = userData?.profileImageUrl
+                    if (profileImageUrl.isNullOrEmpty()) {
+                        Icon(
+                            Icons.Filled.Person,
+                            contentDescription = "Foto de Perfil Placeholder",
+                            tint = Color.Gray,
+                            modifier = Modifier.size(80.dp)
+                        )
+                    } else {
+                        AsyncImage(
+                            model = profileImageUrl,
+                            contentDescription = "Foto de Perfil",
+                            modifier = Modifier.fillMaxSize().clip(CircleShape),
+                            contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                        )
+                    }
                 }
                 // Ícone de Câmera
                 Box(
@@ -196,7 +220,7 @@ fun GuideProfileHeader(authViewModel: AuthViewModel) {
 
             // Nome do Guia
             Text(
-                text = "${userData?.firstName ?: ""} ${userData?.lastName ?: ""}".trim().ifEmpty { "Carregando..." },
+                text = fullName, // ALTERADO: Usa o nome completo
                 color = Color.White,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
@@ -204,9 +228,9 @@ fun GuideProfileHeader(authViewModel: AuthViewModel) {
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            // Especialidade do Guia
+            // Especialidade do Guia (Descrição)
             Text(
-                text = "Tours Históricos e Culturais",
+                text = description, // ALTERADO: Usa a descrição
                 color = Color.White.copy(alpha = 0.8f),
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center,
@@ -217,7 +241,7 @@ fun GuideProfileHeader(authViewModel: AuthViewModel) {
 
             // Localização
             Text(
-                text = "Lisboa, Portugal",
+                text = location, // ALTERADO: Usa a localização
                 color = GuideAccentColor,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium
@@ -249,9 +273,18 @@ fun GuideProfileHeader(authViewModel: AuthViewModel) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                GuideLanguageChip("Português", isSelected = true)
-                GuideLanguageChip("Inglês", isSelected = false)
-                GuideLanguageChip("Espanhol", isSelected = false)
+                if (languages.isEmpty()) {
+                    Text(
+                        text = "--------",
+                        color = Color.White.copy(alpha = 0.7f),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal
+                    )
+                } else {
+                    languages.forEach { lang ->
+                        GuideLanguageChip(lang, isSelected = true) // Assume-se que todas as línguas listadas são as faladas
+                    }
+                }
             }
         }
     }
@@ -298,26 +331,29 @@ fun GuideProfileStatsAndInfo() {
                 GuideStatItem(
                     icon = Icons.Filled.People,
                     value = "247",
-                    label = "Conexões",
-                    iconColor = GuideAccentColor
+                    label = "Clientes"
+                )
+                Divider(
+                    modifier = Modifier
+                        .height(40.dp)
+                        .width(1.dp),
+                    color = Color.LightGray
                 )
                 GuideStatItem(
                     icon = Icons.Filled.Star,
                     value = "4.9",
-                    label = "Avaliação",
-                    iconColor = Color(0xFFFFC107) // Amarelo para estrela
+                    label = "Avaliação"
+                )
+                Divider(
+                    modifier = Modifier
+                        .height(40.dp)
+                        .width(1.dp),
+                    color = Color.LightGray
                 )
                 GuideStatItem(
-                    icon = Icons.Filled.AttachMoney,
-                    value = "€12.5K",
-                    label = "Ganhos",
-                    iconColor = Color(0xFF4CAF50) // Verde para dinheiro
-                )
-                GuideStatItem(
-                    icon = Icons.Filled.CheckCircle,
-                    value = "90%",
-                    label = "Serviços",
-                    iconColor = GuideAccentColor
+                    icon = Icons.Filled.DateRange,
+                    value = "12",
+                    label = "Tours Feitos"
                 )
             }
         }
@@ -325,26 +361,14 @@ fun GuideProfileStatsAndInfo() {
 }
 
 @Composable
-fun GuideStatItem(icon: ImageVector, value: String, label: String, iconColor: Color) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Icon(
-            icon,
-            contentDescription = label,
-            tint = iconColor,
-            modifier = Modifier.size(24.dp)
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = value,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = GuideTextColor
-        )
-        Text(
-            text = label,
-            fontSize = 12.sp,
-            color = GuideTextColor.copy(alpha = 0.6f)
-        )
+fun GuideStatItem(icon: ImageVector, value: String, label: String) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Icon(icon, contentDescription = null, tint = GuidePrimaryBlue)
+        Text(text = value, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = GuideTextColor)
+        Text(text = label, fontSize = 12.sp, color = Color.Gray)
     }
 }
 
@@ -353,7 +377,7 @@ fun GuideStatItem(icon: ImageVector, value: String, label: String, iconColor: Co
 // -----------------------------------------------------------------
 
 @Composable
-fun GuideProfileSettings(navController: NavController) {
+fun GuideProfileSettings(navController: NavController, authViewModel: AuthViewModel) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -379,7 +403,7 @@ fun GuideProfileSettings(navController: NavController) {
             onClick = { /* Ação ao clicar */ }
         )
 
-        Spacer(modifier = Modifier.height(12.dp)) // ESPAÇAMENTO ADICIONADO
+        Spacer(modifier = Modifier.height(12.dp))
 
         // Documentos Profissionais
         GuideSettingsItem(
@@ -410,7 +434,8 @@ fun GuideProfileSettings(navController: NavController) {
             iconColor = GuideLogoutRed,
             backgroundColor = GuideLogoutLightRed,
             onClick = {
-                    navController.navigate(Destinations.AUTH_ROUTE) {
+                authViewModel.logout()
+                navController.navigate(Destinations.AUTH_ROUTE) {
                     popUpTo(navController.graph.id) { inclusive = false }
                 }
             }
@@ -462,16 +487,5 @@ fun GuideSettingsItem(
                 tint = iconColor
             )
         }
-    }
-}
-
-// -----------------------------------------------------------------
-// PREVIEW
-// -----------------------------------------------------------------
-@Preview(showBackground = true)
-@Composable
-fun GuideProfileScreenPreview() {
-    MaterialTheme {
-        GuideProfileScreen(navController = rememberNavController())
     }
 }

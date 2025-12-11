@@ -38,4 +38,7 @@ object Destinations {
     const val EDIT_PROFILE_ROUTE = "edit_profile"
 
     const val VIEW_PROFILE_ROUTE = "view_profile"
+    const val QUICK_AGENDA_ROUTE = "quick_agenda"
+
+    const val HOST_PROPERTY_ROUTE = "host_property"
 }

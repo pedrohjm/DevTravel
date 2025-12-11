@@ -100,6 +100,7 @@ dependencies {
     // 5. DEPENDÊNCIAS ADICIONAIS
     // -----------------------------------------------------------------
     implementation(libs.generativeai)
+    implementation(libs.androidx.foundation)
 
     // Coil para carregamento de imagens (URL)
     implementation("io.coil-kt:coil-compose:2.6.0")

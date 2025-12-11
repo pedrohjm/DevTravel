@@ -55,10 +55,7 @@ val HostGradientStart = Color(0xFF099FC4) // Ciano Principal
 val HostGradientEnd = Color(0xFF044C5E)   // Azul Petróleo Escuro (Fim do degradê)
 
 
-
-// -----------------------------------------------------------------
-// CORES DA TELA (DEFINIDAS AQUI PARA EVITAR ERROS DE IMPORT)
-// -----------------------------------------------------------------
+// CORES DA TELA
 val PrimaryBlue = Color(0xFF192F50) // Azul Escuro (Topo do degradê)
 
 val LightBlue = Color(0xFFE0F7FA)
@@ -69,3 +66,23 @@ val LogoutLightRed = Color(0xFFFFEBEE)
 
 // Cores para os Interesses (Tons de Azul)
 val InterestTextBlue = Color(0xFF005866) // Azul petróleo escuro para texto
+
+
+
+// Cores para Disponibilidade do Guia
+val QuickBgColor = Color(0xFFF0FBFD)
+val TealSelected = Color(0xFF00838F)
+val TealLight = Color(0xFFE0F2F1)
+val GraySelected = Color(0xFF546E7A)
+val GrayLight = Color(0xFFECEFF1)
+val TextGreen = Color(0xFF00695C)
+val FooterBlue = Color(0xFF0277BD)
+val SliderTrack = Color(0xFFE0E0E0)
+
+// Cores para a Minha Propriedade
+val PropertyBgColor = Color(0xFFF0FBFD)
+val PrimaryTeal = Color(0xFF00838F)
+val LightTeal = Color(0xFFE0F7FA)
+val DarkText = Color(0xFF37474F)
+val GreenSuccess = Color(0xFFE8F5E9)
+val GreenText = Color(0xFF2E7D32)

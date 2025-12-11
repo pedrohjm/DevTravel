@@ -40,7 +40,8 @@ import com.example.faraway.ui.screen.SignUpScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.navArgument
 import com.example.faraway.ui.data.AuthRepository
-import com.example.faraway.ui.screen.EditProfileScreen
+import com.example.faraway.ui.screen.EditProfileScreen // Importação da sua versão (HEAD)
+import com.example.faraway.ui.screen.HostPropertyScreen // Importação da versão remota
 import com.example.faraway.ui.viewmodel.AuthViewModel
 import com.example.faraway.ui.viewmodel.AuthViewModelFactory
 import com.example.faraway.ui.screen.SocialScreen
@@ -53,7 +54,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.example.faraway.ui.viewmodel.MainViewModel
 import com.example.faraway.ui.viewmodel.MainViewModelFactory
 
-// Listas de Navegação
+// Listas de Navegação (Mantenha o que já estava)
 val travelerNavItems = listOf(
     NavItem(Destinations.EXPLORE_ROUTE, Icons.Filled.Search, "Explorar"),
     NavItem(Destinations.TRIPS_ROUTE, Icons.Filled.DateRange, "Viagens"),
@@ -99,19 +100,20 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun AppNavigation() {
-    val navController = rememberNavController()
-
     val authRepository = remember { AuthRepository() }
     val factory = remember(authRepository) { AuthViewModelFactory(authRepository) }
 
-    // CRIAÇÃO DO VIEWMODEL NO ESCOPO MAIS ALTO, VINCULADO À ACTIVITY
+    // CRIAÇÃO DO VIEWMODEL NO ESCOPO MAIS ALTO, VINCULADO À ACTIVITY (Sua versão HEAD)
     val activity = LocalActivity.current
     val authViewModel: AuthViewModel = viewModel(factory = factory, viewModelStoreOwner = activity as ViewModelStoreOwner)
-
     val mainViewModel: MainViewModel = viewModel(factory = MainViewModelFactory(authRepository), viewModelStoreOwner = activity as ViewModelStoreOwner)
+
+    // Inicialização do NavController (Versão Remota)
+    val navController = rememberNavController()
 
     NavHost(
         navController = navController,
+        // Mantendo a rota de autenticação como padrão para garantir o fluxo de login/cadastro
         startDestination = Destinations.AUTH_ROUTE
     ) {
         // 1. Rota de Autenticação
@@ -223,9 +225,20 @@ fun AppNavigation() {
             UserProfileScreen(navController = navController)
         }
 
+        // Rotas da sua versão (HEAD)
         composable("edit_profile") {
             EditProfileScreen(navController = navController, authViewModel = authViewModel)
         }
+
+        // Rotas da versão remota
+        /*composable(Destinations.AVAILABILITY_ROUTE) {
+            AvailabilityGuideScreen(navController = navController)
+        }*/
+
+        composable(Destinations.HOST_PROPERTY_ROUTE) {
+            HostPropertyScreen(navController = navController)
+        }
+
 
         composable(
             route = "${Destinations.VIEW_PROFILE_ROUTE}/{userId}",

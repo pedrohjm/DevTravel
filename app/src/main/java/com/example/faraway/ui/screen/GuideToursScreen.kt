@@ -1,6 +1,6 @@
 package com.example.faraway.ui.screen
 
-import BottomNavBar
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -27,20 +27,17 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.faraway.Destinations
 import com.example.faraway.guideNavItems
-import com.example.faraway.hostNavItems
 import com.example.faraway.ui.data.Tour
 import com.example.faraway.ui.data.TourStatus
+import com.example.faraway.ui.theme.FarAwayTheme
 
 //Tela principal que exibe a lista de tours do guia turístico.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyTourScreen(navController: NavController) {
-    // Estado que controla qual aba está selecionada (0 = Próximos, 1 = Concluídos, etc.)
     var selectedTab by remember { mutableStateOf(0) }
     val tabs = listOf("Próximos", "Concluídos", "Pendente", "Cancelados")
-
-    // Lista de dados utilizados para demonstração
-    val tours = remember {
+    val allTours = remember {
         listOf(
             Tour(
                 guestName = "Ana Santos",
@@ -80,14 +77,19 @@ fun MyTourScreen(navController: NavController) {
             )
         )
     }
-
-    // Scaffold é o layout base que fornece estrutura padrão com TopBar, BottomBar e conteúdo
+    val filteredTours = when (selectedTab) {
+        0 -> allTours.filter { it.status == TourStatus.CONFIRMED }
+        1 -> emptyList()
+        2 -> allTours.filter { it.status == TourStatus.PENDING }
+        3 -> allTours.filter { it.status == TourStatus.CANCELED }
+        else -> allTours
+    }
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Meus Tours") },
                 navigationIcon = {
-                    IconButton(onClick = { /* ação de voltar */ }) {
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Voltar",
@@ -110,11 +112,10 @@ fun MyTourScreen(navController: NavController) {
         },
 
         bottomBar = {
-            // Barra de navegação inferior com 4 opções principais do app
             BottomNavBar(
                 navController = navController,
-                navItems = guideNavItems, // Lista específica do Anfitrião
-                startRoute = Destinations.HOST_DASHBOARD_ROUTE // Rota inicial para popUpTo
+                navItems = guideNavItems,
+                startRoute = Destinations.HOST_DASHBOARD_ROUTE
             )
             NavigationBar(containerColor = Color.White) {
                 NavigationBarItem(
@@ -124,22 +125,21 @@ fun MyTourScreen(navController: NavController) {
                             launchSingleTop = true
                         }
                     },
-                    icon = { Icon(Icons.Default.Search, contentDescription = "Explorar") },
+                    icon = { Icon(Icons.Default.Search,
+                        contentDescription = "Explorar") },
                     label = { Text("Explorar") }
                 )
                 NavigationBarItem(
                     selected = true,
-                    onClick = {
-                        navController.navigate(Destinations.GUIDE_TOURS_ROUTE) {
-                            launchSingleTop = true
-                        }
-                    },
-                    icon = { Icon(Icons.Default.DateRange, contentDescription = "Tours") },
+                    onClick = { /* Já estamos aqui */ },
+                    icon = { Icon(Icons.Default.DateRange,
+                        contentDescription = "Tours") },
                     label = { Text("Tours") }
                 )
 
                 NavigationBarItem(
-                    icon = { Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = "Chat") },
+                    icon = { Icon(Icons.AutoMirrored.Filled.Chat,
+                        contentDescription = "Chat") },
                     label = { Text("Chat") },
                     selected = false,
                     onClick = {
@@ -163,12 +163,16 @@ fun MyTourScreen(navController: NavController) {
         }
 
     ) { padding ->
-        // Conteúdo principal da tela
-        Column(Modifier.padding(padding)) {
-            // Componente de abas para filtrar os tours por status
-            TabRow(
+        Column(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
+                .background(Color.White)
+        ) {
+            ScrollableTabRow(
                 selectedTabIndex = selectedTab,
                 containerColor = Color.White,
+                edgePadding = 16.dp,
                 indicator = { tabPositions ->
                     TabRowDefaults.Indicator(
                         Modifier
@@ -184,7 +188,6 @@ fun MyTourScreen(navController: NavController) {
                     Tab(
                         selected = selectedTab == index,
                         onClick = { selectedTab = index },
-                        modifier = Modifier.height(48.dp),
                         text = {
                             Text(
                                 text = title,
@@ -197,18 +200,21 @@ fun MyTourScreen(navController: NavController) {
                     )
                 }
             }
-
             Spacer(modifier = Modifier.height(14.dp))
-
-            // Lista lazy (otimizada) que renderiza apenas os itens visíveis na tela
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 10.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(tours) { tour ->
-                    TourCard(tour = tour)
+            if (filteredTours.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("Nenhum tour encontrado.", color = Color.Gray)
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 10.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(filteredTours) { tour ->
+                        TourCard(tour = tour)
+                    }
                 }
             }
         }
@@ -225,23 +231,22 @@ fun TourCard(tour: Tour) {
             TourStatus.CANCELED -> "Cancelado"
         }
     }
-
     fun getStatusColor(status: TourStatus): Color {
         return when (status) {
-            TourStatus.CONFIRMED -> Color(0xFFDCFCE7) // Verde claro para concluído
-            TourStatus.PENDING -> Color(0xFFFEF9C2)   // Amarelo claro para pendente
-            TourStatus.CANCELED -> Color(0xFFFEC2C2)  // Vermelho claro para cancelado
+            TourStatus.CONFIRMED -> Color(0xFFDCFCE7)
+            TourStatus.PENDING -> Color(0xFFFEF9C2)
+            TourStatus.CANCELED -> Color(0xFFFEC2C2)
         }
     }
-
-    // Card que contém todas as informações do tour
+    val acceptColor = Color(0xFF16A34A)
+    val declineColor = Color(0xFFEF4444)
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 4.dp, vertical = 4.dp),
         shape = RoundedCornerShape(10.dp),
-        elevation = CardDefaults.cardElevation(3.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF2F4F6))
+        elevation = CardDefaults.cardElevation(2.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F9FA))
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
             Column(
@@ -250,23 +255,17 @@ fun TourCard(tour: Tour) {
                     vertical = 6.dp
                 )
             ) {
-                // Layout em linha para imagem e informações do tour
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    // Placeholder para imagem do tour/cliente
                     Box(
                         modifier = Modifier
                             .size(65.dp)
                             .background(Color(0xFF747481), RoundedCornerShape(10.dp))
                     )
-
                     Spacer(Modifier.width(10.dp))
-
-                    // Informações principais e ações do tour
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Coluna com todas as informações detalhadas do tour
                         Column(Modifier.weight(1f)) {
                             Text(tour.guestName, fontWeight = FontWeight.Bold, fontSize = 15.sp)
                             Text(
@@ -279,7 +278,6 @@ fun TourCard(tour: Tour) {
                                 fontSize = 12.sp,
                                 color = Color.Gray
                             )
-
                             Text(
                                 "${tour.participants} participante${if (tour.participants > 1) "s" else ""}",
                                 fontSize = 12.sp,
@@ -297,14 +295,11 @@ fun TourCard(tour: Tour) {
                                 color = Color.Gray
                             )
                         }
-
-                        // Coluna lateral com status e botão de chat
                         Column(
                             horizontalAlignment = Alignment.End,
                             verticalArrangement = Arrangement.SpaceBetween,
                             modifier = Modifier.padding(start = 8.dp)
                         ) {
-                            // Badge colorido mostrando o status do tour
                             Text(
                                 getStatusText(tour.status),
                                 color = Color.Black,
@@ -319,53 +314,45 @@ fun TourCard(tour: Tour) {
 
                             Spacer(Modifier.height(6.dp))
 
-                            // Botão para iniciar conversa com o cliente
-                            Button(
+                            OutlinedButton(
                                 onClick = { /* Abrir chat */ },
                                 shape = RoundedCornerShape(6.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFFB9CACE)
-                                ),
-                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 2.dp)
+                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 2.dp),
+                                modifier = Modifier.height(30.dp)
                             ) {
                                 Text("Chat", fontSize = 12.sp)
                             }
                         }
                     }
                 }
-
-                // Seção adicional que aparece apenas para tours com status PENDENTE
-                // Mostra botões para aceitar ou recusar o tour
                 if (tour.status == TourStatus.PENDING) {
-                    Spacer(Modifier.height(6.dp))
+                    Spacer(Modifier.height(8.dp))
 
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 4.dp),
-                        horizontalArrangement = Arrangement.Center
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        // Botão verde para aceitar o tour
-                        Button(
+                        OutlinedButton(
                             onClick = { /* ação aceitar */ },
                             modifier = Modifier
-                                .width(130.dp)
-                                .height(40.dp)
-                                .padding(end = 8.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF16A34A)),
-                            shape = RoundedCornerShape(6.dp)
+                                .weight(1f)
+                                .height(40.dp),
+                            shape = RoundedCornerShape(6.dp),
+                            border = BorderStroke(1.dp, acceptColor),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = acceptColor)
                         ) {
                             Text("Aceitar", fontSize = 14.sp)
                         }
-
-                        // Botão vermelho para recusar o tour
-                        Button(
+                        OutlinedButton(
                             onClick = { /* ação recusar */ },
                             modifier = Modifier
-                                .width(120.dp)
+                                .weight(1f)
                                 .height(40.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEA5761)),
-                            shape = RoundedCornerShape(6.dp)
+                            shape = RoundedCornerShape(6.dp),
+                            border = BorderStroke(1.dp, declineColor),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = declineColor)
                         ) {
                             Text("Recusar", fontSize = 14.sp)
                         }
@@ -376,14 +363,10 @@ fun TourCard(tour: Tour) {
     }
 }
 
-/**
- * Visualizar a tela MyTourScreen no Android Studio.
- */
-
 @Preview(showBackground = true)
 @Composable
 fun MyTourScreenPreview() {
-    MaterialTheme {
+    FarAwayTheme {
         MyTourScreen(navController = rememberNavController())
     }
 }

@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import com.example.faraway.Destinations
 import com.example.faraway.guideNavItems
 import com.example.faraway.ui.data.AuthRepository
@@ -49,7 +50,6 @@ import com.example.faraway.ui.viewmodel.AuthViewModelFactory
 import com.example.faraway.ui.viewmodel.GuidePanelViewModel
 import com.example.faraway.ui.viewmodel.GuidePanelViewModelFactory
 import com.example.faraway.ui.viewmodel.FriendRequest
-import coil.compose.AsyncImage
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -265,7 +265,7 @@ fun GuideRequestCard(
     viewModel: GuidePanelViewModel
 ) {
     val sender = request.senderUser
-    val name = sender?.firstName ?: "Usuário"
+    val name = "${sender?.firstName ?: "Usuário"} ${sender?.lastName ?: ""}".trim()
     val description = sender?.description ?: "Sem descrição."
     val date = "Data Indefinida" // Você pode formatar a data/hora do timestamp se necessário
     val time = "Hora Indefinida"
@@ -295,38 +295,21 @@ fun GuideRequestCard(
                 )
                 Spacer(Modifier.width(16.dp))
                 Column {
-                    Text(
-                        name,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        description,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Gray,
-                        maxLines = 2
-                    )
-                    Spacer(Modifier.height(8.dp))
+                    Text(name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                Icons.Default.CalendarMonth,
-                                contentDescription = "Data",
-                                modifier = Modifier.size(16.dp)
-                            )
+                            Icon(Icons.Default.CalendarMonth, contentDescription = "Data", modifier = Modifier.size(16.dp))
                             Spacer(Modifier.width(4.dp))
-                            Text(date)
+                            Text(date, fontSize = 14.sp)
                         }
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                Icons.Default.AccessTime,
-                                contentDescription = "Hora",
-                                modifier = Modifier.size(16.dp)
-                            )
+                            Icon(Icons.Default.AccessTime, contentDescription = "Hora", modifier = Modifier.size(16.dp))
                             Spacer(Modifier.width(4.dp))
-                            Text(time)
+                            Text(time, fontSize = 14.sp)
                         }
                     }
+                    Spacer(Modifier.height(8.dp))
+                    Text(description, fontSize = 14.sp, maxLines = 2)
                 }
             }
             Spacer(Modifier.height(16.dp))
@@ -338,33 +321,40 @@ fun GuideRequestCard(
                 Button(
                     onClick = { viewModel.updateRequestStatus(request.requestId, "accepted") },
                     modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = AccentColor),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
                     shape = RoundedCornerShape(8.dp)
-
                 ) {
-                    Icon(
-                        Icons.Default.Check,
-                        contentDescription = "Aceitar",
-                        modifier = Modifier.size(12.dp)
-                    )
-                    Text("Aceitar", fontSize = 12.sp)
+                    Icon(Icons.Default.Check, contentDescription = "Aceitar", modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text("Aceitar", color = Color.White)
                 }
                 Spacer(Modifier.width(8.dp))
-
                 // Botão Recusar
                 OutlinedButton(
                     onClick = { viewModel.updateRequestStatus(request.requestId, "rejected") },
                     modifier = Modifier.weight(1f),
+                    border = BorderStroke(1.dp, Color(0xFFF44336)),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Icon(
-                        Icons.Default.Close,
-                        contentDescription = "Recusar",
-                        modifier = Modifier.size(12.dp)
-                    )
-                    Text("Recusar", fontSize = 12.sp)
+                    Icon(Icons.Default.Close, contentDescription = "Recusar", modifier = Modifier.size(16.dp), tint = Color(0xFFF44336))
+                    Spacer(Modifier.width(4.dp))
+                    Text("Recusar", color = Color(0xFFF44336))
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GuidePanelScreenPreview() {
+    FarAwayTheme {
+        // Mocking NavController and AuthViewModel for preview purposes
+        // Note: This preview will not work correctly without a real Firebase setup
+        // but serves as a structural check.
+        GuidePanelScreen(
+            navController = rememberNavController(),
+            authViewModel = viewModel(factory = AuthViewModelFactory(AuthRepository()))
+        )
     }
 }

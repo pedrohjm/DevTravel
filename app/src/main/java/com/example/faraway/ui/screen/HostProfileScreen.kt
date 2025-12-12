@@ -36,9 +36,7 @@ import androidx.compose.runtime.getValue
 import com.example.faraway.ui.data.User
 import coil.compose.AsyncImage // Importação para exibir imagens da web
 
-// -----------------------------------------------------------------
-// CORES AUXILIARES (Prefixadas com Host para evitar conflito)
-// -----------------------------------------------------------------
+
 val HostPrimaryColor = Color(0xFF00BCD4) // Cor principal do cabeçalho (Ciano/Turquesa)
 val HostAccentColor = Color(0xFF00BCD4) // Cor de destaque (A mesma do cabeçalho)
 val HostLightBlue = Color(0xFFE0F7FA) // Azul claro para os cards de configuração
@@ -47,12 +45,7 @@ val HostTextColor = Color(0xFF333333) // Cor de texto padrão
 val HostLogoutRed = Color(0xFFE57373) // Vermelho para o botão de Sair
 val HostLogoutLightRed = Color(0xFFFFEBEE) // Vermelho claro para o fundo do botão de Sair
 
-// -----------------------------------------------------------------
-// PLACEHOLDERS PARA COMPONENTES DE NAVEGAÇÃO
-// -----------------------------------------------------------------
 
-// Placeholder para NavItem (data class)
-// Placeholder para BottomNavBar (Componente)
 @Composable
 fun HostBottomNavBarPlaceholder(
     navController: NavController,
@@ -80,9 +73,7 @@ fun HostBottomNavBarPlaceholder(
     }
 }
 
-// -----------------------------------------------------------------
-// COMPONENTE PRINCIPAL
-// -----------------------------------------------------------------
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HostProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
@@ -112,9 +103,6 @@ fun HostProfileScreen(navController: NavController, authViewModel: AuthViewModel
     }
 }
 
-// -----------------------------------------------------------------
-// 1. HEADER (Cabeçalho do Anfitrião)
-// -----------------------------------------------------------------
 
 @Composable
 fun HostProfileHeader(navController: NavController, userData: User?) {
@@ -294,9 +282,7 @@ fun HostAmenityChip(label: String) {
     }
 }
 
-// -----------------------------------------------------------------
-// 2. ESTATÍSTICAS DO ANFITRIÃO
-// -----------------------------------------------------------------
+
 
 @Composable
 fun HostProfileStatsAndInfo() {
@@ -372,9 +358,7 @@ fun HostStatItem(icon: ImageVector, value: String, label: String, iconColor: Col
     }
 }
 
-// -----------------------------------------------------------------
-// 3. CONFIGURAÇÕES DO ANFITRIÃO
-// -----------------------------------------------------------------
+
 
 @Composable
 fun HostProfileSettings(navController: NavController, authViewModel: AuthViewModel) {

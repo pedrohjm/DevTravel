@@ -82,16 +82,32 @@ fun GuideProfileContent(
                 contentPadding = PaddingValues(horizontal = 8.dp)
             ) {
                 guideNavItems.forEach { item ->
+                    val selected = item.route == Destinations.GUIDE_PROFILE_ROUTE
+
                     NavigationBarItem(
-                        selected = item.route == Destinations.GUIDE_PROFILE_ROUTE,
+                        selected = selected,
                         onClick = {
                             navController.navigate(item.route) {
                                 launchSingleTop = true
                                 restoreState = true
                             }
                         },
-                        icon = { Icon(item.icon, contentDescription = item.label) },
-                        label = { Text(item.label, fontSize = 10.sp) }
+                        icon = {
+                            Icon(
+                                item.icon,
+                                contentDescription = item.label
+                            )
+                        },
+                        label = {
+                            Text(item.label, fontSize = 10.sp)
+                        },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = GuideAccentColor,      // azul
+                            selectedTextColor = GuideAccentColor,      // azul
+                            unselectedIconColor = Color.Gray,          // cinza
+                            unselectedTextColor = Color.Gray,          // cinza
+                            indicatorColor = Color.Transparent
+                        )
                     )
                 }
             }
@@ -125,7 +141,7 @@ fun GuideProfileHeader(userData: User?, navController: NavController) {
             .background(GuidePrimaryBlue)
             .padding(bottom = 80.dp)
     ) {
-        // Top Bar
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -142,7 +158,7 @@ fun GuideProfileHeader(userData: User?, navController: NavController) {
             }
         }
 
-        // Info
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -248,7 +264,7 @@ fun GuideProfileSettings(navController: NavController, onLogout: () -> Unit) {
         Spacer(modifier = Modifier.height(12.dp))
 
         GuideSettingsItem(Icons.Filled.DateRange, "Minha disponibilidade", GuideAccentColor, GuideLightBlue) {
-            // navController.navigate(Destinations.GUIDE_AVAILABILITY_ROUTE)
+
         }
         Spacer(modifier = Modifier.height(12.dp))
 
@@ -288,7 +304,7 @@ fun GuideSettingsItem(icon: ImageVector, label: String, iconColor: Color, backgr
 @Composable
 fun GuideProfilePreview() {
     FarAwayTheme {
-        // Passamos null para o userData, usando os fallbacks definidos na tela
+
         GuideProfileContent(
             navController = rememberNavController(),
             userData = null,

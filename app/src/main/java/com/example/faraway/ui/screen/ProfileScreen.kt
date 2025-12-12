@@ -59,8 +59,10 @@ fun BottomNavBarPlaceholder(
         contentPadding = PaddingValues(horizontal = 8.dp)
     ) {
         navItems.forEach { item ->
+            val isSelected = item.route == "profile"
+
             NavigationBarItem(
-                selected = item.route == "profile",
+                selected = isSelected,
                 onClick = {
                     navController.navigate(item.route) {
                         popUpTo(startRoute) { saveState = true }
@@ -68,13 +70,26 @@ fun BottomNavBarPlaceholder(
                         restoreState = true
                     }
                 },
-                icon = { Icon(item.icon, contentDescription = item.label) },
-                label = { Text(item.label, fontSize = 10.sp) }
+                icon = {
+                    Icon(
+                        item.icon,
+                        contentDescription = item.label
+                    )
+                },
+                label = {
+                    Text(item.label, fontSize = 10.sp)
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = AccentColor,     // Ícone azul
+                    selectedTextColor = AccentColor,      // Texto azul
+                    unselectedIconColor = Color.Gray,     // Ícone cinza
+                    unselectedTextColor = Color.Gray,     // Texto cinza
+                    indicatorColor = Color.Transparent    // Sem fundo atrás
+                )
             )
         }
     }
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -36,9 +36,7 @@ import com.example.faraway.ui.data.User
 import com.example.faraway.ui.theme.FarAwayTheme
 import com.example.faraway.ui.viewmodel.AuthViewModel
 
-// -----------------------------------------------------------------
-// CORES AUXILIARES
-// -----------------------------------------------------------------
+
 val HostPrimaryColor = Color(0xFF00BCD4)
 val HostAccentColor = Color(0xFF00BCD4)
 val HostLightBlue = Color(0xFFE0F7FA)
@@ -47,9 +45,7 @@ val HostTextColor = Color(0xFF333333)
 val HostLogoutRed = Color(0xFFE57373)
 val HostLogoutLightRed = Color(0xFFFFEBEE)
 
-// -----------------------------------------------------------------
-// COMPONENTE STATEFUL (COM LÓGICA)
-// -----------------------------------------------------------------
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HostProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
@@ -73,9 +69,7 @@ fun HostProfileScreen(navController: NavController, authViewModel: AuthViewModel
     )
 }
 
-// -----------------------------------------------------------------
-// COMPONENTE STATELESS (SÓ VISUAL)
-// -----------------------------------------------------------------
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HostProfileContent(
@@ -118,14 +112,12 @@ fun HostProfileContent(
     }
 }
 
-// -----------------------------------------------------------------
-// 1. HEADER
-// -----------------------------------------------------------------
+
 @Composable
 fun HostProfileHeader(navController: NavController, userData: User?) {
     fun String?.fallback(default: String = "--------"): String = this?.ifBlank { default } ?: default
 
-    // Se userData for null, usa valores padrão
+
     val fullName = "${userData?.firstName.fallback("")} ${userData?.lastName.fallback("")}".trim().ifEmpty { "Anfitrião" }
     val description = userData?.description.fallback("Descrição da Propriedade")
     val location = userData?.location.fallback("Localização")
@@ -227,9 +219,6 @@ fun HostAmenityChip(label: String) {
     }
 }
 
-// -----------------------------------------------------------------
-// 2. ESTATÍSTICAS
-// -----------------------------------------------------------------
 @Composable
 fun HostProfileStatsAndInfo() {
     Column(
@@ -269,9 +258,6 @@ fun HostStatItem(icon: ImageVector, value: String, label: String, iconColor: Col
     }
 }
 
-// -----------------------------------------------------------------
-// 3. CONFIGURAÇÕES
-// -----------------------------------------------------------------
 @Composable
 fun HostProfileSettings(navController: NavController, onLogout: () -> Unit) {
     Column(
@@ -318,15 +304,11 @@ fun HostSettingsItem(icon: ImageVector, label: String, iconColor: Color, backgro
     }
 }
 
-// -----------------------------------------------------------------
-// PREVIEW
-// -----------------------------------------------------------------
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun HostProfilePreview() {
     FarAwayTheme {
-        // Passamos null para o usuário, simulando o estado inicial ou de carregamento
-        // Assim não dependemos da estrutura específica da classe User para o preview
+
         HostProfileContent(
             navController = rememberNavController(),
             userData = null,

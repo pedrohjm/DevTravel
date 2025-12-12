@@ -200,10 +200,10 @@ fun HostProfileHeader(navController: NavController, userData: User?) {
             Text(location, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium)
             Spacer(modifier = Modifier.height(8.dp))
 
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            /*Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(Color.Green))
                 Text("Anfitrião Verificado", color = Color.White, fontSize = 12.sp)
-            }
+            }*/
 
             Spacer(modifier = Modifier.height(16.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -244,7 +244,7 @@ fun HostProfileStatsAndInfo() {
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            Row(
+            /*Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 16.dp, horizontal = 8.dp),
@@ -254,7 +254,7 @@ fun HostProfileStatsAndInfo() {
                 HostStatItem(Icons.Filled.AttachMoney, "€ 18.2K", "Receita", Color(0xFF4CAF50))
                 HostStatItem(Icons.Filled.Star, "4.8", "Avaliação", Color(0xFFFFC107))
                 HostStatItem(Icons.Filled.TrendingUp, "87%", "Ocupação", HostAccentColor)
-            }
+            }*/
         }
     }
 }
@@ -277,7 +277,7 @@ fun HostProfileSettings(navController: NavController, onLogout: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .offset(y = (-40).dp)
+            .offset(y = (10).dp)
             .padding(horizontal = 16.dp)
     ) {
         Text("Configurações", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = HostTextColor, modifier = Modifier.padding(horizontal = 8.dp))
@@ -288,14 +288,10 @@ fun HostProfileSettings(navController: NavController, onLogout: () -> Unit) {
         }
         Spacer(modifier = Modifier.height(12.dp))
 
-        HostSettingsItem(Icons.Filled.CalendarMonth, "Disponibilidade", HostAccentColor, HostLightBlue) {
+        HostSettingsItem(Icons.Filled.CalendarMonth, "Documentos Profissionais", HostAccentColor, HostLightBlue) {
             navController.navigate(Destinations.AVAILABILITY_ROUTE)
         }
         Spacer(modifier = Modifier.height(12.dp))
-
-        HostSettingsItem(Icons.Filled.Help, "Central de Ajuda", HostAccentColor, HostLightBlue) { /* Ação */ }
-        Spacer(modifier = Modifier.height(12.dp))
-
         HostSettingsItem(Icons.AutoMirrored.Filled.ExitToApp, "Sair da Conta", HostLogoutRed, HostLogoutLightRed, onLogout)
     }
 }

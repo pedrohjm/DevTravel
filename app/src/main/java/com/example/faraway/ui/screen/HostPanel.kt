@@ -1,11 +1,10 @@
 package com.example.faraway.ui.screen
 
+import BottomNavBar
 import android.app.TimePickerDialog
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -13,21 +12,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
-import androidx.compose.runtime.* // Mesclado: Importa todos os componentes de estado
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,19 +34,15 @@ import com.example.faraway.Destinations
 import com.example.faraway.travelerNavItems
 import com.example.faraway.ui.theme.FarAwayTheme
 import com.example.faraway.ui.theme.*
-import com.example.faraway.ui.viewmodel.AuthViewModel // Mesclado: Importação necessária
-import java.time.Instant // Mesclado: Importação necessária
-import java.time.ZoneId // Mesclado: Importação necessária
-import java.time.format.DateTimeFormatter // Mesclado: Importação necessária
-import java.util.Calendar // Mesclado: Importação necessária
-import java.util.Locale // Mesclado: Importação necessária
+import com.example.faraway.ui.viewmodel.AuthViewModel
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Calendar
+import java.util.Locale
 
-//Painel do Anfitrião
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PainelDoAnfitriaoScreen(navController: NavController, authViewModel: AuthViewModel) {
-    val selectedItem = remember { mutableStateOf("Explorar") }
-
     val userData by authViewModel.userData.collectAsState()
 
     LaunchedEffect(Unit) {
@@ -60,13 +51,32 @@ fun PainelDoAnfitriaoScreen(navController: NavController, authViewModel: AuthVie
         }
     }
 
+    val userName = "${userData?.firstName ?: ""} ${userData?.lastName ?: ""}".trim().ifEmpty { "Carregando..." }
+
+    // Chama o conteúdo visual passando apenas dados simples
+    PainelDoAnfitriaoContent(
+        navController = navController,
+        userName = userName
+    )
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PainelDoAnfitriaoContent(
+    navController: NavController,
+    userName: String
+) {
+    val selectedItem = remember { mutableStateOf("Explorar") }
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Column {
                         Text("Painel do Anfitrião", fontWeight = FontWeight.Bold)
-                        Text(text = "${userData?.firstName ?: ""} ${userData?.lastName ?: ""}".trim().ifEmpty { "Carregando..." },
+                        Text(
+                            text = userName, // Usa a String recebida
                             color = Color.White,
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold
@@ -80,10 +90,7 @@ fun PainelDoAnfitriaoScreen(navController: NavController, authViewModel: AuthVie
                 },
                 modifier = Modifier.background(
                     Brush.horizontalGradient(
-                        colors = listOf(
-                            Color(0xFF0892B4), // Cor inicial
-                            Color(0xFF033F4E)  // Cor final
-                        )
+                        colors = listOf(Color(0xFF0892B4), Color(0xFF033F4E))
                     )
                 ),
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -94,7 +101,6 @@ fun PainelDoAnfitriaoScreen(navController: NavController, authViewModel: AuthVie
             )
         },
         bottomBar = {
-            // Barra de Navegação do Anfitrião
             BottomNavBar(
                 navController = navController,
                 navItems = travelerNavItems,
@@ -105,41 +111,25 @@ fun PainelDoAnfitriaoScreen(navController: NavController, authViewModel: AuthVie
                     icon = { Icon(Icons.Default.Search, contentDescription = "Explorar") },
                     label = { Text("Explorar") },
                     selected = selectedItem.value == "Explorar",
-                    onClick = {
-                        navController.navigate(Destinations.GUIDE_DASHBOARD_ROUTE) {
-                            launchSingleTop = true
-                        }
-                    }
+                    onClick = { navController.navigate(Destinations.GUIDE_DASHBOARD_ROUTE) { launchSingleTop = true } }
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.DateRange, contentDescription = "Reservas") },
                     label = { Text("Reservas") },
                     selected = selectedItem.value == "Reservas",
-                    onClick = {
-                        navController.navigate(Destinations.HOST_RESERVATION_ROUTE) {
-                            launchSingleTop = true
-                        }
-                    }
+                    onClick = { navController.navigate(Destinations.HOST_RESERVATION_ROUTE) { launchSingleTop = true } }
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = "Chat") },
                     label = { Text("Chat") },
                     selected = selectedItem.value == "Chat",
-                    onClick = {
-                        navController.navigate(Destinations.HOST_CHAT_ROUTE) {
-                            launchSingleTop = true
-                        }
-                    }
+                    onClick = { navController.navigate(Destinations.HOST_CHAT_ROUTE) { launchSingleTop = true } }
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Person, contentDescription = "Perfil") },
                     label = { Text("Perfil") },
                     selected = selectedItem.value == "Perfil",
-                    onClick = {
-                        navController.navigate(Destinations.HOST_PERFIL_ROUTE) {
-                            launchSingleTop = true
-                        }
-                    }
+                    onClick = { navController.navigate(Destinations.HOST_PERFIL_ROUTE) { launchSingleTop = true } }
                 )
             }
         }
@@ -148,7 +138,6 @@ fun PainelDoAnfitriaoScreen(navController: NavController, authViewModel: AuthVie
     }
 }
 
-// Conteúdo da tela do Anfitrião
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HostDashboardContent(innerPadding: PaddingValues) {
@@ -158,15 +147,19 @@ private fun HostDashboardContent(innerPadding: PaddingValues) {
     var checkoutDateMillis by remember { mutableStateOf<Long?>(defaultDate) }
     var checkoutTime by remember { mutableStateOf("10:00") }
     var roomType by remember { mutableStateOf("Quarto Privado") }
+
+    // Controles de Diálogo
     var showEditDialog by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
+
+    // Variáveis temporárias
     var tempName by remember { mutableStateOf("") }
     var tempDateMillis by remember { mutableStateOf<Long?>(null) }
     var tempTime by remember { mutableStateOf("") }
     var tempRoom by remember { mutableStateOf("") }
-    val dateFormatter = remember { DateTimeFormatter.ofPattern("dd MMM yyyy",
-        Locale("pt", "BR")) }
+
+    val dateFormatter = remember { DateTimeFormatter.ofPattern("dd MMM yyyy", Locale("pt", "BR")) }
 
     fun openEditDialog() {
         tempName = guestName
@@ -192,9 +185,7 @@ private fun HostDashboardContent(innerPadding: PaddingValues) {
 
                     Text("Check-out", style = MaterialTheme.typography.bodyMedium)
                     Spacer(Modifier.height(8.dp))
-                    // Linha com botões para Data e Hora
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        // Botão de Data
                         OutlinedButton(
                             onClick = { showDatePicker = true },
                             modifier = Modifier.weight(1f),
@@ -236,12 +227,11 @@ private fun HostDashboardContent(innerPadding: PaddingValues) {
                             checkoutTime = tempTime
                             roomType = tempRoom
                             showEditDialog = false
-                            Toast.makeText(context, "Informações do hóspede atualizadas!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Informações atualizadas!", Toast.LENGTH_SHORT).show()
                         } else {
-                            Toast.makeText(context, "Por favor, selecione a data e hora de check-out.", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Selecione data e hora.", Toast.LENGTH_SHORT).show()
                         }
                     },
-                    enabled = tempName.isNotEmpty() && tempRoom.isNotEmpty(),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0892B4))
                 ) {
                     Text("Salvar", color = Color.White)
@@ -263,18 +253,12 @@ private fun HostDashboardContent(innerPadding: PaddingValues) {
                 Button(onClick = {
                     tempDateMillis = datePickerState.selectedDateMillis
                     showDatePicker = false
-                }) {
-                    Text("OK")
-                }
+                }) { Text("OK") }
             },
             dismissButton = {
-                OutlinedButton(onClick = { showDatePicker = false }) {
-                    Text("Cancelar")
-                }
+                OutlinedButton(onClick = { showDatePicker = false }) { Text("Cancelar") }
             }
-        ) {
-            DatePicker(state = datePickerState)
-        }
+        ) { DatePicker(state = datePickerState) }
     }
 
     if (showTimePicker) {
@@ -282,13 +266,11 @@ private fun HostDashboardContent(innerPadding: PaddingValues) {
         val initialMinute = tempTime.split(":")[1].toIntOrNull() ?: 0
         TimePickerDialog(
             context,
-            { _, hour: Int, minute: Int ->
+            { _, hour, minute ->
                 tempTime = String.format(Locale.getDefault(), "%02d:%02d", hour, minute)
                 showTimePicker = false
             },
-            initialHour,
-            initialMinute,
-            true
+            initialHour, initialMinute, true
         ).show()
     }
 
@@ -299,11 +281,7 @@ private fun HostDashboardContent(innerPadding: PaddingValues) {
             .verticalScroll(rememberScrollState())
     ) {
         // --- Hóspede Atual ---
-        Text(
-            "Hóspede Atual",
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold
-        )
+        Text("Hóspede Atual", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(8.dp))
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -328,16 +306,8 @@ private fun HostDashboardContent(innerPadding: PaddingValues) {
                     )
                     Spacer(Modifier.width(16.dp))
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            guestName,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            roomType,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.Gray
-                        )
+                        Text(guestName, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text(roomType, style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
                     }
                     IconButton(onClick = { openEditDialog() }) {
                         Icon(Icons.Default.Edit, contentDescription = "Editar")
@@ -360,11 +330,7 @@ private fun HostDashboardContent(innerPadding: PaddingValues) {
                     }
                     Column(horizontalAlignment = Alignment.End) {
                         Text("Hora", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
-                        Text(
-                            checkoutTime,
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.SemiBold
-                        )
+                        Text(checkoutTime, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
@@ -373,58 +339,30 @@ private fun HostDashboardContent(innerPadding: PaddingValues) {
         Spacer(Modifier.height(24.dp))
 
         // --- Próximas Reservas ---
-        Text(
-            "Próximas Reservas",
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold
-        )
+        Text("Próximas Reservas", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(8.dp))
-
-        // Cartões de Reserva (Placeholder)
-        ReservationCard(
-            name = "João Pedro",
-            room = "Quarto Duplo",
-            date = "20 Dez 2025",
-            status = "Confirmada"
-        )
-        ReservationCard(
-            name = "Ana Clara",
-            room = "Suíte Master",
-            date = "05 Jan 2026",
-            status = "Pendente"
-        )
+        ReservationCard("João Pedro", "Quarto Duplo", "20 Dez 2025", "Confirmada")
+        ReservationCard("Ana Clara", "Suíte Master", "05 Jan 2026", "Pendente")
 
         Spacer(Modifier.height(24.dp))
 
-        // --- Solicitações de Amizade (Placeholder) ---
-        Text(
-            "Solicitações de Amizade",
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold
-        )
+        // --- Solicitações ---
+        Text("Solicitações de Amizade", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(8.dp))
-
-        FriendRequestCard(
-            name = "Guia Turístico",
-            description = "Solicita acesso ao seu calendário para agendamento de tours."
-        )
+        FriendRequestCard("Guia Turístico", "Solicita acesso ao seu calendário.")
     }
 }
 
 @Composable
 fun ReservationCard(name: String, room: String, date: String, status: String) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
+            modifier = Modifier.fillMaxWidth().padding(12.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -434,15 +372,7 @@ fun ReservationCard(name: String, room: String, date: String, status: String) {
             }
             Column(horizontalAlignment = Alignment.End) {
                 Text(date, style = MaterialTheme.typography.bodyMedium)
-                Text(
-                    status,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = when (status) {
-                        "Confirmada" -> Color(0xFF4CAF50)
-                        "Pendente" -> Color(0xFFFF9800)
-                        else -> Color.Gray
-                    }
-                )
+                Text(status, style = MaterialTheme.typography.bodySmall, color = if (status == "Confirmada") Color(0xFF4CAF50) else Color(0xFFFF9800))
             }
         }
     }
@@ -451,9 +381,7 @@ fun ReservationCard(name: String, room: String, date: String, status: String) {
 @Composable
 fun FriendRequestCard(name: String, description: String) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFDE7)),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
@@ -462,26 +390,31 @@ fun FriendRequestCard(name: String, description: String) {
             Text(name, fontWeight = FontWeight.Bold)
             Text(description, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
             Spacer(Modifier.height(8.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                 OutlinedButton(
                     onClick = { /* Recusar */ },
                     border = BorderStroke(1.dp, Color(0xFFF44336)),
                     shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text("Recusar", color = Color(0xFFF44336))
-                }
+                ) { Text("Recusar", color = Color(0xFFF44336)) }
                 Spacer(Modifier.width(8.dp))
                 Button(
                     onClick = { /* Aceitar */ },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
                     shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text("Aceitar", color = Color.White)
-                }
+                ) { Text("Aceitar", color = Color.White) }
             }
         }
+    }
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun PainelDoAnfitriaoScreenPreview() {
+    FarAwayTheme {
+        PainelDoAnfitriaoContent(
+            navController = rememberNavController(),
+            userName = "Anfitrião Exemplo"
+        )
     }
 }

@@ -137,7 +137,11 @@ fun GuideProfileHeader(userData: User?, navController: NavController) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, "Voltar", tint = Color.White)
             }
             Text("Meu Perfil", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-            IconButton(onClick = { /* Configurações */ }) {
+            IconButton(onClick = {
+                navController.navigate(Destinations.CONFIG_ROUTE) {
+                    popUpTo(navController.graph.id) { inclusive = false }
+                }
+            }) {
                 Icon(Icons.Filled.Settings, "Configurações", tint = Color.White)
             }
         }
@@ -248,11 +252,13 @@ fun GuideProfileSettings(navController: NavController, onLogout: () -> Unit) {
         Spacer(modifier = Modifier.height(12.dp))
 
         GuideSettingsItem(Icons.Filled.DateRange, "Minha disponibilidade", GuideAccentColor, GuideLightBlue) {
-            // navController.navigate(Destinations.GUIDE_AVAILABILITY_ROUTE)
+            navController.navigate(Destinations.AVAILABILITY_ROUTE)
         }
         Spacer(modifier = Modifier.height(12.dp))
 
-        GuideSettingsItem(Icons.Filled.Description, "Documentos Profissionais", GuideAccentColor, GuideLightBlue) { /* Ação */ }
+        GuideSettingsItem(Icons.Filled.Description, "Documentos Profissionais", GuideAccentColor, GuideLightBlue){
+            navController.navigate(Destinations.DocumentosScreen_Route)
+        }
         Spacer(modifier = Modifier.height(12.dp))
 
         /*GuideSettingsItem(Icons.Filled.Help, "Central de Ajuda", GuideAccentColor, GuideLightBlue) { /* Ação */ }

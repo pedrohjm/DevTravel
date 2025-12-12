@@ -299,14 +299,17 @@ fun ProfileSettings(navController: NavController, onLogout: () -> Unit) {
         Text("Configurações", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextColor, modifier = Modifier.padding(horizontal = 8.dp))
         Spacer(modifier = Modifier.height(12.dp))
 
+        /*
         SettingsItem(Icons.Filled.People, "Minhas Conexões", AccentColor, LightBlue) {
             // navController.navigate(Destinations.MY_CONNECTIONS_ROUTE)
         }
+        */
         Spacer(modifier = Modifier.height(12.dp))
 
+        /*
         SettingsItem(Icons.Filled.FavoriteBorder, "Interesses e Hobbies", AccentColor, LightBlue) { /* Ação */ }
         Spacer(modifier = Modifier.height(24.dp))
-
+        */
         SettingsItem(Icons.AutoMirrored.Filled.ExitToApp, "Sair da Conta", LogoutRed, LogoutLightRed, onLogout)
     }
 }

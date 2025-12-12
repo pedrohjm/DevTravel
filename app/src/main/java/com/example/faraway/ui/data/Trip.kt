@@ -34,7 +34,7 @@ fun FriendRequestDocument.toTrip(): Trip {
 
     return Trip(
         id = this.id,
-        partnerName = this.partnerName ?: "Guia Desconhecido", // Valor temporário
+        partnerName = this.partnerName ?: "Guia Desconhecido",
         location = this.location ?: "",
         date = this.date ?: "",
         time = this.time ?: "",

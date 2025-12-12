@@ -2,6 +2,7 @@ package com.example.faraway.ui.screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -105,7 +106,7 @@ fun BottomNavBar(
 
 
 data class SocialUser(
-    val id: Int,
+    val userId: Int,
     val name: String,
     val nationality: String,
     val location: String,
@@ -116,7 +117,7 @@ data class SocialUser(
 
 fun User.toSocialUser(): SocialUser {
     return SocialUser(
-        id = this.uid.hashCode(),
+        userId  = this.uid.hashCode(),
         name = "${this.firstName} ${this.lastName}",
         nationality = "Nacionalidade não especificada",
         location = this.location ?: "Localização não informada",
@@ -128,14 +129,14 @@ fun User.toSocialUser(): SocialUser {
 
 
 @Composable
-fun SocialUserCard(user: SocialUser) {
+fun SocialUserCard(user: SocialUser, modifier: Modifier = Modifier) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp, horizontal = 16.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
     ) {
         Row(
             modifier = Modifier

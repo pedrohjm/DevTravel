@@ -17,12 +17,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.faraway.ui.data.Trip
 import com.example.faraway.ui.data.TripStatus
 import com.example.faraway.ui.theme.AccentColor // Assumindo que AccentColor é a cor de destaque
+import com.example.faraway.ui.theme.FarAwayTheme
 
 @Composable
 fun TripCard(trip: Trip) {
@@ -97,7 +99,7 @@ fun TripCard(trip: Trip) {
 
                 // 2. Detalhes da Viagem
                 Column(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f), // Ocupa o espaço restante
                     verticalArrangement = Arrangement.Top // Compacto
                 ) {
                     // Nome e Status
@@ -137,7 +139,7 @@ fun TripCard(trip: Trip) {
                         )
                         Spacer(Modifier.width(4.dp))
                         Text(
-                            text = trip.location,
+                            text = trip.location, // Localização do Guia
                             fontSize = 14.sp,
                             color = Color.Gray
                         )
@@ -168,7 +170,7 @@ fun TripCard(trip: Trip) {
                         )
                         Spacer(Modifier.width(4.dp))
                         Text(
-                            text = trip.time,
+                            text = trip.time, // Hora da Solicitação
                             fontSize = 14.sp,
                             color = Color.Gray
                         )
@@ -205,10 +207,30 @@ fun TripCard(trip: Trip) {
                         contentDescription = "Chat",
                         modifier = Modifier.size(20.dp)
                     )
-                    Spacer(Modifier.width(4.dp))
-                    Text("Chat", fontSize = 14.sp)
+                        Text("Chat", fontSize = 14.sp)
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TripCardPreview() {
+    // Dados de exemplo para o Preview
+    val sampleTrip = Trip(
+        partnerName = "Gabriel Pereira",
+        location = "Lisboa, Portugal",
+        date = "05 Out 2025",
+        time = "10:00",
+        price = "€25/hora",
+        duration = "3 horas",
+        status = TripStatus.CONFIRMED,
+        imageUrl = "https://i.imgur.com/8Q9tY2t.png", // URL de imagem de exemplo
+        details = "Detalhes da Viagem"
+    )
+
+    FarAwayTheme {
+        TripCard(trip = sampleTrip)
     }
 }

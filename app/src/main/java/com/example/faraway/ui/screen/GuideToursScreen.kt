@@ -47,7 +47,8 @@ fun MyTourScreen(
     viewModel: TourViewModel = viewModel() // Injeção do ViewModel
 ) {
     var selectedTab by remember { mutableStateOf(0) }
-    val tabs = listOf("Próximos", "Concluídos", "Pendentes", "Cancelados")
+    // Tabs: "Confirmadas", "Pendentes", "Cancelados" (Removido "Próximas" e "Concluídas")
+    val tabs = listOf("Confirmadas", "Pendentes", "Cancelados")
 
     // Observa o estado dos tours do ViewModel
     val toursResource by viewModel.tours.collectAsState()
@@ -64,8 +65,7 @@ fun MyTourScreen(
     // Aplica o filtro na lista de tours
     val filteredTours = remember(allTours, selectedTab) {
         when (tabs[selectedTab]) {
-            "Próximos" -> allTours.filter { it.status == TourStatus.CONFIRMED || it.status == TourStatus.PENDING }
-            "Concluídos" -> allTours.filter { it.status == TourStatus.COMPLETED }
+            "Confirmadas" -> allTours.filter { it.status == TourStatus.CONFIRMED } // Apenas CONFIRMED
             "Pendentes" -> allTours.filter { it.status == TourStatus.PENDING }
             "Cancelados" -> allTours.filter { it.status == TourStatus.CANCELED }
             else -> allTours
@@ -295,7 +295,7 @@ fun TourCard(tour: Tour) {
 
                 // 2. Detalhes do Tour
                 Column(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f), // Ocupa o espaço restante
                     verticalArrangement = Arrangement.Top // Compacto
                 ) {
                     // Nome e Status
@@ -335,7 +335,7 @@ fun TourCard(tour: Tour) {
                         )
                         Spacer(Modifier.width(4.dp))
                         Text(
-                            text = tour.location,
+                            text = tour.location, // Localização do Viajante
                             fontSize = 14.sp,
                             color = Color.Gray
                         )
@@ -353,7 +353,7 @@ fun TourCard(tour: Tour) {
                         )
                         Spacer(Modifier.width(4.dp))
                         Text(
-                            text = tour.date,
+                            text = tour.date, // Data da Solicitação
                             fontSize = 14.sp,
                             color = Color.Gray
                         )
@@ -366,7 +366,7 @@ fun TourCard(tour: Tour) {
                         )
                         Spacer(Modifier.width(4.dp))
                         Text(
-                            text = tour.time,
+                            text = tour.time, // Hora da Solicitação
                             fontSize = 14.sp,
                             color = Color.Gray
                         )
@@ -438,13 +438,5 @@ fun TourCard(tour: Tour) {
                 }
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun MyTourScreenPreview() {
-    FarAwayTheme {
-        MyTourScreen(navController = rememberNavController())
     }
 }

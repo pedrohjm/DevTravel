@@ -10,6 +10,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
 
 class TourViewModel(
     private val requestRepository: FriendRequestRepository = FriendRequestRepository(FirebaseFirestore.getInstance()),
@@ -24,6 +26,24 @@ class TourViewModel(
 
     init {
         fetchTours()
+    }
+
+    private fun formatTimestampToTime(timestamp: Long?): String {
+        return if (timestamp != null) {
+            val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
+            sdf.format(Date(timestamp))
+        } else {
+            "Hora Desconhecida"
+        }
+    }
+
+    private fun formatTimestampToDate(timestamp: Long?): String {
+        return if (timestamp != null) {
+            val sdf = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+            sdf.format(Date(timestamp))
+        } else {
+            "Data Desconhecida"
+        }
     }
 
     fun fetchTours() {
@@ -46,10 +66,16 @@ class TourViewModel(
                             // Busca o perfil do Viajante (Sender)
                             val travelerProfile = userRepository.getUser(request.senderUid)
 
-                            // Mapeia a solicitação para Tour, injetando os dados do perfil
+                            // Mapeia a solicitação para Tour, injetando os dados do perfil e timestamp
                             request.toTour().copy(
-                                guestName = "${travelerProfile?.firstName} ${travelerProfile?.lastName}".trim(),
-                                imageUrl = travelerProfile?.profileImageUrl ?: ""
+                                // Dados do Perfil do Viajante
+                                guestName = "${travelerProfile?.firstName} ${travelerProfile?.lastName}".trim().ifEmpty { "Viajante Desconhecido" },
+                                imageUrl = travelerProfile?.profileImageUrl ?: "",
+                                location = travelerProfile?.location ?: "Localização Desconhecida", // Localização do Viajante
+
+                                // Hora e Data da Solicitação (Timestamp)
+                                time = formatTimestampToTime(request.timestamp),
+                                date = formatTimestampToDate(request.timestamp)
                             )
                         }
 

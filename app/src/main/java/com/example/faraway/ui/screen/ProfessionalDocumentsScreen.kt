@@ -51,7 +51,7 @@ fun DocumentosScreen(navController: NavController? = null) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Ícone Voltar
-            IconButton(onClick = { navController?.navigateUp() }) {
+            IconButton(onClick = { navController!!.popBackStack() }) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
                     contentDescription = "Voltar",

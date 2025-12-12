@@ -40,8 +40,11 @@ import com.example.faraway.ui.screen.SignUpScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.navArgument
 import com.example.faraway.ui.data.AuthRepository
+import com.example.faraway.ui.screen.ConexoesScreen
+import com.example.faraway.ui.screen.DocumentosScreen
 import com.example.faraway.ui.screen.EditProfileScreen // Importação da sua versão (HEAD)
 import com.example.faraway.ui.screen.HostPropertyScreen // Importação da versão remota
+import com.example.faraway.ui.screen.QuickAgendaScreen
 import com.example.faraway.ui.viewmodel.AuthViewModel
 import com.example.faraway.ui.viewmodel.AuthViewModelFactory
 import com.example.faraway.ui.screen.SocialScreen
@@ -231,13 +234,22 @@ fun AppNavigation() {
         }
 
         // Rotas da versão remota
-        /*composable(Destinations.AVAILABILITY_ROUTE) {
-            AvailabilityGuideScreen(navController = navController)
-        }*/
+        composable(Destinations.AVAILABILITY_ROUTE) {
+            QuickAgendaScreen(navController = navController)
+        }
 
         composable(Destinations.HOST_PROPERTY_ROUTE) {
             HostPropertyScreen(navController = navController)
         }
+
+        composable(Destinations.DocumentosScreen_Route){
+            DocumentosScreen(navController = navController)
+        }
+
+        composable(Destinations.Conexao_Route){
+            ConexoesScreen(navController = navController)
+        }
+
 
 
         composable(

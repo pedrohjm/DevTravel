@@ -125,6 +125,7 @@ fun HostProfileContent(
 fun HostProfileHeader(navController: NavController, userData: User?) {
     fun String?.fallback(default: String = "--------"): String = this?.ifBlank { default } ?: default
 
+    // Se userData for null, usa valores padrão
     val fullName = "${userData?.firstName.fallback("")} ${userData?.lastName.fallback("")}".trim().ifEmpty { "Anfitrião" }
     val description = userData?.description.fallback("Descrição da Propriedade")
     val location = userData?.location.fallback("Localização")
@@ -269,7 +270,7 @@ fun HostStatItem(icon: ImageVector, value: String, label: String, iconColor: Col
 }
 
 // -----------------------------------------------------------------
-// 3. CONFIGURAÇÕES (ITEM REMOVIDO AQUI)
+// 3. CONFIGURAÇÕES
 // -----------------------------------------------------------------
 @Composable
 fun HostProfileSettings(navController: NavController, onLogout: () -> Unit) {
@@ -282,14 +283,17 @@ fun HostProfileSettings(navController: NavController, onLogout: () -> Unit) {
         Text("Configurações", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = HostTextColor, modifier = Modifier.padding(horizontal = 8.dp))
         Spacer(modifier = Modifier.height(12.dp))
 
-        HostSettingsItem(Icons.Filled.Home, "Minhas Propriedades", HostAccentColor, HostLightBlue) {
+        HostSettingsItem(Icons.Filled.Home, "Minha Propriedade", HostAccentColor, HostLightBlue) {
             navController.navigate(Destinations.HOST_PROPERTY_ROUTE)
         }
         Spacer(modifier = Modifier.height(12.dp))
 
-        // --- ITEM DISPONIBILIDADE REMOVIDO DAQUI ---
+        HostSettingsItem(Icons.Filled.CalendarMonth, "Disponibilidade", HostAccentColor, HostLightBlue) {
+            navController.navigate(Destinations.AVAILABILITY_ROUTE)
+        }
+        Spacer(modifier = Modifier.height(12.dp))
 
-        HostSettingsItem(Icons.Filled.Help, "Documentos Profissionais", HostAccentColor, HostLightBlue) { /* Ação */ }
+        HostSettingsItem(Icons.Filled.Help, "Central de Ajuda", HostAccentColor, HostLightBlue) { /* Ação */ }
         Spacer(modifier = Modifier.height(12.dp))
 
         HostSettingsItem(Icons.AutoMirrored.Filled.ExitToApp, "Sair da Conta", HostLogoutRed, HostLogoutLightRed, onLogout)
@@ -325,6 +329,8 @@ fun HostSettingsItem(icon: ImageVector, label: String, iconColor: Color, backgro
 @Composable
 fun HostProfilePreview() {
     FarAwayTheme {
+        // Passamos null para o usuário, simulando o estado inicial ou de carregamento
+        // Assim não dependemos da estrutura específica da classe User para o preview
         HostProfileContent(
             navController = rememberNavController(),
             userData = null,

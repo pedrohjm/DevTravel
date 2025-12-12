@@ -157,7 +157,7 @@ fun HostProfileHeader(navController: NavController, userData: User?) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, "Voltar", tint = Color.White)
             }
             Text("Meu Perfil", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-            IconButton(onClick = { /* Configurações */ }) {
+            IconButton(onClick = { /* Navegar para a tela de configurações */ }) {
                 Icon(Icons.Filled.Settings, "Configurações", tint = Color.White)
             }
         }
@@ -281,7 +281,7 @@ fun HostProfileSettings(navController: NavController, onLogout: () -> Unit) {
         Spacer(modifier = Modifier.height(12.dp))
 
         HostSettingsItem(Icons.Filled.CalendarMonth, "Documentos Profissionais", HostAccentColor, HostLightBlue) {
-            navController.navigate(Destinations.AVAILABILITY_ROUTE)
+            navController.navigate(Destinations.DocumentosScreen_Route)
         }
         Spacer(modifier = Modifier.height(12.dp))
         HostSettingsItem(Icons.AutoMirrored.Filled.ExitToApp, "Sair da Conta", HostLogoutRed, HostLogoutLightRed, onLogout)

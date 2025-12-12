@@ -14,6 +14,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.People
@@ -161,7 +162,11 @@ fun FriendProfileHeader(navController: NavController, userData: User?) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, "Voltar", tint = Color.White)
             }
             Text("Meu Perfil", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-            IconButton(onClick = { /* Config */ }) {
+            IconButton(onClick = {
+                navController.navigate(Destinations.CONFIG_ROUTE) {
+                    popUpTo(navController.graph.id) { inclusive = false }
+                }
+            }) {
                 Icon(Icons.Filled.Settings, "Configurações", tint = Color.White)
             }
         }
@@ -319,6 +324,7 @@ fun FriendProfileSettings(navController: NavController, onLogout: () -> Unit) {
         Text("Configurações", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = FriendProfileTextColor)
         Spacer(modifier = Modifier.height(12.dp))
 
+
         // Botão Azul Claro
         FriendProfileSettingsItem(
             icon = Icons.Filled.People,
@@ -326,22 +332,28 @@ fun FriendProfileSettings(navController: NavController, onLogout: () -> Unit) {
             containerColor = FriendProfileLightBlue,
             textColor = FriendProfileTextColor,
             iconColor = FriendProfileTextColor,
-            onClick = { /* Ação */ }
+            onClick = { navController.navigate(Destinations.Conexao_Route) }
         )
 
         Spacer(modifier = Modifier.height(12.dp))
 
+
+
+
         // Botão Azul Claro
         FriendProfileSettingsItem(
-            icon = Icons.Outlined.FavoriteBorder,
-            label = "Interesses e lugares visitados",
+            icon = Icons.Outlined.CalendarMonth,
+            label = "Documentos Profissionais",
             containerColor = FriendProfileLightBlue,
             textColor = FriendProfileTextColor,
             iconColor = FriendProfileTextColor,
-            onClick = { /* Ação */ }
+            onClick = { navController.navigate(Destinations.DocumentosScreen_Route) }
         )
 
+
         Spacer(modifier = Modifier.height(24.dp))
+
+
 
         // Botão de Sair (Branco com Borda Vermelha)
         FriendProfileSettingsItem(

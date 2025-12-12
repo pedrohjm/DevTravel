@@ -37,7 +37,8 @@ fun TripsScreen(
     navController: NavController,
     viewModel: TripViewModel = viewModel() // Injeção do ViewModel
 ) {
-    val tabs = listOf("Próximas", "Concluídas", "Pendentes", "Canceladas")
+    // Tabs: "Confirmadas", "Pendentes", "Canceladas" (Removido "Concluídas")
+    val tabs = listOf("Confirmadas", "Pendentes", "Canceladas")
     var selectedTabIndex by remember { mutableIntStateOf(0) }
 
     // Observa o estado das viagens do ViewModel
@@ -55,8 +56,7 @@ fun TripsScreen(
     // Aplica o filtro na lista de viagens
     val filteredTrips = remember(allTrips, selectedTabIndex) {
         when (tabs[selectedTabIndex]) {
-            "Próximas" -> allTrips.filter { it.status == TripStatus.CONFIRMED || it.status == TripStatus.PENDING }
-            "Concluídas" -> allTrips.filter { it.status == TripStatus.COMPLETED }
+            "Confirmadas" -> allTrips.filter { it.status == TripStatus.CONFIRMED } // Apenas CONFIRMED
             "Pendentes" -> allTrips.filter { it.status == TripStatus.PENDING }
             "Canceladas" -> allTrips.filter { it.status == TripStatus.CANCELED }
             else -> allTrips

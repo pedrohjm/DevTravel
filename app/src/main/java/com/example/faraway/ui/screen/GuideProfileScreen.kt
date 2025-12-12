@@ -82,32 +82,16 @@ fun GuideProfileContent(
                 contentPadding = PaddingValues(horizontal = 8.dp)
             ) {
                 guideNavItems.forEach { item ->
-                    val selected = item.route == Destinations.GUIDE_PROFILE_ROUTE
-
                     NavigationBarItem(
-                        selected = selected,
+                        selected = item.route == Destinations.GUIDE_PROFILE_ROUTE,
                         onClick = {
                             navController.navigate(item.route) {
                                 launchSingleTop = true
                                 restoreState = true
                             }
                         },
-                        icon = {
-                            Icon(
-                                item.icon,
-                                contentDescription = item.label
-                            )
-                        },
-                        label = {
-                            Text(item.label, fontSize = 10.sp)
-                        },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = GuideAccentColor,      // azul
-                            selectedTextColor = GuideAccentColor,      // azul
-                            unselectedIconColor = Color.Gray,          // cinza
-                            unselectedTextColor = Color.Gray,          // cinza
-                            indicatorColor = Color.Transparent
-                        )
+                        icon = { Icon(item.icon, contentDescription = item.label) },
+                        label = { Text(item.label, fontSize = 10.sp) }
                     )
                 }
             }
@@ -141,7 +125,7 @@ fun GuideProfileHeader(userData: User?, navController: NavController) {
             .background(GuidePrimaryBlue)
             .padding(bottom = 80.dp)
     ) {
-
+        // Top Bar
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -153,12 +137,16 @@ fun GuideProfileHeader(userData: User?, navController: NavController) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, "Voltar", tint = Color.White)
             }
             Text("Meu Perfil", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-            IconButton(onClick = { /* Configurações */ }) {
+            IconButton(onClick = {
+                navController.navigate(Destinations.CONFIG_ROUTE) {
+                    popUpTo(navController.graph.id) { inclusive = false }
+                }
+            }) {
                 Icon(Icons.Filled.Settings, "Configurações", tint = Color.White)
             }
         }
 
-
+        // Info
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -264,11 +252,13 @@ fun GuideProfileSettings(navController: NavController, onLogout: () -> Unit) {
         Spacer(modifier = Modifier.height(12.dp))
 
         GuideSettingsItem(Icons.Filled.DateRange, "Minha disponibilidade", GuideAccentColor, GuideLightBlue) {
-
+            navController.navigate(Destinations.AVAILABILITY_ROUTE)
         }
         Spacer(modifier = Modifier.height(12.dp))
 
-        GuideSettingsItem(Icons.Filled.Description, "Documentos Profissionais", GuideAccentColor, GuideLightBlue) { /* Ação */ }
+        GuideSettingsItem(Icons.Filled.Description, "Documentos Profissionais", GuideAccentColor, GuideLightBlue){
+            navController.navigate(Destinations.DocumentosScreen_Route)
+        }
         Spacer(modifier = Modifier.height(12.dp))
 
         /*GuideSettingsItem(Icons.Filled.Help, "Central de Ajuda", GuideAccentColor, GuideLightBlue) { /* Ação */ }
@@ -304,7 +294,7 @@ fun GuideSettingsItem(icon: ImageVector, label: String, iconColor: Color, backgr
 @Composable
 fun GuideProfilePreview() {
     FarAwayTheme {
-
+        // Passamos null para o userData, usando os fallbacks definidos na tela
         GuideProfileContent(
             navController = rememberNavController(),
             userData = null,

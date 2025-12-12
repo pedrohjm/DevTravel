@@ -137,7 +137,7 @@ fun ConexoesScreen(navController: NavController? = null) {
     ) {
 
         // Ícone Voltar
-        IconButton(onClick = { navController?.navigateUp() }) {
+        IconButton(onClick = { navController!!.popBackStack() }) {
             Icon(
                 imageVector = Icons.Default.ArrowBack,
                 contentDescription = "Voltar",

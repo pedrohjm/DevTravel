@@ -46,7 +46,7 @@ import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HostPropertyScreen(navController: NavController? = null) {
+fun HostPropertyScreen(navController: NavController? = null, ) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
     var title by remember { mutableStateOf("Apartamento Moderno no Centro") }

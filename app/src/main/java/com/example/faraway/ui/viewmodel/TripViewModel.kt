@@ -10,6 +10,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
 
 class TripViewModel(
     private val requestRepository: FriendRequestRepository = FriendRequestRepository(FirebaseFirestore.getInstance()),
@@ -24,6 +26,24 @@ class TripViewModel(
 
     init {
         fetchTrips()
+    }
+
+    private fun formatTimestampToTime(timestamp: Long?): String {
+        return if (timestamp != null) {
+            val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
+            sdf.format(Date(timestamp))
+        } else {
+            "Hora Desconhecida"
+        }
+    }
+
+    private fun formatTimestampToDate(timestamp: Long?): String {
+        return if (timestamp != null) {
+            val sdf = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+            sdf.format(Date(timestamp))
+        } else {
+            "Data Desconhecida"
+        }
     }
 
     fun fetchTrips() {
@@ -46,11 +66,16 @@ class TripViewModel(
                             // Busca o perfil do Guia (Receiver)
                             val guideProfile = userRepository.getUser(request.receiverUid)
 
-                            // Mapeia a solicitação para Trip, injetando os dados do perfil
+                            // Mapeia a solicitação para Trip, injetando os dados do perfil e timestamp
                             request.toTrip().copy(
-                                // CORREÇÃO: Usar apenas o nome do perfil ou um fallback genérico
-                                partnerName = "${guideProfile?.firstName} ${guideProfile?.lastName}".trim(),
-                                imageUrl = guideProfile?.profileImageUrl ?: ""
+                                // Dados do Perfil do Guia
+                                partnerName = "${guideProfile?.firstName} ${guideProfile?.lastName}".trim().ifEmpty { "Guia Desconhecido" },
+                                imageUrl = guideProfile?.profileImageUrl ?: "",
+                                location = guideProfile?.location ?: "Localização Desconhecida", // Localização do Guia
+
+                                // Hora e Data da Solicitação (Timestamp)
+                                time = formatTimestampToTime(request.timestamp),
+                                date = formatTimestampToDate(request.timestamp)
                             )
                         }
 

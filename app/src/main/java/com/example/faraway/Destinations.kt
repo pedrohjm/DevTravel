@@ -41,4 +41,8 @@ object Destinations {
     const val QUICK_AGENDA_ROUTE = "quick_agenda"
 
     const val HOST_PROPERTY_ROUTE = "host_property"
+
+    const val DocumentosScreen_Route = "documentosScreen_Route"
+
+    const val Conexao_Route = "conexao_route"
 }

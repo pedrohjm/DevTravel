@@ -1,6 +1,7 @@
 package com.example.faraway.ui.screen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -180,8 +181,12 @@ fun AmigosScreen(
             ) {
                 items(socialUsers) { user ->
                     user?.let {
-                        // A função toSocialUser() só é chamada se 'it' (o usuário) não for nulo
-                        SocialUserCard(user = it.toSocialUser())
+                        SocialUserCard(
+                            user = it.toSocialUser(),
+                            modifier = Modifier.clickable {
+                                navController.navigate("${Destinations.VIEW_PROFILE_ROUTE}/${it.uid}")
+                            }
+                        )
                     }
                 }
             }

@@ -387,14 +387,6 @@ private fun HostDashboardContent(innerPadding: PaddingValues) {
 
         Spacer(Modifier.height(24.dp))
 
-        // --- Próximas Reservas ---
-        Text("Próximas Reservas", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-        Spacer(Modifier.height(8.dp))
-        ReservationCard("João Pedro", "Quarto Duplo", "20 Dez 2025", "Confirmada")
-        ReservationCard("Ana Clara", "Suíte Master", "05 Jan 2026", "Pendente")
-
-        Spacer(Modifier.height(24.dp))
-
         // --- Solicitações ---
         Text("Solicitações de Amizade", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(8.dp))

@@ -111,15 +111,17 @@ fun HostChatBottomNavBarPlaceholder(
     navController: NavController,
     navItems: List<NavItem>,
     startRoute: String
-) { // RENOMEADO
-
+) {
     BottomAppBar(
         containerColor = HostChatCardBackground,
         contentPadding = PaddingValues(horizontal = 8.dp)
     ) {
         navItems.forEach { item ->
+
+            val isSelected = item.route == Destinations.HOST_CHAT_ROUTE
+
             NavigationBarItem(
-                selected = item.route == "chat", // Chat selecionado
+                selected = isSelected,
                 onClick = {
                     navController.navigate(item.route) {
                         popUpTo(startRoute) { saveState = true }
@@ -130,11 +132,19 @@ fun HostChatBottomNavBarPlaceholder(
                 icon = {
                     Icon(
                         item.icon,
-                        contentDescription = item.label,
-                        tint = if (item.route == "chat") HostChatAccentColor else Color.Gray
+                        contentDescription = item.label
                     )
                 },
-                label = { Text(item.label, fontSize = 10.sp) }
+                label = {
+                    Text(item.label, fontSize = 10.sp)
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = HostChatAccentColor,   // Azul turquesa
+                    selectedTextColor = HostChatAccentColor,   // Azul turquesa
+                    unselectedIconColor = Color.Gray,          // Cinza
+                    unselectedTextColor = Color.Gray,
+                    indicatorColor = Color.Transparent         // Sem bolha atrás
+                )
             )
         }
     }

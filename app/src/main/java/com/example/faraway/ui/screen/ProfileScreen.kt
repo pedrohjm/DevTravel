@@ -9,7 +9,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -22,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,36 +29,30 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import com.example.faraway.Destinations
 import com.example.faraway.travelerNavItems
 import com.example.faraway.ui.data.User
-import coil.compose.AsyncImage // Importação para exibir imagens da web
+import com.example.faraway.ui.theme.FarAwayTheme
 import com.example.faraway.ui.viewmodel.AuthViewModel
-import com.example.faraway.ui.data.AuthRepository
 
 // -----------------------------------------------------------------
-// CORES AUXILIARES (Baseado no design)
+// CORES AUXILIARES
 // -----------------------------------------------------------------
-val PrimaryBlue = Color(0xFF192F50) // Azul escuro do cabeçalho
-val AccentColor = Color(0xFF00BCD4) // Cor de destaque (Turquesa/Ciano)
-val LightBlue = Color(0xFFE0F7FA) // Azul claro para os cards de configuração
-val CardBackground = Color(0xFFFFFFFF) // Fundo branco para cards
-val TextColor = Color(0xFF333333) // Cor de texto padrão
-val LogoutRed = Color(0xFFE57373) // Vermelho para o botão de Sair
-val LogoutLightRed = Color(0xFFFFEBEE) // Vermelho claro para o fundo do botão de Sair
-val InterestPurple = Color(0xFF8200DB) // Cor para o texto dos chips de interesse
+val PrimaryBlue = Color(0xFF192F50)
+val AccentColor = Color(0xFF00BCD4)
+val LightBlue = Color(0xFFE0F7FA)
+val CardBackground = Color(0xFFFFFFFF)
+val TextColor = Color(0xFF333333)
+val LogoutRed = Color(0xFFE57373)
+val LogoutLightRed = Color(0xFFFFEBEE)
+val InterestPurple = Color(0xFF8200DB)
 
 // -----------------------------------------------------------------
-// PLACEHOLDERS PARA COMPONENTES DE NAVEGAÇÃO (Para evitar erros de referência)
+// PLACEHOLDERS
 // -----------------------------------------------------------------
+data class NavItem(val route: String, val icon: ImageVector, val label: String)
 
-// Placeholder para NavItem (data class)
-data class NavItem(
-    val route: String,
-    val icon: ImageVector,
-    val label: String
-)
-// Placeholder para BottomNavBar (Componente)
 @Composable
 fun BottomNavBarPlaceholder(
     navController: NavController,
@@ -87,7 +81,7 @@ fun BottomNavBarPlaceholder(
 }
 
 // -----------------------------------------------------------------
-// COMPONENTE PRINCIPAL
+// 1. TELA COM LÓGICA (Stateful)
 // -----------------------------------------------------------------
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -100,6 +94,28 @@ fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
         }
     }
 
+    ProfileContent(
+        navController = navController,
+        userData = userData,
+        onLogout = {
+            authViewModel.logout()
+            navController.navigate(Destinations.AUTH_ROUTE) {
+                popUpTo(navController.graph.id) { inclusive = false }
+            }
+        }
+    )
+}
+
+// -----------------------------------------------------------------
+// 2. CONTEÚDO VISUAL (Stateless)
+// -----------------------------------------------------------------
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ProfileContent(
+    navController: NavController,
+    userData: User?,
+    onLogout: () -> Unit
+) {
     Scaffold(
         bottomBar = {
             BottomNavBarPlaceholder(navController = navController, navItems = travelerNavItems, startRoute = "profile")
@@ -110,21 +126,20 @@ fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            item { ProfileHeader(navController = navController, userData) }
+            item { ProfileHeader(navController = navController, userData = userData) }
             item { ProfileStatsAndInterests(userData = userData) }
-            item { ProfileSettings(navController = navController, authViewModel = authViewModel) }
+            item { ProfileSettings(navController = navController, onLogout = onLogout) }
             item { Spacer(modifier = Modifier.height(32.dp)) }
         }
     }
 }
 
 // -----------------------------------------------------------------
-// 1. HEADER (Cabeçalho)
+// HEADER
 // -----------------------------------------------------------------
-
 @Composable
 fun ProfileHeader(navController: NavController, userData: User?) {
-    val profileImageUrl = userData?.profileImageUrl // Obtém a URL da imagem do usuário
+    val profileImageUrl = userData?.profileImageUrl
     fun String?.fallback(): String = this?.ifBlank { "--------" } ?: "--------"
 
     val fullName = "${userData?.firstName.fallback()} ${userData?.lastName.fallback()}".trim().ifEmpty { "--------" }
@@ -136,9 +151,9 @@ fun ProfileHeader(navController: NavController, userData: User?) {
         modifier = Modifier
             .fillMaxWidth()
             .background(PrimaryBlue)
-            .padding(bottom = 80.dp) // Espaço para o card de estatísticas
+            .padding(bottom = 80.dp)
     ) {
-        // Top Bar (Voltar e Configurações)
+        // Top Bar
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -146,40 +161,23 @@ fun ProfileHeader(navController: NavController, userData: User?) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = { /* Ação de Voltar */ }) {
-                Icon(
-                    Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Voltar",
-                    tint = Color.White
-                )
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, "Voltar", tint = Color.White)
             }
-            Text(
-                text = "Meu Perfil",
-                color = Color.White,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
-            IconButton(onClick = {
-                navController.navigate(Destinations.CONFIG_ROUTE) {
-                    popUpTo(navController.graph.id) { inclusive = false }
-                }
-            }) {
-                Icon(
-                    Icons.Filled.Settings,
-                    contentDescription = "Configurações",
-                    tint = Color.White
-                )
+            Text("Meu Perfil", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            IconButton(onClick = { /* Config */ }) {
+                Icon(Icons.Filled.Settings, "Configurações", tint = Color.White)
             }
         }
 
-        // Foto de Perfil e Informações
+        // Info
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Foto de Perfil com Câmera (Placeholder)
+            // Foto
             Box(contentAlignment = Alignment.BottomEnd) {
                 Box(
                     modifier = Modifier
@@ -190,22 +188,16 @@ fun ProfileHeader(navController: NavController, userData: User?) {
                     contentAlignment = Alignment.Center
                 ) {
                     if (profileImageUrl.isNullOrEmpty()) {
-                        Icon(
-                            Icons.Filled.Person,
-                            contentDescription = "Foto de Perfil Placeholder",
-                            tint = Color.Gray,
-                            modifier = Modifier.size(80.dp)
-                        )
+                        Icon(Icons.Filled.Person, null, tint = Color.Gray, modifier = Modifier.size(80.dp))
                     } else {
                         AsyncImage(
                             model = profileImageUrl,
-                            contentDescription = "Foto de Perfil",
+                            contentDescription = "Foto",
                             modifier = Modifier.fillMaxSize().clip(CircleShape),
-                            contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                            contentScale = ContentScale.Crop
                         )
                     }
                 }
-                // Ícone de Câmera
                 Box(
                     modifier = Modifier
                         .size(36.dp)
@@ -213,90 +205,35 @@ fun ProfileHeader(navController: NavController, userData: User?) {
                         .background(AccentColor)
                         .padding(8.dp)
                 ) {
-                    Icon(
-                        Icons.Filled.PhotoCamera,
-                        contentDescription = "Mudar Foto",
-                        tint = Color.White,
-                        modifier = Modifier.size(20.dp)
-                    )
+                    Icon(Icons.Filled.PhotoCamera, null, tint = Color.White, modifier = Modifier.size(20.dp))
                 }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
-
-            // Nome
-            Text(
-                text = fullName,
-                color = Color.White,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
-
+            Text(fullName, color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(4.dp))
-
-            // Descrição
-            Text(
-                text = description,
-                color = Color.White.copy(alpha = 0.8f),
-                fontSize = 14.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 32.dp)
-            )
-
+            Text(description, color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp, textAlign = TextAlign.Center, modifier = Modifier.padding(horizontal = 32.dp))
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(location, color = AccentColor, fontSize = 14.sp, fontWeight = FontWeight.Medium)
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Localização
-            Text(
-                text = location,
-                color = AccentColor,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Perfil Verificado
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(8.dp)
-                        .clip(CircleShape)
-                        .background(Color.Green)
-                )
-                Text(
-                    text = "Perfil Verificado",
-                    color = Color.White,
-                    fontSize = 12.sp
-                )
-            }
+            /*Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(Color.Green))
+                Text("Perfil Verificado", color = Color.White, fontSize = 12.sp)
+            }*/
 
             Spacer(modifier = Modifier.height(16.dp))
-
-            // Idiomas (Chips)
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
+            /*Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 if (languages.isEmpty()) {
-                    Text(
-                        text = "--------",
-                        color = Color.White.copy(alpha = 0.7f),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Normal
-                    )
+                    Text("--------", color = Color.White.copy(alpha = 0.7f), fontSize = 14.sp, fontWeight = FontWeight.Normal)
                 } else {
-                    languages.forEach { lang ->
-                        GuideLanguageChip(lang, isSelected = true) // Assume-se que todas as línguas listadas são as faladas
-                    }
+                    languages.forEach { lang -> LanguageChip(lang, isSelected = true) }
                 }
-            }
+            } */
         }
     }
 }
 
-// LanguageChip ATUALIZADO para remover o fundo do item selecionado
 @Composable
 fun LanguageChip(label: String, isSelected: Boolean) {
     val textColor = if (isSelected) Color.White else Color.White.copy(alpha = 0.7f)
@@ -315,85 +252,46 @@ fun LanguageChip(label: String, isSelected: Boolean) {
 }
 
 // -----------------------------------------------------------------
-// 2. ESTATÍSTICAS E INTERESSES
+// ESTATÍSTICAS
 // -----------------------------------------------------------------
-
 @Composable
 fun ProfileStatsAndInterests(userData: User?) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .offset(y = (-60).dp)
+            .offset(y = (-10).dp)
             .padding(horizontal = 16.dp)
     ) {
-        // Card de Estatísticas
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = CardBackground),
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            Row(
+            /*Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 16.dp, horizontal = 8.dp),
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
-                StatItem(
-                    icon = Icons.Filled.People,
-                    value = "156",
-                    label = "Conexões",
-                    iconColor = AccentColor
-                )
-                StatItem(
-                    icon = Icons.Filled.LocationOn,
-                    value = "28",
-                    label = "Países",
-                    iconColor = AccentColor
-                )
-                StatItem(
-                    icon = Icons.Filled.AttachMoney,
-                    value = "156",
-                    label = "Encontros",
-                    iconColor = Color(0xFF4CAF50)
-                )
-                StatItem(
-                    icon = Icons.Filled.Star,
-                    value = "4.9",
-                    label = "Avaliação",
-                    iconColor = Color(0xFFFFC107)
-                )
-            }
+                StatItem(Icons.Filled.People, "156", "Conexões", AccentColor)
+                StatItem(Icons.Filled.LocationOn, "28", "Países", AccentColor)
+                StatItem(Icons.Filled.AttachMoney, "156", "Encontros", Color(0xFF4CAF50))
+                StatItem(Icons.Filled.Star, "4.9", "Avaliação", Color(0xFFFFC107))
+            }*/
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Meus Interesses
-        Text(
-            text = "Meus Interesses",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = TextColor,
-            modifier = Modifier.padding(horizontal = 8.dp)
-        )
-
+         Text("Meus Interesses", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextColor, modifier = Modifier.padding(horizontal = 8.dp))
         Spacer(modifier = Modifier.height(8.dp))
 
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.padding(horizontal = 8.dp)
-        ) {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(horizontal = 8.dp)) {
             val interests = userData?.interests ?: emptyList()
             if (interests.isEmpty()) {
-                Text(
-                    text = "--------",
-                    fontSize = 14.sp,
-                    color = TextColor.copy(alpha = 0.5f)
-                )
+                Text("--------", fontSize = 14.sp, color = TextColor.copy(alpha = 0.5f))
             } else {
-                interests.forEach { interest ->
-                    InterestChip(interest)
-                }
+                interests.forEach { interest -> InterestChip(interest) }
             }
         }
     }
@@ -402,152 +300,87 @@ fun ProfileStatsAndInterests(userData: User?) {
 @Composable
 fun StatItem(icon: ImageVector, value: String, label: String, iconColor: Color) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Icon(
-            icon,
-            contentDescription = label,
-            tint = iconColor,
-            modifier = Modifier.size(24.dp)
-        )
+        Icon(icon, label, tint = iconColor, modifier = Modifier.size(24.dp))
         Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = value,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = TextColor
-        )
-        Text(
-            text = label,
-            fontSize = 12.sp,
-            color = TextColor.copy(alpha = 0.6f)
-        )
+        Text(value, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = TextColor)
+        Text(label, fontSize = 12.sp, color = TextColor.copy(alpha = 0.6f))
     }
 }
 
-// InterestChip ATUALIZADO com a cor roxa e borda LightBlue
 @Composable
 fun InterestChip(label: String) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(16.dp))
-            .background(Color.Transparent) // Fundo transparente
-            .border(1.dp, LightBlue, RoundedCornerShape(16.dp)) // Borda LightBlue
+            .background(Color.Transparent)
+            .border(1.dp, LightBlue, RoundedCornerShape(16.dp))
             .padding(horizontal = 12.dp, vertical = 6.dp)
     ) {
-        Text(
-            text = label,
-            color = InterestPurple, // Cor atualizada para 8200DB
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Medium
-        )
+        Text(text = label, color = InterestPurple, fontSize = 12.sp, fontWeight = FontWeight.Medium)
     }
 }
 
 // -----------------------------------------------------------------
-// 3. CONFIGURAÇÕES
+// CONFIGURAÇÕES
 // -----------------------------------------------------------------
-
 @Composable
-fun ProfileSettings(navController: NavController, authViewModel: AuthViewModel ) {
+fun ProfileSettings(navController: NavController, onLogout: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .offset(y = (-40).dp) // Ajuste para compensar o offset do card de estatísticas
+            .offset(y = (-0.9).dp)
             .padding(horizontal = 16.dp)
     ) {
-        Text(
-            text = "Configurações",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = TextColor,
-            modifier = Modifier.padding(horizontal = 8.dp)
-        )
-
+        Text("Configurações", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextColor, modifier = Modifier.padding(horizontal = 8.dp))
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Item de Configuração: Minhas Conexões (Cor padrão)
-        SettingsItem(
-            icon = Icons.Filled.People,
-            label = "Minhas Conexões",
-            iconColor = AccentColor,
-            backgroundColor = LightBlue,
-            onClick = { /* Ação ao clicar */ }
-        )
-
+        SettingsItem(Icons.Filled.People, "Minhas Conexões", AccentColor, LightBlue) {
+            // navController.navigate(Destinations.MY_CONNECTIONS_ROUTE)
+        }
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Item de Configuração: Interesses e Hobbies (Cor padrão)
-        SettingsItem(
-            icon = Icons.Filled.FavoriteBorder,
-            label = "Interesses e Hobbies",
-            iconColor = AccentColor,
-            backgroundColor = LightBlue,
-            onClick = { /* Ação ao clicar */ }
-        )
+        SettingsItem(Icons.Filled.FavoriteBorder, "Interesses e Hobbies", AccentColor, LightBlue) { /* Ação */ }
+        Spacer(modifier = Modifier.height(24.dp))
 
-        Spacer(modifier = Modifier.height(24.dp)) // Espaço maior antes do botão de logout
-
-        // Item de Configuração: Sair da Conta (Cor de destaque - Vermelho)
-        SettingsItem(
-            icon = Icons.AutoMirrored.Filled.ExitToApp, // Ícone de saída
-            label = "Sair da Conta",
-            iconColor = LogoutRed,
-            backgroundColor = LogoutLightRed,
-            onClick = {
-                authViewModel.logout()
-                navController.navigate("auth") {
-                    popUpTo(navController.graph.id) {
-                        inclusive = true
-                    }
-                }
-            }
-        )
+        SettingsItem(Icons.AutoMirrored.Filled.ExitToApp, "Sair da Conta", LogoutRed, LogoutLightRed, onLogout)
     }
 }
 
 @Composable
-fun SettingsItem(
-    icon: ImageVector,
-    label: String,
-    iconColor: Color,
-    backgroundColor: Color,
-    onClick: () -> Unit
-) {
+fun SettingsItem(icon: ImageVector, label: String, iconColor: Color, backgroundColor: Color, onClick: () -> Unit) {
     Card(
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(64.dp)
-            .clickable{onClick()}
+        modifier = Modifier.fillMaxWidth().height(64.dp).clickable { onClick() }
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp),
+            modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    icon,
-                    contentDescription = null,
-                    tint = iconColor,
-                    modifier = Modifier.size(24.dp)
-                )
+                Icon(icon, null, tint = iconColor, modifier = Modifier.size(24.dp))
                 Spacer(modifier = Modifier.width(16.dp))
-                Text(
-                    text = label,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = TextColor
-                )
+                Text(label, fontSize = 16.sp, fontWeight = FontWeight.Medium, color = TextColor)
             }
-            Icon(
-                Icons.Filled.ArrowForward,
-                contentDescription = "Avançar",
-                tint = iconColor
-            )
+            Icon(Icons.Filled.ArrowForward, "Avançar", tint = iconColor)
         }
     }
+}
 
+// -----------------------------------------------------------------
+// PREVIEW
+// -----------------------------------------------------------------
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun ProfileScreenPreview() {
+    FarAwayTheme {
+        // Passamos null para simular o estado inicial ou de carregamento
+        // Os textos aparecerão como "--------"
+        ProfileContent(
+            navController = rememberNavController(),
+            userData = null,
+            onLogout = {}
+        )
+    }
 }

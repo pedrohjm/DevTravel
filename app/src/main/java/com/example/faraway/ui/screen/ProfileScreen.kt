@@ -36,9 +36,6 @@ import com.example.faraway.ui.data.User
 import com.example.faraway.ui.theme.FarAwayTheme
 import com.example.faraway.ui.viewmodel.AuthViewModel
 
-// -----------------------------------------------------------------
-// CORES AUXILIARES
-// -----------------------------------------------------------------
 val PrimaryBlue = Color(0xFF192F50)
 val AccentColor = Color(0xFF00BCD4)
 val LightBlue = Color(0xFFE0F7FA)
@@ -48,9 +45,7 @@ val LogoutRed = Color(0xFFE57373)
 val LogoutLightRed = Color(0xFFFFEBEE)
 val InterestPurple = Color(0xFF8200DB)
 
-// -----------------------------------------------------------------
-// PLACEHOLDERS
-// -----------------------------------------------------------------
+
 data class NavItem(val route: String, val icon: ImageVector, val label: String)
 
 @Composable
@@ -80,9 +75,7 @@ fun BottomNavBarPlaceholder(
     }
 }
 
-// -----------------------------------------------------------------
-// 1. TELA COM LÓGICA (Stateful)
-// -----------------------------------------------------------------
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
@@ -106,9 +99,6 @@ fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
     )
 }
 
-// -----------------------------------------------------------------
-// 2. CONTEÚDO VISUAL (Stateless)
-// -----------------------------------------------------------------
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileContent(
@@ -134,9 +124,6 @@ fun ProfileContent(
     }
 }
 
-// -----------------------------------------------------------------
-// HEADER
-// -----------------------------------------------------------------
 @Composable
 fun ProfileHeader(navController: NavController, userData: User?) {
     val profileImageUrl = userData?.profileImageUrl
@@ -251,9 +238,6 @@ fun LanguageChip(label: String, isSelected: Boolean) {
     )
 }
 
-// -----------------------------------------------------------------
-// ESTATÍSTICAS
-// -----------------------------------------------------------------
 @Composable
 fun ProfileStatsAndInterests(userData: User?) {
     Column(
@@ -320,9 +304,6 @@ fun InterestChip(label: String) {
     }
 }
 
-// -----------------------------------------------------------------
-// CONFIGURAÇÕES
-// -----------------------------------------------------------------
 @Composable
 fun ProfileSettings(navController: NavController, onLogout: () -> Unit) {
     Column(
@@ -368,9 +349,6 @@ fun SettingsItem(icon: ImageVector, label: String, iconColor: Color, backgroundC
     }
 }
 
-// -----------------------------------------------------------------
-// PREVIEW
-// -----------------------------------------------------------------
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun ProfileScreenPreview() {

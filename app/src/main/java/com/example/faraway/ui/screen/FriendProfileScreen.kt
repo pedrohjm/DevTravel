@@ -1,6 +1,6 @@
 package com.example.faraway.ui.screen
 
-import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -12,43 +12,45 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.People
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import com.example.faraway.Destinations
 import com.example.faraway.amigosNavItems
 import com.example.faraway.ui.data.User
-import coil.compose.AsyncImage
+import com.example.faraway.ui.theme.FarAwayTheme
 import com.example.faraway.ui.viewmodel.AuthViewModel
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 
-val FriendProfilePrimaryBlue = Color(0xFF192F50) // Azul escuro do cabeçalho
-val FriendProfileAccentColor = Color(0xFF00BCD4) // Cor de destaque (Ciano/Turquesa)
-val FriendProfileLightBlue = Color(0xFFE0F7FA) // Azul claro para fundo de cards
-val FriendProfileTextColor = Color(0xFF333333) // Cor de texto padrão
-val FriendProfileRed = Color(0xFFD32F2F) // Vermelho para o botão de Sair da Conta
+// --- CORES ---
+val FriendProfilePrimaryBlue = Color(0xFF192F50)
+val FriendProfileAccentColor = Color(0xFF00BCD4)
+val FriendProfileLightBlue = Color(0xFFE0F7FA) // Azul claro dos botões
+val FriendProfileTextColor = Color(0xFF333333)
+val FriendProfileRed = Color(0xFFD32F2F)
+val FriendProfileRedBg = Color(0xFFFFEBEE) // Fundo claro para o ícone de sair
 
-data class FriendProfileNavItem(
-    val route: String,
-    val icon: ImageVector,
-    val label: String
-)
+// --- NAV ITEMS ---
+data class FriendProfileNavItem(val route: String, val icon: ImageVector, val label: String)
 
 @Composable
 fun FriendProfileBottomNavBarPlaceholder(
@@ -62,7 +64,7 @@ fun FriendProfileBottomNavBarPlaceholder(
     ) {
         navItems.forEach { item ->
             NavigationBarItem(
-                selected = item.route == "perfil",
+                selected = item.route == "profile",
                 onClick = {
                     navController.navigate(item.route) {
                         popUpTo(startRoute) { saveState = true }
@@ -70,23 +72,19 @@ fun FriendProfileBottomNavBarPlaceholder(
                         restoreState = true
                     }
                 },
-                icon = {
-                    Icon(
-                        item.icon,
-                        contentDescription = item.label,
-                        tint = if (item.route == "perfil") FriendProfileAccentColor else Color.Gray
-                    )
-                },
+                icon = { Icon(item.icon, contentDescription = item.label) },
                 label = { Text(item.label, fontSize = 10.sp) }
             )
         }
     }
 }
 
+// -----------------------------------------------------------------
+// 1. TELA COM LÓGICA (Stateful)
+// -----------------------------------------------------------------
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FriendProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
-    val scrollState = rememberScrollState()
     val userData by authViewModel.userData.collectAsState()
 
     LaunchedEffect(Unit) {
@@ -94,9 +92,34 @@ fun FriendProfileScreen(navController: NavController, authViewModel: AuthViewMod
             authViewModel.fetchUserData()
         }
     }
+
+    FriendProfileContent(
+        navController = navController,
+        userData = userData,
+        onLogout = {
+            authViewModel.logout()
+            navController.navigate("auth") {
+                popUpTo(navController.graph.id) { inclusive = true }
+            }
+        }
+    )
+}
+
+// -----------------------------------------------------------------
+// 2. CONTEÚDO VISUAL (Stateless)
+// -----------------------------------------------------------------
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FriendProfileContent(
+    navController: NavController,
+    userData: User?,
+    onLogout: () -> Unit
+) {
+    val scrollState = rememberScrollState()
+
     Scaffold(
         bottomBar = {
-            FriendProfileBottomNavBarPlaceholder(navController = navController,navItems = amigosNavItems ,Destinations.SOCIAL_PROFILE_ROUTE)
+            FriendProfileBottomNavBarPlaceholder(navController = navController, navItems = amigosNavItems, Destinations.SOCIAL_PROFILE_ROUTE)
         }
     ) { paddingValues ->
         Column(
@@ -108,13 +131,15 @@ fun FriendProfileScreen(navController: NavController, authViewModel: AuthViewMod
             FriendProfileHeader(navController = navController, userData = userData)
             FriendProfileStatsCard()
             FriendProfileInterests(userData = userData)
-            FriendProfileSettings(navController = navController, authViewModel = authViewModel)
+            FriendProfileSettings(navController = navController, onLogout = onLogout)
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
 
-
+// -----------------------------------------------------------------
+// HEADER
+// -----------------------------------------------------------------
 @Composable
 fun FriendProfileHeader(navController: NavController, userData: User?) {
     Column(
@@ -131,21 +156,12 @@ fun FriendProfileHeader(navController: NavController, userData: User?) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            IconButton(onClick = { /* Ação de Voltar */ }) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar", tint = Color.White)
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, "Voltar", tint = Color.White)
             }
-            Text(
-                text = "Meu Perfil",
-                color = Color.White,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
-            IconButton(onClick = {
-                navController.navigate(Destinations.CONFIG_ROUTE) {
-                    popUpTo(navController.graph.id) { inclusive = false }
-                }
-            }) {
-                Icon(Icons.Filled.Settings, contentDescription = "Configurações", tint = Color.White)
+            Text("Meu Perfil", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            IconButton(onClick = { /* Config */ }) {
+                Icon(Icons.Filled.Settings, "Configurações", tint = Color.White)
             }
         }
 
@@ -159,28 +175,26 @@ fun FriendProfileHeader(navController: NavController, userData: User?) {
             ) {
                 val profileImageUrl = userData?.profileImageUrl
                 if (profileImageUrl.isNullOrEmpty()) {
-                    Icon(Icons.Filled.Person, contentDescription = "Foto", tint = Color.White, modifier = Modifier.size(60.dp))
+                    Icon(Icons.Filled.Person, "Foto", tint = Color.White, modifier = Modifier.size(60.dp))
                 } else {
                     AsyncImage(
                         model = profileImageUrl,
                         contentDescription = "Foto de Perfil",
                         modifier = Modifier.fillMaxSize().clip(CircleShape),
-                        contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                        contentScale = ContentScale.Crop
                     )
                 }
             }
-
             Box(
                 modifier = Modifier
                     .size(30.dp)
                     .clip(CircleShape)
                     .background(Color.White)
                     .border(2.dp, FriendProfilePrimaryBlue, CircleShape)
-                    .align(Alignment.BottomEnd)
-                    .clickable { navController.navigate(Destinations.EDIT_PROFILE_ROUTE) },
+                    .clickable { /* Editar Foto */ },
                 contentAlignment = Alignment.Center
             ) {
-                Icon(Icons.Filled.PhotoCamera, contentDescription = "Mudar Foto", tint = FriendProfilePrimaryBlue, modifier = Modifier.size(16.dp))
+                Icon(Icons.Filled.PhotoCamera, "Mudar Foto", tint = FriendProfilePrimaryBlue, modifier = Modifier.size(16.dp))
             }
         }
 
@@ -198,7 +212,7 @@ fun FriendProfileHeader(navController: NavController, userData: User?) {
             fontSize = 14.sp
         )
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Outlined.LocationOn, contentDescription = "Localização", tint = Color.White.copy(alpha = 0.8f), modifier = Modifier.size(16.dp))
+            Icon(Icons.Outlined.LocationOn, "Localização", tint = Color.White.copy(alpha = 0.8f), modifier = Modifier.size(16.dp))
             Spacer(modifier = Modifier.width(4.dp))
             Text(
                 text = userData?.location ?: "Localização desconhecida",
@@ -209,17 +223,17 @@ fun FriendProfileHeader(navController: NavController, userData: User?) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        Row(
+        /*Row(
             modifier = Modifier
                 .clip(RoundedCornerShape(12.dp))
                 .background(Color.Green.copy(alpha = 0.2f))
                 .padding(horizontal = 8.dp, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(Icons.Filled.Verified, contentDescription = "Verificado", tint = Color.Green, modifier = Modifier.size(16.dp))
+            Icon(Icons.Filled.Verified, "Verificado", tint = Color.Green, modifier = Modifier.size(16.dp))
             Spacer(modifier = Modifier.width(4.dp))
-            Text(text = "Perfil Verificado", color = Color.Green, fontSize = 12.sp)
-        }
+            Text("Perfil Verificado", color = Color.Green, fontSize = 12.sp)
+        }*/
 
         Spacer(modifier = Modifier.height(12.dp))
 
@@ -245,7 +259,6 @@ fun FriendProfileLanguageChip(label: String, isSelected: Boolean) {
     )
 }
 
-
 @Composable
 fun FriendProfileStatsCard() {
     Card(
@@ -257,23 +270,17 @@ fun FriendProfileStatsCard() {
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround
-            ) {
-                FriendProfileStatItem(icon = Icons.Outlined.People, value = "156", label = "Conexões", color = FriendProfileAccentColor)
-                FriendProfileStatItem(icon = Icons.Filled.Flag, value = "28", label = "Países", color = FriendProfileAccentColor)
+        /*Column(modifier = Modifier.padding(16.dp)) {
+            /*Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
+                FriendProfileStatItem(Icons.Outlined.People, "156", "Conexões", FriendProfileAccentColor)
+                FriendProfileStatItem(Icons.Filled.Flag, "28", "Países", FriendProfileAccentColor)
             }
             Spacer(modifier = Modifier.height(16.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround
-            ) {
-                FriendProfileStatItem(icon = Icons.Filled.AttachMoney, value = "156", label = "Encontros", color = FriendProfileAccentColor)
-                FriendProfileStatItem(icon = Icons.Outlined.FavoriteBorder, value = "28", label = "Recomendações", color = FriendProfileAccentColor)
-            }
-        }
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
+                FriendProfileStatItem(Icons.Filled.AttachMoney, "156", "Encontros", FriendProfileAccentColor)
+                FriendProfileStatItem(Icons.Outlined.FavoriteBorder, "28", "Recomendações", FriendProfileAccentColor)
+            } */
+        }*/
     }
 }
 
@@ -281,14 +288,13 @@ fun FriendProfileStatsCard() {
 fun FriendProfileStatItem(icon: ImageVector, value: String, label: String, color: Color) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(icon, contentDescription = label, tint = color, modifier = Modifier.size(20.dp))
+            Icon(icon, label, tint = color, modifier = Modifier.size(20.dp))
             Spacer(modifier = Modifier.width(4.dp))
-            Text(text = value, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = FriendProfileTextColor)
+            Text(value, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = FriendProfileTextColor)
         }
-        Text(text = label, fontSize = 12.sp, color = Color.Gray)
+        Text(label, fontSize = 12.sp, color = Color.Gray)
     }
 }
-
 
 @Composable
 fun FriendProfileInterests(userData: User?) {
@@ -296,27 +302,16 @@ fun FriendProfileInterests(userData: User?) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .offset(y = (-20).dp)
+            .offset(y = (-0.9).dp)
     ) {
-        Text(
-            text = "Meus Interesses",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = FriendProfileTextColor
-        )
+        Text("Meus Interesses", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = FriendProfileTextColor)
         Spacer(modifier = Modifier.height(8.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             val interests = userData?.interests ?: emptyList()
             if (interests.isEmpty()) {
-                Text(
-                    text = "--------",
-                    fontSize = 14.sp,
-                    color = FriendProfileTextColor.copy(alpha = 0.5f)
-                )
+                Text("--------", fontSize = 14.sp, color = FriendProfileTextColor.copy(alpha = 0.5f))
             } else {
-                interests.forEach { interest ->
-                    FriendProfileInterestChip(interest)
-                }
+                interests.forEach { interest -> FriendProfileInterestChip(interest) }
             }
         }
     }
@@ -336,45 +331,49 @@ fun FriendProfileInterestChip(label: String) {
 }
 
 @Composable
-fun FriendProfileSettings(navController: NavController, authViewModel: AuthViewModel) {
+fun FriendProfileSettings(navController: NavController, onLogout: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
+        Text("Configurações", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = FriendProfileTextColor)
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Botão Azul Claro
         FriendProfileSettingsItem(
-            icon = Icons.Filled.PersonAdd,
-            label = "Convidar Amigos",
-            onClick = { /* Ação ao clicar */ }
+            icon = Icons.Filled.People,
+            label = "Minhas Conexões",
+            containerColor = FriendProfileLightBlue,
+            textColor = FriendProfileTextColor,
+            iconColor = FriendProfileTextColor,
+            onClick = { /* Ação */ }
         )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Botão Azul Claro
         FriendProfileSettingsItem(
-            icon = Icons.Filled.Notifications,
-            label = "Notificações",
-            onClick = { /* Ação ao clicar */ }
+            icon = Icons.Outlined.FavoriteBorder,
+            label = "Interesses e lugares visitados",
+            containerColor = FriendProfileLightBlue,
+            textColor = FriendProfileTextColor,
+            iconColor = FriendProfileTextColor,
+            onClick = { /* Ação */ }
         )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Botão de Sair (Branco com Borda Vermelha)
         FriendProfileSettingsItem(
-            icon = Icons.Filled.Security,
-            label = "Privacidade e Segurança",
-            onClick = { /* Ação ao clicar */ }
-        )
-        FriendProfileSettingsItem(
-            icon = Icons.Filled.Help,
-            label = "Ajuda e Suporte",
-            onClick = { /* Ação ao clicar */ }
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        FriendProfileSettingsItem(
-            icon = Icons.AutoMirrored.Filled.ArrowForward,
+            icon = Icons.AutoMirrored.Filled.ExitToApp, // Ícone de saída
             label = "Sair da Conta",
-            color = FriendProfileRed,
-            onClick = {
-                authViewModel.logout()
-                navController.navigate("auth") {
-                    popUpTo(navController.graph.id) {
-                        inclusive = true
-                    }
-                }
-            }
+            containerColor = Color.White,
+            textColor = FriendProfileRed,
+            iconColor = FriendProfileRed,
+            borderColor = FriendProfileRed,
+            isLogout = true,
+            onClick = onLogout
         )
     }
 }
@@ -383,20 +382,74 @@ fun FriendProfileSettings(navController: NavController, authViewModel: AuthViewM
 fun FriendProfileSettingsItem(
     icon: ImageVector,
     label: String,
-    color: Color = FriendProfileTextColor,
+    containerColor: Color,
+    textColor: Color,
+    iconColor: Color,
+    borderColor: Color? = null,
+    isLogout: Boolean = false,
     onClick: () -> Unit
 ) {
-    Row(
+    val border = if (borderColor != null) BorderStroke(1.dp, borderColor) else null
+
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .height(64.dp)
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = containerColor),
+        border = border,
+        elevation = if (isLogout) CardDefaults.cardElevation(0.dp) else CardDefaults.cardElevation(0.dp)
     ) {
-        Icon(icon, contentDescription = label, tint = color)
-        Spacer(modifier = Modifier.width(16.dp))
-        Text(text = label, color = color, fontSize = 16.sp)
-        Spacer(modifier = Modifier.weight(1f))
-        Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = Color.Gray)
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Círculo ao redor do ícone (opcional, como na imagem)
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(if (isLogout) FriendProfileRedBg else Color.Transparent), // Fundo vermelhinho no ícone de sair
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = label,
+                    tint = iconColor,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Text(
+                text = label,
+                color = textColor,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.weight(1f)
+            )
+
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                contentDescription = null,
+                tint = if(isLogout) FriendProfileRed else Color.Gray.copy(alpha = 0.5f)
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun FriendProfilePreview() {
+    FarAwayTheme {
+        FriendProfileContent(
+            navController = rememberNavController(),
+            userData = null, // Sem mockUser
+            onLogout = {}
+        )
     }
 }

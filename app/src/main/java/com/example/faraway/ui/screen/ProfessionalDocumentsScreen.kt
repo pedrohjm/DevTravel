@@ -189,22 +189,10 @@ fun DocumentCard(item: DocumentItem, onDelete: () -> Unit = {}) {
             .background(bgColor, RoundedCornerShape(12.dp))
             .padding(12.dp)
     ) {
-        Column {
-            // Badge de Status (No topo direito)
-            Box(
-                modifier = Modifier
-                    .align(Alignment.End)
-                    .background(Color.White.copy(alpha = 0.7f), RoundedCornerShape(4.dp))
-                    .padding(horizontal = 6.dp, vertical = 2.dp)
-            ) {
-                Text(
-                    text = statusText,
-                    color = textColor,
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-
+        // CONTEÚDO PRINCIPAL (Título, Motivo, Data/Tamanho)
+        Column(
+            modifier = Modifier.fillMaxWidth() // Garante que a coluna ocupe todo o espaço disponível
+        ) {
             // Título do Documento
             Text(
                 text = item.title,
@@ -232,14 +220,33 @@ fun DocumentCard(item: DocumentItem, onDelete: () -> Unit = {}) {
             }
         }
 
-        // Ícone de Lixeira (Canto inferior direito)
+        // BADGE DE STATUS (Posicionado no canto superior direito)
+        // Usamos Alignment.TopEnd no Box pai para posicionar o badge
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopEnd) // Alinha ao canto superior direito do Box pai
+                .offset(x = 7.dp, y = (-8).dp) // Move para fora do padding de 12.dp
+                .background(Color.White.copy(alpha = 0.7f), RoundedCornerShape(4.dp))
+                .border(1.dp, borderColor.copy(alpha = 0.5f), RoundedCornerShape(4.dp)) // Adiciona a borda
+                .padding(horizontal = 6.dp, vertical = 2.dp)
+        ) {
+            Text(
+                text = statusText,
+                color = textColor,
+                fontSize = 12.sp, // Aumentado para 12.sp para melhor visibilidade
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        // Ícone de Lixeira
         Icon(
             imageVector = Icons.Default.Delete,
             contentDescription = "Excluir",
             tint = Color.Gray,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .size(20.dp)
+                .offset(y = (9).dp) //mudar posição da lixeira
+                .size(18.dp) //mudar o tamanho do icone cinza
                 .clickable { onDelete() }
         )
     }

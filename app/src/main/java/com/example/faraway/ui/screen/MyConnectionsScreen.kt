@@ -114,7 +114,7 @@ fun ConnectionCard(
 }
 }
 
-/* ------------------------------ TELA COMPLETA ------------------------------ */
+
 
 @Composable
 fun ConexoesScreen(navController: NavController? = null) {

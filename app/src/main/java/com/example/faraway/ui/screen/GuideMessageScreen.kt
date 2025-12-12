@@ -26,9 +26,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.faraway.Destinations
 
-// -----------------------------------------------------------------
-// CORES AUXILIARES (Prefixadas com GuideMessage para evitar conflito)
-// -----------------------------------------------------------------
+
 val GuideMessagePrimaryBlue = Color(0xFF192F50) // Azul escuro do cabeçalho
 val GuideMessageAccentColor = Color(0xFF00BCD4) // Cor de destaque (Ciano/Turquesa)
 val GuideMessageBackground = Color(0xFFF0F0F0) // Fundo cinza claro
@@ -36,9 +34,7 @@ val GuideMessageBubbleReceived = Color(0xFFFFFFFF) // Balão de mensagem recebid
 val GuideMessageBubbleSent = GuideMessageAccentColor // Balão de mensagem enviada (ciano)
 val GuideMessageTextColor = Color(0xFF333333) // Cor de texto padrão
 
-// -----------------------------------------------------------------
-// PLACEHOLDERS PARA DADOS
-// -----------------------------------------------------------------
+
 
 enum class MessageSender { ME, OTHER }
 
@@ -57,9 +53,7 @@ val sampleGuideMessages = listOf( // RENOMEADO
     Message("Podemos incluir uma visita à pastelaria de Porto?", "10:07", MessageSender.OTHER),
 )
 
-// -----------------------------------------------------------------
-// COMPONENTE PRINCIPAL
-// -----------------------------------------------------------------
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GuideMessageScreen(navController: NavController) { // RENOMEADO
@@ -83,9 +77,6 @@ fun GuideMessageScreen(navController: NavController) { // RENOMEADO
     }
 }
 
-// -----------------------------------------------------------------
-// 1. HEADER
-// -----------------------------------------------------------------
 
 @Composable
 fun GuideMessageHeader(navController: NavController) { // RENOMEADO
@@ -151,9 +142,7 @@ fun GuideMessageHeader(navController: NavController) { // RENOMEADO
     }
 }
 
-// -----------------------------------------------------------------
-// 2. MESSAGE BUBBLE
-// -----------------------------------------------------------------
+
 
 @Composable
 fun GuideMessageBubble(message: Message) { // RENOMEADO
@@ -202,9 +191,7 @@ fun GuideMessageBubble(message: Message) { // RENOMEADO
     }
 }
 
-// -----------------------------------------------------------------
-// 3. INPUT FIELD
-// -----------------------------------------------------------------
+
 
 @Composable
 fun GuideMessageInput() { // RENOMEADO
@@ -265,9 +252,7 @@ fun GuideMessageInput() { // RENOMEADO
     }
 }
 
-// -----------------------------------------------------------------
-// PREVIEW
-// -----------------------------------------------------------------
+
 @Preview(showBackground = true)
 @Composable
 fun GuideMessageScreenPreview() { // RENOMEADO

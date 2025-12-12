@@ -233,17 +233,7 @@ fun HostProfileStatsAndInfo() {
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            /*Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp, horizontal = 8.dp),
-                horizontalArrangement = Arrangement.SpaceAround
-            ) {
-                HostStatItem(Icons.Filled.People, "247", "Hóspedes", HostAccentColor)
-                HostStatItem(Icons.Filled.AttachMoney, "€ 18.2K", "Receita", Color(0xFF4CAF50))
-                HostStatItem(Icons.Filled.Star, "4.8", "Avaliação", Color(0xFFFFC107))
-                HostStatItem(Icons.Filled.TrendingUp, "87%", "Ocupação", HostAccentColor)
-            }*/
+
         }
     }
 }

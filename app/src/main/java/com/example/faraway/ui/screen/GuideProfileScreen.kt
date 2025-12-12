@@ -189,10 +189,6 @@ fun GuideProfileHeader(userData: User?, navController: NavController) {
             Text(location, color = GuideAccentColor, fontSize = 14.sp, fontWeight = FontWeight.Medium)
             Spacer(modifier = Modifier.height(8.dp))
 
-            /*Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(Color.Green))
-                Text("Guia Verificado", color = Color.White, fontSize = 12.sp)
-            }*/
 
             Spacer(modifier = Modifier.height(16.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -227,18 +223,6 @@ fun GuideProfileStatsAndInfo() {
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            /*Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp, horizontal = 8.dp),
-                horizontalArrangement = Arrangement.SpaceAround
-            ) {
-                GuideStatItem(Icons.Filled.People, "247", "Clientes")
-                Divider(modifier = Modifier.height(40.dp).width(1.dp), color = Color.LightGray)
-                GuideStatItem(Icons.Filled.Star, "4.9", "Avaliação")
-                Divider(modifier = Modifier.height(40.dp).width(1.dp), color = Color.LightGray)
-                GuideStatItem(Icons.Filled.DateRange, "12", "Tours Feitos")
-            }*/
         }
     }
 }

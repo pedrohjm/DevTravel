@@ -79,9 +79,6 @@ fun FriendProfileBottomNavBarPlaceholder(
     }
 }
 
-// -----------------------------------------------------------------
-// 1. TELA COM LÓGICA (Stateful)
-// -----------------------------------------------------------------
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FriendProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
@@ -105,9 +102,7 @@ fun FriendProfileScreen(navController: NavController, authViewModel: AuthViewMod
     )
 }
 
-// -----------------------------------------------------------------
-// 2. CONTEÚDO VISUAL (Stateless)
-// -----------------------------------------------------------------
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FriendProfileContent(
@@ -137,9 +132,6 @@ fun FriendProfileContent(
     }
 }
 
-// -----------------------------------------------------------------
-// HEADER
-// -----------------------------------------------------------------
 @Composable
 fun FriendProfileHeader(navController: NavController, userData: User?) {
     Column(
@@ -223,17 +215,6 @@ fun FriendProfileHeader(navController: NavController, userData: User?) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        /*Row(
-            modifier = Modifier
-                .clip(RoundedCornerShape(12.dp))
-                .background(Color.Green.copy(alpha = 0.2f))
-                .padding(horizontal = 8.dp, vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(Icons.Filled.Verified, "Verificado", tint = Color.Green, modifier = Modifier.size(16.dp))
-            Spacer(modifier = Modifier.width(4.dp))
-            Text("Perfil Verificado", color = Color.Green, fontSize = 12.sp)
-        }*/
 
         Spacer(modifier = Modifier.height(12.dp))
 
@@ -270,17 +251,6 @@ fun FriendProfileStatsCard() {
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        /*Column(modifier = Modifier.padding(16.dp)) {
-            /*Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
-                FriendProfileStatItem(Icons.Outlined.People, "156", "Conexões", FriendProfileAccentColor)
-                FriendProfileStatItem(Icons.Filled.Flag, "28", "Países", FriendProfileAccentColor)
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
-                FriendProfileStatItem(Icons.Filled.AttachMoney, "156", "Encontros", FriendProfileAccentColor)
-                FriendProfileStatItem(Icons.Outlined.FavoriteBorder, "28", "Recomendações", FriendProfileAccentColor)
-            } */
-        }*/
     }
 }
 

@@ -29,17 +29,13 @@ import androidx.navigation.compose.rememberNavController
 import com.example.faraway.Destinations
 import com.example.faraway.guideNavItems
 
-// -----------------------------------------------------------------
-// CORES AUXILIARES (Prefixadas com GuideChat para evitar conflito)
-// -----------------------------------------------------------------
+
 val GuideChatPrimaryBlue = Color(0xFF192F50) // Azul escuro do cabeçalho
 val GuideChatAccentColor = Color(0xFF00BCD4) // Cor de destaque (Ciano/Turquesa)
 val GuideChatTextColor = Color(0xFF333333) // Cor de texto padrão
 val GuideChatCardBackground = Color(0xFFFFFFFF) // Fundo branco
 
-// -----------------------------------------------------------------
-// PLACEHOLDERS PARA DADOS E NAVEGAÇÃO
-// -----------------------------------------------------------------
+
 
 data class GuideChatItemData( // RENOMEADO
     val id: Int,
@@ -59,14 +55,14 @@ val sampleGuideChats = listOf( // RENOMEADO
     GuideChatItemData(4, "Ricardo Alves", "Qual o melhor horário para ver o por do sol?", "Tour Fotográfico", "2d atrás", 0, false, "url4"),
 )
 
-// Placeholder para NavItem (data class)
+
 data class GuideChatNavItem( // RENOMEADO
     val route: String,
     val icon: ImageVector,
     val label: String
 )
 
-// Placeholder para BottomNavBar (Componente)
+
 @Composable
 fun GuideChatBottomNavBarPlaceholder(
         navController: NavController,
@@ -100,9 +96,6 @@ fun GuideChatBottomNavBarPlaceholder(
     }
 }
 
-// -----------------------------------------------------------------
-// COMPONENTE PRINCIPAL
-// -----------------------------------------------------------------
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GuideChatScreen(navController: NavController) { // RENOMEADO
@@ -124,9 +117,7 @@ fun GuideChatScreen(navController: NavController) { // RENOMEADO
     }
 }
 
-// -----------------------------------------------------------------
-// 1. TOP BAR
-// -----------------------------------------------------------------
+
 
 @Composable
 fun GuideChatTopBar() { // RENOMEADO
@@ -154,9 +145,7 @@ fun GuideChatTopBar() { // RENOMEADO
     }
 }
 
-// -----------------------------------------------------------------
-// 2. SEARCH BAR
-// -----------------------------------------------------------------
+
 
 @Composable
 fun GuideChatSearchBar() { // RENOMEADO
@@ -182,9 +171,7 @@ fun GuideChatSearchBar() { // RENOMEADO
     )
 }
 
-// -----------------------------------------------------------------
-// 3. STATUS TABS
-// -----------------------------------------------------------------
+
 
 @Composable
 fun GuideChatStatusTabs() { // RENOMEADO
@@ -218,9 +205,6 @@ fun GuideStatusItem(number: Int, label: String, isSelected: Boolean) { // RENOME
     }
 }
 
-// -----------------------------------------------------------------
-// 4. CHAT LIST
-// -----------------------------------------------------------------
 
 @Composable
 fun GuideChatList(chats: List<GuideChatItemData>, navController: NavController) { // RENOMEADO
@@ -332,9 +316,7 @@ fun GuideChatItem(chat: GuideChatItemData, onClick: () -> Unit) { // RENOMEADO
     }
 }
 
-// -----------------------------------------------------------------
-// PREVIEW
-// -----------------------------------------------------------------
+
 @Preview(showBackground = true)
 @Composable
 fun GuideChatScreenPreview() { // RENOMEADO

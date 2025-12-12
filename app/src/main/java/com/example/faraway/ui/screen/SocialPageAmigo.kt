@@ -90,10 +90,10 @@ fun AmigoBottomBar(
     }
 }
 
-// --- Definições de Cores (Ajuste conforme seu Theme.kt) ---
+
 val PrimaryDark = Color(0xFF007BFF) // Azul escuro original
 
-// --- Composable Principal da Tela Amigos ---
+
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun AmigosScreen(
@@ -102,15 +102,15 @@ fun AmigosScreen(
     factory: MainViewModelFactory = MainViewModelFactory(repository),
     mainViewModel: MainViewModel = viewModel(factory = factory)
 ) {
-    // Coletando a lista de amigos do ViewModel
+
     val friends by mainViewModel.friends.collectAsState()
 
-    // Assumindo que SocialUserCard pode receber um objeto User
+
     val socialUsers: List<User> = friends
 
     var searchText by remember { mutableStateOf("") }
 
-    // Gradiente para o Top Bar (Cores da imagem)
+
     val gradientBrush = remember {
         Brush.verticalGradient(
             colors = listOf(
@@ -167,13 +167,13 @@ fun AmigosScreen(
                 .padding(paddingValues)
                 .background(Color(0xFFF5F5F5)) // Fundo cinza claro
         ) {
-            // Barra de Busca (Componente Comum)
+
             SocialSearchBar(
                 searchText = searchText,
                 onSearchTextChanged = { searchText = it }
             )
 
-            // Lista de Usuários
+
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(vertical = 8.dp)

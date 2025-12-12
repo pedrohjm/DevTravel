@@ -48,7 +48,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-// 1. Definição das Cores Personalizadas para replicar o design
+
 val LightTeal = Color(0xFFE0F7FA) // Cor de fundo principal
 val PrimaryTeal = Color(0xFF00BCD4) // Cor de destaque (ícones, botões)
 val LightBlueChip = Color(0xFFE0F7FA) // Cor de fundo dos chips e itens de lista
@@ -59,10 +59,10 @@ val SecondaryText = Color(0xFF78909C) // Cor do texto secundário
 // 2. Componente principal da tela
 @Composable
 fun InterestsScreen() {
-    // Usando um Scaffold para a estrutura básica da tela
+
     Scaffold(
         topBar = {
-            // Top App Bar simples com o ícone de voltar
+
             TopAppBar(
                 title = { Text("Interesses e lugares visitados", color = DarkText) },
                 navigationIcon = {
@@ -80,10 +80,9 @@ fun InterestsScreen() {
                 )
             )
         },
-        // O fundo da tela é LightTeal
+
         modifier = Modifier.fillMaxSize().background(LightTeal)
     ) { paddingValues ->
-        // Conteúdo principal, alinhado ao centro para o card
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -101,7 +100,7 @@ fun InterestsScreen() {
                 Column(
                     modifier = Modifier.padding(16.dp)
                 ) {
-                    // Seção de Cabeçalho (Ícone, Título, Subtítulo e Menu)
+
                     HeaderSection()
                     Spacer(modifier = Modifier.height(24.dp))
 
@@ -148,7 +147,7 @@ fun HeaderSection() {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            // Ícone de Coração (Grande)
+
             Icon(
                 imageVector = Icons.Outlined.FavoriteBorder,
                 contentDescription = "Interesses",
@@ -188,7 +187,7 @@ fun HeaderSection() {
             }
         }
 
-        // Botão "Adicionar" flutuante, alinhado à direita e ligeiramente abaixo do título
+
         Button(
             onClick = { /* Ação de adicionar */ },
             shape = RoundedCornerShape(50),
@@ -211,7 +210,7 @@ fun HeaderSection() {
 }
 
 @OptIn(ExperimentalLayoutApi::class)
-// 4. Componente para os Chips de Interesses
+
 @Composable
 fun InterestsChips(interests: List<String>) {
     // FlowRow para quebrar os chips em múltiplas linhas se necessário
@@ -237,10 +236,10 @@ fun InterestsChips(interests: List<String>) {
     }
 }
 
-// 5. Data Class para os Lugares Visitados
+
 data class Place(val name: String, val subtitle: String)
 
-// 6. Componente para a Lista de Lugares Visitados
+
 @Composable
 fun VisitedPlacesList(places: List<Place>) {
     Column(
@@ -253,7 +252,7 @@ fun VisitedPlacesList(places: List<Place>) {
     }
 }
 
-// 7. Componente para um Item da Lista de Lugares Visitados
+
 @Composable
 fun VisitedPlaceItem(place: Place) {
     Surface(
@@ -279,7 +278,7 @@ fun VisitedPlaceItem(place: Place) {
     }
 }
 
-// 8. Preview para visualização no Android Studio
+
 @Preview(showBackground = true)
 @Composable
 fun PreviewInterestsScreen() {

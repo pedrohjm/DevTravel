@@ -28,10 +28,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.faraway.Destinations
 
-// -----------------------------------------------------------------
-// CORES AUXILIARES (Prefixadas com HostMessage para evitar conflito)
-// -----------------------------------------------------------------
-// Cores do HostChatScreen.kt
+
 val HostMessagePrimaryColor = Color(0xFF00838F) // Azul escuro do cabeçalho (Dark Teal/Cyan)
 val HostMessageAccentColor = Color(0xFF00BCD4) // Cor de destaque (Bright Cyan/Turquoise)
 val HostMessageBackground = Color(0xFFF0F0F0) // Fundo cinza claro
@@ -39,9 +36,7 @@ val HostMessageBubbleReceived = Color(0xFFFFFFFF) // Balão de mensagem recebida
 val HostMessageBubbleSent = HostMessageAccentColor // Balão de mensagem enviada (ciano)
 val HostMessageTextColor = Color(0xFF333333) // Cor de texto padrão
 
-// -----------------------------------------------------------------
-// PLACEHOLDERS PARA DADOS
-// -----------------------------------------------------------------
+
 
 enum class HostMessageSender { ME, OTHER } // CORRIGIDO: Renomeado para evitar redeclaração
 
@@ -66,9 +61,7 @@ val sampleHostMessages = listOf( // RENOMEADO
     HostMessage("Olá, Fátima! Tudo bem? Vi o anúncio da sua casa e parece incrível, pode me mandar mais fotos?", "11:14", HostMessageSender.OTHER), // CORRIGIDO
 )
 
-// -----------------------------------------------------------------
-// COMPONENTE PRINCIPAL
-// -----------------------------------------------------------------
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HostMessageScreen(navController: NavController) { // RENOMEADO
@@ -92,9 +85,7 @@ fun HostMessageScreen(navController: NavController) { // RENOMEADO
     }
 }
 
-// -----------------------------------------------------------------
-// 1. HEADER
-// -----------------------------------------------------------------
+
 
 @Composable
 fun HostMessageHeader(navController: NavController) { // RENOMEADO
@@ -160,9 +151,7 @@ fun HostMessageHeader(navController: NavController) { // RENOMEADO
     }
 }
 
-// -----------------------------------------------------------------
-// 2. MESSAGE BUBBLE (Principal)
-// -----------------------------------------------------------------
+
 
 @Composable
 fun HostMessageBubble(message: HostMessage) { // RENOMEADO
@@ -224,9 +213,7 @@ fun HostMessageBubble(message: HostMessage) { // RENOMEADO
     }
 }
 
-// -----------------------------------------------------------------
-// 2.1. IMAGE BUBBLE (Mensagem com Imagens)
-// -----------------------------------------------------------------
+
 
 @Composable
 fun HostMessageImageBubble(message: HostMessage) { // NOVO COMPONENTE
@@ -285,7 +272,7 @@ fun HostMessageImageBubble(message: HostMessage) { // NOVO COMPONENTE
             }
         }
 
-        // Time stamp no canto inferior direito do balão de imagem
+
         Text(
             text = message.time,
             color = if (isMe) Color.White.copy(alpha = 0.7f) else Color.Gray,
@@ -299,9 +286,7 @@ fun HostMessageImageBubble(message: HostMessage) { // NOVO COMPONENTE
     }
 }
 
-// -----------------------------------------------------------------
-// 3. INPUT FIELD
-// -----------------------------------------------------------------
+
 
 @Composable
 fun HostMessageInput() { // RENOMEADO
@@ -362,9 +347,7 @@ fun HostMessageInput() { // RENOMEADO
     }
 }
 
-// -----------------------------------------------------------------
-// PREVIEW
-// -----------------------------------------------------------------
+
 @Preview(showBackground = true)
 @Composable
 fun HostMessageScreenPreview() { // RENOMEADO

@@ -29,9 +29,7 @@ import com.example.faraway.Destinations
 import com.example.faraway.guideNavItems
 import com.example.faraway.hostNavItems
 
-// -----------------------------------------------------------------
-// CORES AUXILIARES (Prefixadas com HostChat para evitar conflito)
-// -----------------------------------------------------------------
+
 // Cor do cabeçalho (Dark Teal/Cyan - um pouco mais escuro que o Accent)
 val HostChatPrimaryColor = Color(0xFF00838F)
 // Cor de destaque (Bright Cyan/Turquoise)
@@ -39,9 +37,7 @@ val HostChatAccentColor = Color(0xFF00BCD4)
 val HostChatTextColor = Color(0xFF333333) // Cor de texto padrão
 val HostChatCardBackground = Color(0xFFFFFFFF) // Fundo branco
 
-// -----------------------------------------------------------------
-// PLACEHOLDERS PARA DADOS E NAVEGAÇÃO
-// -----------------------------------------------------------------
+
 
 data class HostChatItemData( // RENOMEADO
     val id: Int,
@@ -102,7 +98,7 @@ val sampleHostChats = listOf( // RENOMEADO
     ),
 )
 
-// Placeholder para NavItem (data class)
+
 data class HostChatNavItem( // RENOMEADO
     val route: String,
     val icon: ImageVector,
@@ -144,9 +140,7 @@ fun HostChatBottomNavBarPlaceholder(
     }
 }
 
-// -----------------------------------------------------------------
-// COMPONENTE PRINCIPAL
-// -----------------------------------------------------------------
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HostChatScreen(navController: NavController) { // RENOMEADO
@@ -170,9 +164,7 @@ fun HostChatScreen(navController: NavController) { // RENOMEADO
     }
 }
 
-// -----------------------------------------------------------------
-// 1. TOP BAR
-// -----------------------------------------------------------------
+
 
 @Composable
 fun HostChatTopBar() { // RENOMEADO
@@ -200,9 +192,7 @@ fun HostChatTopBar() { // RENOMEADO
     }
 }
 
-// -----------------------------------------------------------------
-// 2. SEARCH BAR
-// -----------------------------------------------------------------
+
 
 @Composable
 fun HostChatSearchBar() { // RENOMEADO
@@ -228,9 +218,7 @@ fun HostChatSearchBar() { // RENOMEADO
     )
 }
 
-// -----------------------------------------------------------------
-// 3. STATUS TABS
-// -----------------------------------------------------------------
+
 
 @Composable
 fun HostChatStatusTabs() { // RENOMEADO
@@ -264,9 +252,7 @@ fun HostStatusItem(number: Int, label: String, isSelected: Boolean) { // RENOMEA
     }
 }
 
-// -----------------------------------------------------------------
-// 4. CHAT LIST
-// -----------------------------------------------------------------
+
 
 @Composable
 fun HostChatList(chats: List<HostChatItemData>, navController: NavController) { // RENOMEADO
@@ -387,9 +373,7 @@ fun HostChatItem(chat: HostChatItemData, onClick: () -> Unit) { // RENOMEADO
     }
 }
 
-// -----------------------------------------------------------------
-// PREVIEW
-// -----------------------------------------------------------------
+
 @Preview(showBackground = true)
 @Composable
 fun HostChatScreenPreview() { // RENOMEADO

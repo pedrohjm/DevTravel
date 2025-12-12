@@ -110,7 +110,7 @@ fun GuideCard(user: User, navController: NavController) {
                 )
             }
 
-            // 2. Conteúdo do Cartão
+
             Column(modifier = Modifier.padding(16.dp)) {
                 // Nome e Avaliação
                 Row(
@@ -308,7 +308,6 @@ fun MainScreen(navController: NavController, authViewModel: AuthViewModel, mainV
                 )
             }
 
-            // 3. Conteúdo Principal (Lista de Cards)
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()

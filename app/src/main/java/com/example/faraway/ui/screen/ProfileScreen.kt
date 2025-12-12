@@ -204,19 +204,10 @@ fun ProfileHeader(navController: NavController, userData: User?) {
             Text(location, color = AccentColor, fontSize = 14.sp, fontWeight = FontWeight.Medium)
             Spacer(modifier = Modifier.height(8.dp))
 
-            /*Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(Color.Green))
-                Text("Perfil Verificado", color = Color.White, fontSize = 12.sp)
-            }*/
+
 
             Spacer(modifier = Modifier.height(16.dp))
-            /*Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                if (languages.isEmpty()) {
-                    Text("--------", color = Color.White.copy(alpha = 0.7f), fontSize = 14.sp, fontWeight = FontWeight.Normal)
-                } else {
-                    languages.forEach { lang -> LanguageChip(lang, isSelected = true) }
-                }
-            } */
+
         }
     }
 }
@@ -252,17 +243,6 @@ fun ProfileStatsAndInterests(userData: User?) {
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            /*Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp, horizontal = 8.dp),
-                horizontalArrangement = Arrangement.SpaceAround
-            ) {
-                StatItem(Icons.Filled.People, "156", "Conexões", AccentColor)
-                StatItem(Icons.Filled.LocationOn, "28", "Países", AccentColor)
-                StatItem(Icons.Filled.AttachMoney, "156", "Encontros", Color(0xFF4CAF50))
-                StatItem(Icons.Filled.Star, "4.9", "Avaliação", Color(0xFFFFC107))
-            }*/
         }
 
         Spacer(modifier = Modifier.height(24.dp))

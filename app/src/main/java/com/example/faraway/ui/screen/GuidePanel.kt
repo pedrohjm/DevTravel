@@ -158,7 +158,7 @@ fun GuidePanelScreen(
     }
 }
 
-/** O CONTEÚDO DA TELA DO GUIA*/
+
 @Composable
 private fun GuideDashboardContent(
     innerPadding: PaddingValues,

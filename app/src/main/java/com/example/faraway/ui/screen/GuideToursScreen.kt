@@ -31,7 +31,7 @@ import com.example.faraway.ui.data.Tour
 import com.example.faraway.ui.data.TourStatus
 import com.example.faraway.ui.theme.FarAwayTheme
 
-//Tela principal que exibe a lista de tours do guia turístico.
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyTourScreen(navController: NavController) {

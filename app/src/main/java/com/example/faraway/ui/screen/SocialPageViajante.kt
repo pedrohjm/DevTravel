@@ -39,11 +39,11 @@ import coil.compose.AsyncImage // Importação para exibir imagens da web
 import androidx.compose.ui.layout.ContentScale // Importação para ContentScaleFactory
 import com.example.faraway.ui.viewmodel.MainViewModelFactory
 
-// --- Definições de Cores e Temas (Assumindo que estão definidas no projeto original) ---
+
 val TagColor = Color(0xFFE0E0E0) // Cor de fundo para as tags
 
 
-// --- BottomNavBar COMPONENT
+
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun BottomNavBar(
@@ -103,7 +103,7 @@ fun BottomNavBar(
     }
 }
 
-// --- 1. Data Class para o Perfil Social ---
+
 data class SocialUser(
     val id: Int,
     val name: String,
@@ -116,17 +116,17 @@ data class SocialUser(
 
 fun User.toSocialUser(): SocialUser {
     return SocialUser(
-        id = this.uid.hashCode(), // Usando hashCode() como um ID Int temporário
+        id = this.uid.hashCode(),
         name = "${this.firstName} ${this.lastName}",
-        nationality = "Nacionalidade não especificada", // Placeholder
+        nationality = "Nacionalidade não especificada",
         location = this.location ?: "Localização não informada",
         description = this.description ?: "Sem descrição",
         tags = this.interests ?: emptyList(),
-        imageUrl = this.profileImageUrl // Usa a URL real do perfil
+        imageUrl = this.profileImageUrl
     )
 }
 
-// --- 2. Composable para o Card de Usuário Social ---
+
 @Composable
 fun SocialUserCard(user: SocialUser) {
     Card(
@@ -143,7 +143,6 @@ fun SocialUserCard(user: SocialUser) {
                 .heightIn(min = 100.dp) // Garante uma altura mínima para o Row
                 .padding(16.dp)
         ) {
-            // Imagem do Perfil (Real ou Placeholder)
             Box(
                 modifier = Modifier
                     .width(80.dp) // Mantém a largura
@@ -156,7 +155,9 @@ fun SocialUserCard(user: SocialUser) {
                         imageVector = Icons.Default.Person,
                         contentDescription = "Foto de Perfil",
                         tint = Color.Gray,
-                        modifier = Modifier.align(Alignment.Center).size(40.dp)
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .size(40.dp)
                     )
                 } else {
                     AsyncImage(
@@ -256,7 +257,6 @@ fun SocialUserCard(user: SocialUser) {
     }
 }
 
-// --- 3. Composable para a Barra de Busca (Adaptada) ---
 @Composable
 fun SocialSearchBar(searchText: String, onSearchTextChanged: (String) -> Unit) {
     Row(
@@ -299,7 +299,6 @@ fun SocialSearchBar(searchText: String, onSearchTextChanged: (String) -> Unit) {
     }
 }
 
-// --- 4. Composable Principal da Tela Social ---
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun SocialScreen(
@@ -308,10 +307,9 @@ fun SocialScreen(
     factory: MainViewModelFactory = MainViewModelFactory(repository),
     mainViewModel: MainViewModel = viewModel(factory = factory)
 ) {
-    // Coletando a lista de amigos do ViewModel
+
     val friends by mainViewModel.friends.collectAsState()
 
-    // Assumindo que SocialUserCard pode receber um objeto User
     val socialUsers: List<User> = friends
 
     var searchText by remember { mutableStateOf("") }
@@ -367,7 +365,7 @@ fun SocialScreen(
             ) {
                 items(socialUsers) { user ->
                     user?.let {
-                        // A função toSocialUser() só é chamada se 'it' (o usuário) não for nulo
+
                         SocialUserCard(user = it.toSocialUser())
                     }
                 }

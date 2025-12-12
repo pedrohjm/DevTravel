@@ -92,6 +92,7 @@ fun UserProfileBottomNavBarPlaceholder(navController: NavController) { // RENOME
 // -----------------------------------------------------------------
 // COMPONENTE PRINCIPAL
 // -----------------------------------------------------------------
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserProfileScreen(
     navController: NavController,
@@ -107,45 +108,136 @@ fun UserProfileScreen(
         profileViewModel.fetchCurrentUserProfile()
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState()), // Rolagem para garantir visibilidade
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        UserProfileHeader(
-            navController = navController,
-            userFullName = "${user?.firstName ?: ""} ${user?.lastName ?: ""}",
-            userLocation = user?.location ?: "Carregando...",
-            profileImageUrl = profileImageUrl
-        )
-        UserProfileDescriptionBox(description = user?.description ?: "Carregando descrição...")
-        UserProfileInterestChips(interests = user?.interests ?: emptyList())
-
-        // NOVO: Botões de Ação lado a lado
-        Row(
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Meu Perfil") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent,
+                    titleContentColor = Color.White,
+                    navigationIconContentColor = Color.White
+                )
+            )
+        },
+        containerColor = Color.Transparent
+    ) { paddingValues ->
+        // Fundo com Gradiente Azul (Cores do ViewProfileScreen)
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp) // Espaço entre os botões
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(UserProfilePrimaryBlue, UserProfileAccentColor) // Usando as cores do UserProfileScreen como base
+                    )
+                )
+                .padding(paddingValues),
+            contentAlignment = Alignment.Center
         ) {
-            // Botão "Ver Perfil"
-            ProfileActionButton(
-                text = "Ver Perfil",
-                onClick = { navController.navigate("profile") },
-                modifier = Modifier.weight(1f) // Ocupa metade do espaço
-            )
+            // Card Branco Centralizado
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth(0.9f)
+                    .padding(vertical = 16.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                        .verticalScroll(rememberScrollState()), // Adicionado scroll para o conteúdo do card
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    // 1. Foto de Perfil
+                    Box(
+                        modifier = Modifier
+                            .size(120.dp)
+                            .clip(CircleShape)
+                            .background(Color.LightGray),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (profileImageUrl.isNullOrEmpty()) {
+                            Icon(Icons.Filled.Person, contentDescription = "Foto", tint = Color.White, modifier = Modifier.size(80.dp))
+                        } else {
+                            AsyncImage(
+                                model = profileImageUrl,
+                                contentDescription = "Foto de Perfil",
+                                modifier = Modifier.fillMaxSize().clip(CircleShape),
+                                contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                            )
+                        }
+                    }
 
-            // Botão "Editar Perfil"
-            ProfileActionButton(
-                text = "Editar Perfil",
-                onClick = { navController.navigate("edit_profile") },
-                modifier = Modifier.weight(1f) // Ocupa metade do espaço
-            )
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // 2. Nome e Localização
+                    Text(
+                        text = "${user?.firstName ?: "Usuário"} ${user?.lastName ?: ""}",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF333333)
+                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Filled.LocationOn, contentDescription = "Localização", tint = Color(0xFF333333).copy(alpha = 0.7f), modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = user?.location ?: "Localização não informada",
+                            color = Color(0xFF333333).copy(alpha = 0.7f),
+                            fontSize = 14.sp
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // 3. Descrição
+                    Text(
+                        text = user?.description ?: "Nenhuma descrição fornecida.",
+                        fontSize = 14.sp,
+                        color = Color(0xFF333333),
+                        modifier = Modifier.align(Alignment.Start)
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // 4. Botões de Ação (Essência do UserProfileScreen)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 0.dp), // Removido padding extra
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        // Botão "Ver Perfil"
+                        Button(
+                            onClick = { navController.navigate("profile") },
+                            modifier = Modifier.weight(1f).height(50.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = UserProfilePrimaryBlue),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text("Ver Perfil", color = Color.White, fontWeight = FontWeight.Bold)
+                        }
+
+                        // Botão "Editar Perfil"
+                        Button(
+                            onClick = { navController.navigate("edit_profile") },
+                            modifier = Modifier.weight(1f).height(50.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = UserProfileAccentColor),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text("Editar Perfil", color = Color.White, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
         }
-        Spacer(modifier = Modifier.height(16.dp))
     }
 }
+
 
 // -----------------------------------------------------------------
 // 1. HEADER

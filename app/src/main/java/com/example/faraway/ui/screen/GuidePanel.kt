@@ -349,9 +349,6 @@ fun GuideRequestCard(
 @Composable
 fun GuidePanelScreenPreview() {
     FarAwayTheme {
-        // Mocking NavController and AuthViewModel for preview purposes
-        // Note: This preview will not work correctly without a real Firebase setup
-        // but serves as a structural check.
         GuidePanelScreen(
             navController = rememberNavController(),
             authViewModel = viewModel(factory = AuthViewModelFactory(AuthRepository()))

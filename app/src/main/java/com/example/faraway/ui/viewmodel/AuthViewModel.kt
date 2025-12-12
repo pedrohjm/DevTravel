@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 import java.lang.Exception
 import android.util.Log // NOVO: Import para Logcat
 
-class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
+open class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
 
     init {
         Log.d("AuthViewModel", "AuthViewModel inicializado.")

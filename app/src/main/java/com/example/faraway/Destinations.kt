@@ -23,7 +23,7 @@ object Destinations {
     const val GUIDE_PROFILE_ROUTE = "guide_profile"
     const val GUIDE_TOURS_ROUTE = "guide_tours" // Rota para a tela do Guia
 
-
+    const val AVAILABILITY_ROUTE = "availability"
 
     const val HOST_DASHBOARD_ROUTE = "host_dashboard"
     const val HOST_RESERVATION_ROUTE = "host_reservation" // Rota para a tela do Anfitrião

@@ -4,32 +4,30 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.faraway.ui.data.AuthRepository
+import com.example.faraway.ui.data.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import android.util.Log
 import android.net.Uri
-import com.example.faraway.ui.data.User
 
 class ProfileViewModel(private val repository: AuthRepository) : ViewModel() {
 
-    // Estados para os dados do usuário (usados para inicializar a tela de edição)
     private val _user = MutableStateFlow<User?>(null)
     val user: StateFlow<User?> = _user.asStateFlow()
 
-    // Estados derivados para facilitar o uso na tela de edição
     val userDescription = _user.value?.description
-    val userLocation = _user.value?.location // NOVO CAMPO
+    val userLocation = _user.value?.location
     val userInterests = _user.value?.interests
     val userLanguages = _user.value?.languages
-    val profileImageUrl = MutableStateFlow<String?>(null) // Para a URL da foto
+    val profileImageUrl = MutableStateFlow<String?>(null)
 
     init {
         fetchCurrentUserProfile()
     }
 
-    fun fetchCurrentUserProfile() { // Alterado de private para public
+    fun fetchCurrentUserProfile() {
         viewModelScope.launch {
             val uid = repository.currentUser?.uid
             if (uid != null) {
@@ -49,10 +47,9 @@ class ProfileViewModel(private val repository: AuthRepository) : ViewModel() {
 
     fun saveProfile(
         description: String,
-        location: String, // NOVO CAMPO
+        location: String,
         interests: List<String>,
         languages: List<String>,
-        // NOVO: Adiciona a função de callback para notificar o AuthViewModel
         onSuccess: () -> Unit
     ) {
         viewModelScope.launch {
@@ -61,20 +58,18 @@ class ProfileViewModel(private val repository: AuthRepository) : ViewModel() {
 
             if (uid != null && currentUser != null) {
                 try {
-                    // 1. Cria um novo objeto User com os dados atualizados
                     val updatedUser = currentUser.copy(
                         description = description,
-                        location = location, // NOVO CAMPO
+                        location = location,
                         interests = interests,
                         languages = languages,
-                        profileImageUrl = profileImageUrl.value // Mantém a URL da foto atual
+                        profileImageUrl = profileImageUrl.value
                     )
 
-                    // 2. Salva o documento no Firestore
                     repository.updateUserData(uid, updatedUser)
-                    _user.value = updatedUser // Atualiza o estado local
+                    _user.value = updatedUser
                     Log.d("ProfileViewModel", "Perfil atualizado com sucesso no Firestore.")
-                    onSuccess() // Chama o callback de sucesso
+                    onSuccess()
                 } catch (e: Exception) {
                     Log.e("ProfileViewModel", "Erro ao salvar perfil: ${e.message}", e)
                 }
@@ -95,14 +90,11 @@ class ProfileViewModel(private val repository: AuthRepository) : ViewModel() {
 
             if (uid != null && currentUser != null) {
                 try {
-                    // 1. Upload para o Firebase Storage e obtenção da URL
                     val newImageUrl = repository.uploadProfileImage(uid, imageUri)
 
-                    // 2. Atualiza o objeto User local e no Firestore
                     val updatedUser = currentUser.copy(profileImageUrl = newImageUrl)
                     repository.updateUserData(uid, updatedUser)
 
-                    // 3. Atualiza os estados reativos
                     _user.value = updatedUser
                     profileImageUrl.value = newImageUrl
                     Log.d("ProfileViewModel", "Foto de perfil atualizada com sucesso: $newImageUrl")

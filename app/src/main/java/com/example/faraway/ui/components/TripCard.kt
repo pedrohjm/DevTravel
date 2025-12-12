@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.faraway.ui.data.Trip
 import com.example.faraway.ui.data.TripStatus
-import com.example.faraway.ui.theme.AccentColor // Assumindo que AccentColor é a cor de destaque
+import com.example.faraway.ui.theme.AccentColor
 import com.example.faraway.ui.theme.FarAwayTheme
 
 @Composable
@@ -71,10 +71,9 @@ fun TripCard(trip: Trip) {
                     .padding(12.dp),
                 verticalAlignment = Alignment.Top
             ) {
-                // 1. Imagem do Guia (Tamanho Fixo e com corte na borda do card)
                 Box(
                     modifier = Modifier
-                        .size(90.dp) // Tamanho compacto
+                        .size(90.dp)
                         .clip(RoundedCornerShape(12.dp))
                         .background(Color.LightGray)
                 ) {
@@ -84,7 +83,6 @@ fun TripCard(trip: Trip) {
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
                     )
-                    // Ponto de Status (se necessário, como na imagem)
                     Box(
                         modifier = Modifier
                             .size(8.dp)
@@ -188,7 +186,6 @@ fun TripCard(trip: Trip) {
                 }
             }
 
-            // Botão Chat (Canto Inferior Direito)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -217,7 +214,6 @@ fun TripCard(trip: Trip) {
 @Preview(showBackground = true)
 @Composable
 fun TripCardPreview() {
-    // Dados de exemplo para o Preview
     val sampleTrip = Trip(
         partnerName = "Gabriel Pereira",
         location = "Lisboa, Portugal",
@@ -226,7 +222,7 @@ fun TripCardPreview() {
         price = "€25/hora",
         duration = "3 horas",
         status = TripStatus.CONFIRMED,
-        imageUrl = "https://i.imgur.com/8Q9tY2t.png", // URL de imagem de exemplo
+        imageUrl = "https://i.imgur.com/8Q9tY2t.png",
         details = "Detalhes da Viagem"
     )
 

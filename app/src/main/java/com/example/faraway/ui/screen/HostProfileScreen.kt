@@ -157,7 +157,11 @@ fun HostProfileHeader(navController: NavController, userData: User?) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, "Voltar", tint = Color.White)
             }
             Text("Meu Perfil", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-            IconButton(onClick = { /* Navegar para a tela de configurações */ }) {
+            IconButton(onClick = {
+                navController.navigate(Destinations.CONFIG_ROUTE) {
+                    popUpTo(navController.graph.id) { inclusive = false }
+                }
+            }) {
                 Icon(Icons.Filled.Settings, "Configurações", tint = Color.White)
             }
         }

@@ -2,12 +2,15 @@ package com.example.faraway.ui.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -24,6 +27,11 @@ import androidx.navigation.NavController
 import com.example.faraway.ui.data.DocumentItem
 import com.example.faraway.ui.data.DocumentStatus
 
+val DocPrimaryBlue = Color(0xFF192F50)
+val DocAccentColor = Color(0xFF00BCD4)
+val DocBackground = Color(0xFFE0F7FA)
+val DocRed = Color(0xFFD32F2F)
+val DocGreen = Color(0xFF388E3C)
 
 @Composable
 fun DocumentosScreen(navController: NavController? = null) {
@@ -40,14 +48,13 @@ fun DocumentosScreen(navController: NavController? = null) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFE6F7FA))
+            .background(DocBackground)
+            .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
         // Cabeçalho
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Ícone Voltar
@@ -55,175 +62,189 @@ fun DocumentosScreen(navController: NavController? = null) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
                     contentDescription = "Voltar",
-                    tint = Color(0xFF099FC4) // cor azul personalizada
+                    tint = DocPrimaryBlue // cor azul personalizada
                 )
             }
-
-            Spacer(Modifier.width(8.dp))
-
         }
 
+        Spacer(Modifier.width(8.dp))
 
-        Column(
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-
-                .background(Color.White, shape = RoundedCornerShape(18.dp))
-                .padding(18.dp)
-                .fillMaxWidth()
+        // Card Branco Principal
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally // Centraliza tudo
             ) {
-                // Círculo azul
-                Box(
+
+                // --- ÍCONE E TÍTULO
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    // Círculo Azul Claro com Ícone
+                    Box(
+                        modifier = Modifier
+                            .size(56.dp)
+                            .background(Color(0xFFE0F2F1), CircleShape), // Fundo do ícone
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.ContentPaste, // Ícone de Prancheta
+                            contentDescription = null,
+                            tint = Color(0xFF00695C), // Verde/Azul escuro do ícone
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
+
+                    Spacer(Modifier.width(16.dp))
+
+                    Column {
+                        Text(
+                            text = "Documentos Profissionais",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                        Text(
+                            text = "Gerencie seus documentos profissionais",
+                            fontSize = 12.sp,
+                            color = Color.Gray
+                        )
+                    }
+                }
+
+                Spacer(Modifier.height(24.dp))
+
+                // Botão "Adicionar Novo Documento"
+                Button(
+                    onClick = { /* ação */ },
                     modifier = Modifier
-                        .size(48.dp)
-                        .background(Color(0xFF58A8CF), shape = RoundedCornerShape(50)),
-                    contentAlignment = Alignment.Center
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5D9CAB)), // Azul acinzentado da imagem
+                    shape = RoundedCornerShape(25.dp)
                 ) {
-                    // Erica, coloca imagem do icone aqui!!!!
-                    // Icon(Icons.Default.Description, contentDescription = null, tint = Color.White)
+                    Text("Adicionar Novo Documento", fontSize = 16.sp, fontWeight = FontWeight.Medium)
                 }
 
-                Spacer(Modifier.width(12.dp))
+                Spacer(Modifier.height(24.dp))
 
-                // Textos alinhados ao círculo
-                Column {
-                    Text(
-                        text = "Documentos Profissionais",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Color.Black
-                    )
-                    Text(
-                        text = "Gerencie seus documentos profissionais",
-                        fontSize = 14.sp,
-                        color = Color.Gray
-                    )
+                // Seção Obrigatórios
+                Text(
+                    text = "Documentos Obrigatórios",
+                    color = DocRed,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.align(Alignment.Start)
+                )
+
+                Spacer(Modifier.height(8.dp))
+
+                obrigatorios.forEach { doc ->
+                    DocumentCard(item = doc)
+                    Spacer(Modifier.height(8.dp))
                 }
-            }
 
-            Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(16.dp))
 
-            Button(
-                onClick = { /* abrir picker/upload */ },
-                modifier = Modifier
-                    .width(250.dp)
-                    .align(Alignment.CenterHorizontally), // centraliza horizontalmente
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0891B2))
-            ) {
-                Text("Adicionar Novo Documento", fontSize = 14.sp)
-            }
+                // Seção Meus Documentos
+                Text(
+                    text = "Meus Documentos",
+                    color = Color.Black,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.align(Alignment.Start)
+                )
 
+                Spacer(Modifier.height(8.dp))
 
-            Spacer(Modifier.height(18.dp))
-
-            Text("Documentos Obrigatórios", color = Color(0xFFD32F2F), fontSize = 15.sp)
-            Spacer(Modifier.height(8.dp))
-            obrigatorios.forEach {
-                Spacer(Modifier.height(12.dp))
-                DocumentCard(item = it)
-            }
-
-            Spacer(Modifier.height(18.dp))
-
-            Text("Meus Documentos", fontSize = 15.sp)
-            Spacer(Modifier.height(8.dp))
-            meusDocs.forEach {
-                Spacer(Modifier.height(12.dp))
-                DocumentCard(item = it)
+                meusDocs.forEach { doc ->
+                    DocumentCard(item = doc)
+                    Spacer(Modifier.height(8.dp))
+                }
             }
         }
-
-        Spacer(Modifier.height(24.dp))
     }
 }
 
 @Composable
 fun DocumentCard(item: DocumentItem, onDelete: () -> Unit = {}) {
-    val (bgColor, labelColor) = when (item.status) {
-        DocumentStatus.AUSENTE -> Pair(Color(0xFFFFE8E8), Color(0xFFD32F2F))
-        DocumentStatus.REJEITADO -> Pair(Color(0xFFFFE6E6), Color(0xFFD32F2F))
-        DocumentStatus.APROVADO -> Pair(Color(0xFFE8F7EA), Color(0xFF137A3D))
+    // Cores baseadas no status
+    val (bgColor, borderColor, textColor) = when (item.status) {
+        DocumentStatus.AUSENTE -> Triple(Color(0xFFFFEBEE), DocRed, DocRed) // Fundo vermelho claro
+        DocumentStatus.REJEITADO -> Triple(Color(0xFFFFEBEE), DocRed, DocRed)
+        DocumentStatus.APROVADO -> Triple(Color(0xFFE8F5E9), DocGreen, DocGreen) // Fundo verde claro
+    }
+
+    // Status Texto
+    val statusText = when (item.status) {
+        DocumentStatus.AUSENTE -> "Ausente"
+        DocumentStatus.REJEITADO -> "Rejeitado"
+        DocumentStatus.APROVADO -> "Aprovado"
     }
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .defaultMinSize(minHeight = 80.dp) // altura mínima para permitir posicionamento
-            .border(width = 1.dp, color = labelColor, shape = RoundedCornerShape(16.dp))
+            .border(1.dp, borderColor.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
             .background(bgColor, RoundedCornerShape(12.dp))
-            .padding(8.dp)
+            .padding(12.dp)
     ) {
-        // Conteúdo principal centralizado
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.Center),
-        //    horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
+        Column {
+            // Badge de Status (No topo direito)
+            Box(
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .background(Color.White.copy(alpha = 0.7f), RoundedCornerShape(4.dp))
+                    .padding(horizontal = 6.dp, vertical = 2.dp)
+            ) {
+                Text(
+                    text = statusText,
+                    color = textColor,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            // Título do Documento
             Text(
                 text = item.title,
                 fontSize = 16.sp,
-                fontWeight = FontWeight.Normal,
-                color = Color.Black,
-                textAlign = TextAlign.Center
+                fontWeight = FontWeight.Medium,
+                color = Color.Black
             )
 
-            item.reason?.let {
-                Spacer(Modifier.height(6.dp))
+            // Motivo da Rejeição (se houver)
+            if (item.reason != null) {
                 Text(
-                    text = "Motivo: $it",
-                    color = Color(0xFF7A1F1F),
-                    fontSize = 13.sp,
-                    textAlign = TextAlign.Center
-                )
-            }
-
-            if (item.date != null && item.size != null) {
-                Spacer(Modifier.height(6.dp))
-                Text(
-                    text = "${item.date} • ${item.size}",
-                    color = Color.DarkGray,
+                    text = "Motivo: ${item.reason}",
                     fontSize = 12.sp,
-                    textAlign = TextAlign.Center
+                    color = DocRed
+                )
+            }
+
+            // Data e Tamanho (se houver)
+            if (item.date != null) {
+                Text(
+                    text = "${item.date} • ${item.size ?: ""}",
+                    fontSize = 12.sp,
+                    color = Color.Gray
                 )
             }
         }
 
-        // Status no canto superior direito
-        Box(
+        // Ícone de Lixeira (Canto inferior direito)
+        Icon(
+            imageVector = Icons.Default.Delete,
+            contentDescription = "Excluir",
+            tint = Color.Gray,
             modifier = Modifier
-                .align(Alignment.TopEnd)
-                .background(labelColor.copy(alpha = 0.12f), RoundedCornerShape(50))
-                .padding(horizontal = 10.dp, vertical = 4.dp)
-                .width(56.dp) //  largura fixa
-                .height(16.dp), //  altura fixa
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = when (item.status) {
-                    DocumentStatus.AUSENTE -> "Ausente"
-                    DocumentStatus.REJEITADO -> "Rejeitado"
-                    DocumentStatus.APROVADO -> "Aprovado"
-                },
-                color = labelColor,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
-            )
-        }
-
-
-        // Lixeira no canto inferior direito
-        IconButton(
-            onClick = onDelete,
-            modifier = Modifier.align(Alignment.BottomEnd)
-        ) {
-            Icon(Icons.Default.Delete, contentDescription = "Excluir", tint = Color.Gray)
-        }
+                .align(Alignment.BottomEnd)
+                .size(20.dp)
+                .clickable { onDelete() }
+        )
     }
 }
 

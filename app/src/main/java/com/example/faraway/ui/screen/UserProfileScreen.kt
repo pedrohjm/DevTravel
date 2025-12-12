@@ -26,12 +26,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import coil.compose.AsyncImage // Importação do Coil
+import coil.compose.AsyncImage
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.faraway.ui.data.AuthRepository
 import com.example.faraway.ui.viewmodel.ProfileViewModel
 import com.example.faraway.ui.viewmodel.ProfileViewModelFactory
-import androidx.compose.runtime.LaunchedEffect // Importação necessária
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.foundation.lazy.LazyRow
@@ -51,43 +51,11 @@ val UserProfileTextColor = Color(0xFF333333) // Cor de texto padrão
 // PLACEHOLDERS PARA DADOS E NAVEGAÇÃO
 // -----------------------------------------------------------------
 
-data class UserProfileNavItem( // RENOMEADO
+data class UserProfileNavItem(
     val route: String,
     val icon: ImageVector,
     val label: String
 )
-
-// Placeholder para BottomNavBar (Componente)
-@Composable
-fun UserProfileBottomNavBarPlaceholder(navController: NavController) { // RENOMEADO
-    val navItems = listOf(
-        UserProfileNavItem("explore", Icons.Filled.Search, "Explorar"),
-        UserProfileNavItem("trips", Icons.Filled.CalendarToday, "Viagens"),
-        UserProfileNavItem("social", Icons.Filled.People, "Social"),
-        UserProfileNavItem("chat", Icons.Filled.ChatBubbleOutline, "Chat"),
-        UserProfileNavItem("perfil", Icons.Filled.Person, "Perfil")
-    )
-
-    BottomAppBar(
-        containerColor = Color.White,
-        contentPadding = PaddingValues(horizontal = 8.dp)
-    ) {
-        navItems.forEach { item ->
-            NavigationBarItem(
-                selected = item.route == "perfil", // Perfil selecionado
-                onClick = { /* Ação de Navegação */ },
-                icon = {
-                    Icon(
-                        item.icon,
-                        contentDescription = item.label,
-                        tint = if (item.route == "perfil") UserProfileAccentColor else Color.Gray
-                    )
-                },
-                label = { Text(item.label, fontSize = 10.sp) }
-            )
-        }
-    }
-}
 
 // -----------------------------------------------------------------
 // COMPONENTE PRINCIPAL
@@ -214,7 +182,15 @@ fun UserProfileScreen(
                     ) {
                         // Botão "Ver Perfil"
                         Button(
-                            onClick = { navController.navigate("profile") },
+                            onClick = {
+                                val destination = when (user?.role) {
+                                    "Membro" -> "profile"
+                                    "Guia" -> "guide_profile"
+                                    "Anfitrião" -> "host_perfil"
+                                    else -> "social_profile"
+                                }
+                                navController.navigate(destination)
+                            },
                             modifier = Modifier.weight(1f).height(50.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = UserProfilePrimaryBlue),
                             shape = RoundedCornerShape(12.dp)
@@ -249,24 +225,21 @@ fun UserProfileHeader(
     userFullName: String,
     userLocation: String,
     profileImageUrl: String?
-) { // RENOMEADO
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(UserProfilePrimaryBlue)
-            .padding(bottom = 100.dp), // Aumenta o padding inferior para empurrar o conteúdo para baixo
+            .padding(bottom = 100.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Top Bar (REMOVIDO: Ícone de Voltar e Engrenagem)
-        // Apenas um Spacer para manter o padding superior, se necessário
         Spacer(modifier = Modifier.height(16.dp))
     }
 
-    // Profile Picture, Name and Location (Overlay)
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .offset(y = 0.dp), // Remove o offset negativo para que a foto fique no centro vertical do padding
+            .offset(y = 0.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Profile Picture
@@ -296,14 +269,14 @@ fun UserProfileHeader(
 
         // User Info
         Text(
-            text = userFullName, // DADO DO VIEWMODEL
-            color = Color.White, // Alterado para branco para visibilidade no fundo azul
+            text = userFullName,
+            color = Color.White,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold
         )
         Text(
-            text = userLocation, // DADO DO VIEWMODEL
-            color = Color.White.copy(alpha = 0.7f), // Alterado para branco suave para visibilidade
+            text = userLocation,
+            color = Color.White.copy(alpha = 0.7f),
             fontSize = 14.sp
         )
     }
@@ -314,18 +287,18 @@ fun UserProfileHeader(
 // -----------------------------------------------------------------
 
 @Composable
-fun UserProfileDescriptionBox(description: String) { // NOVO COMPONENTE
+fun UserProfileDescriptionBox(description: String) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 24.dp)
-            .offset(y = (-20).dp), // Ajuste de posição após o header
+            .offset(y = (-20).dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = UserProfileDescriptionBackground),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Text(
-            text = description, // DADO DO VIEWMODEL
+            text = description,
             modifier = Modifier.padding(16.dp),
             color = UserProfileTextColor,
             fontSize = 14.sp,
@@ -346,10 +319,10 @@ fun UserProfileInterestChips(interests: List<String>) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 24.dp)
-            .offset(y = (-10).dp), // Ajuste de posição
+            .offset(y = (-10).dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Exibe todos os chips em LazyRow para melhor manuseio de muitos itens
+
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(horizontal = 0.dp)
@@ -362,7 +335,7 @@ fun UserProfileInterestChips(interests: List<String>) {
 }
 
 @Composable
-fun UserProfileInterestChip(label: String) { // NOVO COMPONENTE
+fun UserProfileInterestChip(label: String) {
     Text(
         text = label,
         color = UserProfileTextColor,

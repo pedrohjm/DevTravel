@@ -45,4 +45,5 @@ object Destinations {
     const val DocumentosScreen_Route = "documentosScreen_Route"
 
     const val Conexao_Route = "conexao_route"
+
 }

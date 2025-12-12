@@ -40,6 +40,7 @@ import com.example.faraway.ui.screen.SignUpScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.navArgument
 import com.example.faraway.ui.data.AuthRepository
+import com.example.faraway.ui.screen.ChatFriendsScreen
 import com.example.faraway.ui.screen.ConexoesScreen
 import com.example.faraway.ui.screen.DocumentosScreen
 import com.example.faraway.ui.screen.EditProfileScreen // Importação da sua versão (HEAD)
@@ -250,6 +251,9 @@ fun AppNavigation() {
             ConexoesScreen(navController = navController)
         }
 
+        composable(Destinations.SOCIAL_CHAT_ROUTE){
+            ChatFriendsScreen(navController = navController)
+        }
 
 
         composable(

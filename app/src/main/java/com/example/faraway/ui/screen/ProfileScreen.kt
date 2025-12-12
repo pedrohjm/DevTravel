@@ -314,17 +314,19 @@ fun ProfileSettings(navController: NavController, onLogout: () -> Unit) {
         Text("Configurações", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextColor, modifier = Modifier.padding(horizontal = 8.dp))
         Spacer(modifier = Modifier.height(12.dp))
 
-        /*
+
         SettingsItem(Icons.Filled.People, "Minhas Conexões", AccentColor, LightBlue) {
-            // navController.navigate(Destinations.MY_CONNECTIONS_ROUTE)
+            navController.navigate(Destinations.Conexao_Route)
         }
-        */
+
         Spacer(modifier = Modifier.height(12.dp))
 
-        /*
-        SettingsItem(Icons.Filled.FavoriteBorder, "Interesses e Hobbies", AccentColor, LightBlue) { /* Ação */ }
+
+        SettingsItem(Icons.Filled.FavoriteBorder, "Documentos Profissionais", AccentColor, LightBlue) {
+            navController.navigate(Destinations.DocumentosScreen_Route)
+        }
         Spacer(modifier = Modifier.height(24.dp))
-        */
+
         SettingsItem(Icons.AutoMirrored.Filled.ExitToApp, "Sair da Conta", LogoutRed, LogoutLightRed, onLogout)
     }
 }
@@ -355,8 +357,6 @@ fun SettingsItem(icon: ImageVector, label: String, iconColor: Color, backgroundC
 @Composable
 fun ProfileScreenPreview() {
     FarAwayTheme {
-        // Passamos null para simular o estado inicial ou de carregamento
-        // Os textos aparecerão como "--------"
         ProfileContent(
             navController = rememberNavController(),
             userData = null,

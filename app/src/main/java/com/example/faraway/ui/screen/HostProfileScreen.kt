@@ -84,16 +84,32 @@ fun HostProfileContent(
                 contentPadding = PaddingValues(horizontal = 8.dp)
             ) {
                 hostNavItems.forEach { item ->
+                    val selected = item.route == Destinations.HOST_PERFIL_ROUTE
+
                     NavigationBarItem(
-                        selected = item.route == Destinations.HOST_PERFIL_ROUTE,
+                        selected = selected,
                         onClick = {
                             navController.navigate(item.route) {
                                 launchSingleTop = true
                                 restoreState = true
                             }
                         },
-                        icon = { Icon(item.icon, contentDescription = item.label) },
-                        label = { Text(item.label, fontSize = 10.sp) }
+                        icon = {
+                            Icon(
+                                item.icon,
+                                contentDescription = item.label
+                            )
+                        },
+                        label = {
+                            Text(item.label, fontSize = 10.sp)
+                        },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = HostAccentColor,      // azul (selecionado)
+                            selectedTextColor = HostAccentColor,      // azul (selecionado)
+                            unselectedIconColor = Color.Gray,         // cinza (não selecionado)
+                            unselectedTextColor = Color.Gray,         // cinza (não selecionado)
+                            indicatorColor = Color.Transparent
+                        )
                     )
                 }
             }

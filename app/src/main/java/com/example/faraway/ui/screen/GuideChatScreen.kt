@@ -65,17 +65,20 @@ data class GuideChatNavItem( // RENOMEADO
 
 @Composable
 fun GuideChatBottomNavBarPlaceholder(
-        navController: NavController,
-        navItems: List<NavItem>,
-        startRoute: String
-    ) {
+    navController: NavController,
+    navItems: List<NavItem>,
+    startRoute: String
+) {
     BottomAppBar(
         containerColor = GuideChatCardBackground,
         contentPadding = PaddingValues(horizontal = 8.dp)
     ) {
         navItems.forEach { item ->
+
+            val isSelected = item.route == Destinations.GUIDE_CHAT_ROUTE
+
             NavigationBarItem(
-                selected = item.route == "chat", // Chat selecionado
+                selected = isSelected,
                 onClick = {
                     navController.navigate(item.route) {
                         popUpTo(startRoute) { saveState = true }
@@ -86,11 +89,19 @@ fun GuideChatBottomNavBarPlaceholder(
                 icon = {
                     Icon(
                         item.icon,
-                        contentDescription = item.label,
-                        tint = if (item.route == "chat") GuideChatAccentColor else Color.Gray
+                        contentDescription = item.label
                     )
                 },
-                label = { Text(item.label, fontSize = 10.sp) }
+                label = {
+                    Text(item.label, fontSize = 10.sp)
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = GuideChatAccentColor,   // azul
+                    selectedTextColor = GuideChatAccentColor,   // azul
+                    unselectedIconColor = Color.Gray,           // cinza
+                    unselectedTextColor = Color.Gray,           // cinza
+                    indicatorColor = Color.Transparent          // sem fundo atrás
+                )
             )
         }
     }

@@ -77,31 +77,80 @@ fun MyReservationScreen(navController: NavController) {
         bottomBar = {
             BottomNavBar(navController, hostNavItems, Destinations.HOST_DASHBOARD_ROUTE)
             NavigationBar(containerColor = Color.White) {
+
+                // EXPLORAR
                 NavigationBarItem(
                     selected = false,
                     onClick = { navController.navigate(Destinations.HOST_DASHBOARD_ROUTE) { launchSingleTop = true } },
-                    icon = { Icon(Icons.Default.Search, "Explorar") },
-                    label = { Text("Explorar") }
+                    icon = {
+                        Icon(
+                            Icons.Default.Search,
+                            "Explorar",
+                            tint = Color.Gray
+                        )
+                    },
+                    label = { Text("Explorar", color = Color.Gray) },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = Color(0xFF00BCD4),
+                        selectedTextColor = Color(0xFF00BCD4),
+                        unselectedIconColor = Color.Gray,
+                        unselectedTextColor = Color.Gray,
+                        indicatorColor = Color.Transparent
+                    )
                 )
+
+                // 🔵 RESERVAS (SELECIONADO)
                 NavigationBarItem(
                     selected = true,
-                    onClick = { /* Já estamos aqui */ },
-                    icon = { Icon(Icons.Default.DateRange, "Reservas") },
-                    label = { Text("Reservas") }
+                    onClick = { /* já está aqui */ },
+                    icon = {
+                        Icon(
+                            Icons.Default.DateRange,
+                            "Reservas",
+                            tint = Color(0xFF00BCD4)   // 🔵 azul
+                        )
+                    },
+                    label = {
+                        Text("Reservas", color = Color(0xFF00BCD4))   // 🔵 azul
+                    },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = Color(0xFF00BCD4),
+                        selectedTextColor = Color(0xFF00BCD4),
+                        unselectedIconColor = Color.Gray,
+                        unselectedTextColor = Color.Gray,
+                        indicatorColor = Color.Transparent
+                    )
                 )
+
+                // CHAT
                 NavigationBarItem(
                     selected = false,
                     onClick = { navController.navigate(Destinations.HOST_CHAT_ROUTE) { launchSingleTop = true } },
-                    icon = { Icon(Icons.AutoMirrored.Filled.Chat, "Chat") },
-                    label = { Text("Chat") }
+                    icon = { Icon(Icons.AutoMirrored.Filled.Chat, "Chat", tint = Color.Gray) },
+                    label = { Text("Chat", color = Color.Gray) },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = Color(0xFF00BCD4),
+                        selectedTextColor = Color(0xFF00BCD4),
+                        unselectedIconColor = Color.Gray,
+                        unselectedTextColor = Color.Gray,
+                        indicatorColor = Color.Transparent
+                    )
                 )
+
+                // PERFIL
                 NavigationBarItem(
                     selected = false,
                     onClick = { navController.navigate(Destinations.HOST_PERFIL_ROUTE) { launchSingleTop = true } },
-                    icon = { Icon(Icons.Default.Person, "Perfil") },
-                    label = { Text("Perfil") }
+                    icon = { Icon(Icons.Default.Person, "Perfil", tint = Color.Gray) },
+                    label = { Text("Perfil", color = Color.Gray) },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = Color(0xFF00BCD4),
+                        selectedTextColor = Color(0xFF00BCD4),
+                        unselectedIconColor = Color.Gray,
+                        unselectedTextColor = Color.Gray),
                 )
             }
+
         }
     ) { padding ->
         Column(

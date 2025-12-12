@@ -64,8 +64,10 @@ fun FriendProfileBottomNavBarPlaceholder(
         contentPadding = PaddingValues(horizontal = 8.dp)
     ) {
         navItems.forEach { item ->
+            val selected = item.route == Destinations.SOCIAL_PROFILE_ROUTE
+
             NavigationBarItem(
-                selected = item.route == "profile",
+                selected = selected,
                 onClick = {
                     navController.navigate(item.route) {
                         popUpTo(startRoute) { saveState = true }
@@ -74,7 +76,14 @@ fun FriendProfileBottomNavBarPlaceholder(
                     }
                 },
                 icon = { Icon(item.icon, contentDescription = item.label) },
-                label = { Text(item.label, fontSize = 10.sp) }
+                label = { Text(item.label, fontSize = 10.sp) },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = FriendProfileAccentColor,     // Ícone azul
+                    selectedTextColor = FriendProfileAccentColor,     // Texto azul
+                    unselectedIconColor = Color.Gray,                 // Ícone cinza
+                    unselectedTextColor = Color.Gray,                 // Texto cinza
+                    indicatorColor = Color.Transparent                // Sem destaque atrás
+                )
             )
         }
     }

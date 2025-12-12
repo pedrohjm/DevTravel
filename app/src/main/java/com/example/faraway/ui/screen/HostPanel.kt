@@ -101,35 +101,84 @@ fun PainelDoAnfitriaoContent(
             )
         },
         bottomBar = {
-            BottomNavBar(
-                navController = navController,
-                navItems = travelerNavItems,
-                startRoute = Destinations.HOST_DASHBOARD_ROUTE
-            )
-            NavigationBar(containerColor = Color.White){
+
+            val selectedRoute = remember { mutableStateOf(Destinations.HOST_DASHBOARD_ROUTE) }
+
+            NavigationBar(
+                containerColor = Color.White
+            ) {
+
                 NavigationBarItem(
-                    icon = { Icon(Icons.Default.Search, contentDescription = "Explorar") },
+                    selected = selectedRoute.value == Destinations.HOST_DASHBOARD_ROUTE,
+                    onClick = {
+                        selectedRoute.value = Destinations.HOST_DASHBOARD_ROUTE
+                        navController.navigate(Destinations.GUIDE_DASHBOARD_ROUTE) { launchSingleTop = true }
+                    },
+                    icon = {
+                        Icon(
+                            Icons.Default.Search,
+                            contentDescription = "Explorar"
+                        )
+                    },
                     label = { Text("Explorar") },
-                    selected = selectedItem.value == "Explorar",
-                    onClick = { navController.navigate(Destinations.GUIDE_DASHBOARD_ROUTE) { launchSingleTop = true } }
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = Color(0xFF00BCD4),   // 🔵 azul
+                        selectedTextColor = Color(0xFF00BCD4),   // 🔵 azul
+                        unselectedIconColor = Color.Gray,
+                        unselectedTextColor = Color.Gray,
+                        indicatorColor = Color.Transparent
+                    )
                 )
+
                 NavigationBarItem(
+                    selected = selectedRoute.value == Destinations.HOST_RESERVATION_ROUTE,
+                    onClick = {
+                        selectedRoute.value = Destinations.HOST_RESERVATION_ROUTE
+                        navController.navigate(Destinations.HOST_RESERVATION_ROUTE) { launchSingleTop = true }
+                    },
                     icon = { Icon(Icons.Default.DateRange, contentDescription = "Reservas") },
                     label = { Text("Reservas") },
-                    selected = selectedItem.value == "Reservas",
-                    onClick = { navController.navigate(Destinations.HOST_RESERVATION_ROUTE) { launchSingleTop = true } }
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = Color(0xFF00BCD4),
+                        selectedTextColor = Color(0xFF00BCD4),
+                        unselectedIconColor = Color.Gray,
+                        unselectedTextColor = Color.Gray,
+                        indicatorColor = Color.Transparent
+                    )
                 )
+
                 NavigationBarItem(
+                    selected = selectedRoute.value == Destinations.HOST_CHAT_ROUTE,
+                    onClick = {
+                        selectedRoute.value = Destinations.HOST_CHAT_ROUTE
+                        navController.navigate(Destinations.HOST_CHAT_ROUTE) { launchSingleTop = true }
+                    },
                     icon = { Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = "Chat") },
                     label = { Text("Chat") },
-                    selected = selectedItem.value == "Chat",
-                    onClick = { navController.navigate(Destinations.HOST_CHAT_ROUTE) { launchSingleTop = true } }
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = Color(0xFF00BCD4),
+                        selectedTextColor = Color(0xFF00BCD4),
+                        unselectedIconColor = Color.Gray,
+                        unselectedTextColor = Color.Gray,
+                        indicatorColor = Color.Transparent
+                    )
                 )
+
                 NavigationBarItem(
+                    selected = selectedRoute.value == Destinations.HOST_PERFIL_ROUTE,
+                    onClick = {
+                        selectedRoute.value = Destinations.HOST_PERFIL_ROUTE
+                        navController.navigate(Destinations.HOST_PERFIL_ROUTE) { launchSingleTop = true }
+                    },
                     icon = { Icon(Icons.Default.Person, contentDescription = "Perfil") },
                     label = { Text("Perfil") },
-                    selected = selectedItem.value == "Perfil",
-                    onClick = { navController.navigate(Destinations.HOST_PERFIL_ROUTE) { launchSingleTop = true } }
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = Color(0xFF00BCD4),
+                        selectedTextColor = Color(0xFF00BCD4),
+                        unselectedIconColor = Color.Gray,
+                        unselectedTextColor = Color.Gray,
+                        indicatorColor = Color.Transparent
+                    )
                 )
             }
         }

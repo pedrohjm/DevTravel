@@ -4,13 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.faraway.ui.data.AuthRepository
-import com.example.faraway.ui.data.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import android.util.Log
 import android.net.Uri
+import com.example.faraway.ui.data.User
 
 class ProfileViewModel(private val repository: AuthRepository) : ViewModel() {
 

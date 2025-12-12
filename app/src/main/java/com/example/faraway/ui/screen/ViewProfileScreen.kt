@@ -30,7 +30,6 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.faraway.ui.data.AuthRepository
-import com.example.faraway.ui.data.User
 import com.example.faraway.ui.theme.AccentColor
 import com.example.faraway.ui.theme.PrimaryDark
 import com.example.faraway.ui.viewmodel.ViewProfileViewModel
@@ -42,6 +41,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.faraway.ui.data.User
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)

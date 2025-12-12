@@ -37,6 +37,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 
+// -----------------------------------------------------------------
+// CORES AUXILIARES (Prefixadas com UserProfile para evitar conflito)
+// -----------------------------------------------------------------
 val UserProfilePrimaryBlue = Color(0xFF192F50) // Azul escuro do cabeçalho
 val UserProfileAccentColor = Color(0xFF00BCD4) // Cor de destaque (Ciano/Turquesa)
 val UserProfileGradientStart = Color(0xFF42A5F5) // Azul claro para o gradiente do botão
@@ -44,6 +47,9 @@ val UserProfileGradientEnd = Color(0xFF1E88E5) // Azul escuro para o gradiente d
 val UserProfileDescriptionBackground = Color(0xFFF5F5F5) // Fundo da caixa de descrição
 val UserProfileTextColor = Color(0xFF333333) // Cor de texto padrão
 
+// -----------------------------------------------------------------
+// PLACEHOLDERS PARA DADOS E NAVEGAÇÃO
+// -----------------------------------------------------------------
 
 data class UserProfileNavItem( // RENOMEADO
     val route: String,
@@ -83,6 +89,9 @@ fun UserProfileBottomNavBarPlaceholder(navController: NavController) { // RENOME
     }
 }
 
+// -----------------------------------------------------------------
+// COMPONENTE PRINCIPAL
+// -----------------------------------------------------------------
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserProfileScreen(
@@ -230,6 +239,9 @@ fun UserProfileScreen(
 }
 
 
+// -----------------------------------------------------------------
+// 1. HEADER
+// -----------------------------------------------------------------
 
 @Composable
 fun UserProfileHeader(
@@ -250,6 +262,7 @@ fun UserProfileHeader(
         Spacer(modifier = Modifier.height(16.dp))
     }
 
+    // Profile Picture, Name and Location (Overlay)
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -281,22 +294,24 @@ fun UserProfileHeader(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-
+        // User Info
         Text(
-            text = userFullName,
-            color = Color.White,
+            text = userFullName, // DADO DO VIEWMODEL
+            color = Color.White, // Alterado para branco para visibilidade no fundo azul
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold
         )
         Text(
-            text = userLocation,
+            text = userLocation, // DADO DO VIEWMODEL
             color = Color.White.copy(alpha = 0.7f), // Alterado para branco suave para visibilidade
             fontSize = 14.sp
         )
     }
 }
 
-
+// -----------------------------------------------------------------
+// 2. DESCRIPTION BOX
+// -----------------------------------------------------------------
 
 @Composable
 fun UserProfileDescriptionBox(description: String) { // NOVO COMPONENTE
@@ -319,6 +334,9 @@ fun UserProfileDescriptionBox(description: String) { // NOVO COMPONENTE
     }
 }
 
+// -----------------------------------------------------------------
+// 3. INTEREST CHIPS
+// -----------------------------------------------------------------
 
 @Composable
 fun UserProfileInterestChips(interests: List<String>) {
@@ -358,7 +376,9 @@ fun UserProfileInterestChip(label: String) { // NOVO COMPONENTE
     )
 }
 
-
+// -----------------------------------------------------------------
+// 4. PROFILE ACTION BUTTON
+// -----------------------------------------------------------------
 
 @Composable
 fun ProfileActionButton(
@@ -395,7 +415,9 @@ fun ProfileActionButton(
     }
 }
 
-
+// -----------------------------------------------------------------
+// PREVIEW
+// -----------------------------------------------------------------
 @Preview(showBackground = true)
 @Composable
 fun UserProfileScreenPreview() {

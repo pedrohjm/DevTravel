@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.faraway.Destinations
@@ -28,28 +29,38 @@ import com.example.faraway.ui.components.TripCard
 import com.example.faraway.ui.theme.AccentColor
 import com.example.faraway.ui.theme.FarAwayTheme
 import com.example.faraway.ui.theme.PrimaryDark
+import com.example.faraway.ui.viewmodel.TripViewModel
+import com.example.faraway.utils.Resource
 
 @Composable
-fun TripsScreen(navController: NavController) {
+fun TripsScreen(
+    navController: NavController,
+    viewModel: TripViewModel = viewModel() // Injeção do ViewModel
+) {
     val tabs = listOf("Próximas", "Concluídas", "Pendentes", "Canceladas")
     var selectedTabIndex by remember { mutableIntStateOf(0) }
 
-    // Dados de exemplo (adicione mais para testar a rolagem)
-    val allTrips = remember {
-        listOf(
-            Trip("Gabriel Pereira", "Lisboa, Portugal", "05 Out 2025", "10:00", "€25/hora", "3 horas", TripStatus.CONFIRMED, "url_gabriel"),
-            Trip("Fátima Alves", "Porto, Portugal", "10 Out 2025", "Check-in: 14:00", "€45/diária", "3 noites", TripStatus.CONFIRMED, "url_fatima"),
-            Trip("Lucas Martins", "Faro, Portugal", "15 Out 2025", "18:00", "Troca Cultural", "Café", TripStatus.PENDING, "url_lucas", details = "Troca Cultural • Café"),
-            // ... mais itens
-        )
+    // Observa o estado das viagens do ViewModel
+    val tripsResource by viewModel.trips.collectAsState()
+
+    // Extrai a lista de viagens se o estado for Success
+    val allTrips = remember(tripsResource) {
+        if (tripsResource is Resource.Success) {
+            (tripsResource as Resource.Success<List<Trip>>).data ?: emptyList()
+        } else {
+            emptyList()
+        }
     }
 
-    val filteredTrips = when (tabs[selectedTabIndex]) {
-        "Próximas" -> allTrips.filter { it.status == TripStatus.CONFIRMED || it.status == TripStatus.PENDING }
-        "Concluídas" -> allTrips.filter { it.status == TripStatus.COMPLETED }
-        "Pendentes" -> allTrips.filter { it.status == TripStatus.PENDING }
-        "Canceladas" -> allTrips.filter { it.status == TripStatus.CANCELED }
-        else -> allTrips
+    // Aplica o filtro na lista de viagens
+    val filteredTrips = remember(allTrips, selectedTabIndex) {
+        when (tabs[selectedTabIndex]) {
+            "Próximas" -> allTrips.filter { it.status == TripStatus.CONFIRMED || it.status == TripStatus.PENDING }
+            "Concluídas" -> allTrips.filter { it.status == TripStatus.COMPLETED }
+            "Pendentes" -> allTrips.filter { it.status == TripStatus.PENDING }
+            "Canceladas" -> allTrips.filter { it.status == TripStatus.CANCELED }
+            else -> allTrips
+        }
     }
 
     Scaffold(
@@ -57,7 +68,7 @@ fun TripsScreen(navController: NavController) {
             BottomNavBar(
                 navController = navController,
                 navItems = travelerNavItems,
-                startRoute = Destinations.EXPLORE_ROUTE // Rota inicial do NavHost
+                startRoute = Destinations.EXPLORE_ROUTE
             )
         }
     ) { paddingValues ->
@@ -80,7 +91,7 @@ fun TripsScreen(navController: NavController) {
                     modifier = Modifier
                         .size(24.dp)
                         .clickable { navController.popBackStack() },
-                        tint = Color.White
+                    tint = Color.White
 
                 )
                 Spacer(Modifier.width(16.dp))
@@ -103,8 +114,8 @@ fun TripsScreen(navController: NavController) {
                         modifier = Modifier
                             .tabIndicatorOffset(tabPositions[selectedTabIndex])
                             .fillMaxWidth()
-                            .height(2.dp) // Altura da linha
-                            .background(color = AccentColor) // Cor da linha
+                            .height(2.dp)
+                            .background(color = AccentColor)
                     )
                 }
             ) {
@@ -123,15 +134,34 @@ fun TripsScreen(navController: NavController) {
                 }
             }
 
-            // 3. Lista de Viagens Filtradas
-            LazyColumn(
+            // 3. Conteúdo (Loading, Error ou Lista)
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxSize()
                     .padding(horizontal = 16.dp),
-                contentPadding = PaddingValues(top = 8.dp, bottom = 16.dp)
+                contentAlignment = Alignment.Center
             ) {
-                items(filteredTrips) { trip ->
-                    TripCard(trip = trip)
+                when (tripsResource) {
+                    is Resource.Loading -> {
+                        CircularProgressIndicator()
+                    }
+                    is Resource.Error -> {
+                        Text("Erro ao carregar viagens: ${tripsResource.message}", color = Color.Red)
+                    }
+                    is Resource.Success -> {
+                        if (filteredTrips.isEmpty()) {
+                            Text("Nenhuma viagem encontrada nesta categoria.", color = Color.Gray)
+                        } else {
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize(),
+                                contentPadding = PaddingValues(top = 8.dp, bottom = 16.dp)
+                            ) {
+                                items(filteredTrips) { trip ->
+                                    TripCard(trip = trip)
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

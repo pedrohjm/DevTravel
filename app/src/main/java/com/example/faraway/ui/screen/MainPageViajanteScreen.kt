@@ -51,11 +51,11 @@ import com.example.faraway.ui.theme.TagColor
 import androidx.navigation.NavController
 import com.example.faraway.Destinations
 import com.example.faraway.travelerNavItems
-import com.example.faraway.ui.data.User
 import com.example.faraway.ui.viewmodel.AuthViewModel
 import com.example.faraway.ui.viewmodel.MainViewModel
 import coil.compose.AsyncImage
 import androidx.compose.ui.layout.ContentScale
+import com.example.faraway.ui.data.User
 
 @Composable
 fun GuideCard(user: User, navController: NavController) {

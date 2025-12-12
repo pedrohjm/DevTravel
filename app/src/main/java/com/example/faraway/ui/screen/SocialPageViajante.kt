@@ -31,12 +31,12 @@ import androidx.navigation.compose.rememberNavController
 import com.example.faraway.Destinations
 import com.example.faraway.travelerNavItems
 import com.example.faraway.ui.data.AuthRepository
-import com.example.faraway.ui.data.User
 import com.example.faraway.ui.theme.PrimaryDark
 import coil.compose.AsyncImage // Importação para exibir imagens da web
 import com.example.faraway.ui.viewmodel.MainViewModel
 import coil.compose.AsyncImage // Importação para exibir imagens da web
 import androidx.compose.ui.layout.ContentScale // Importação para ContentScaleFactory
+import com.example.faraway.ui.data.User
 import com.example.faraway.ui.viewmodel.MainViewModelFactory
 
 
